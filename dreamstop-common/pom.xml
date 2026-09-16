@@ -1,0 +1,5 @@
+<dependency>
+    <groupId>com.dreamstop</groupId>
+    <artifactId>dreamstop-common</artifactId>
+    <version>0.1</version>
+</dependency>
