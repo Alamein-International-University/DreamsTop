@@ -141,13 +141,13 @@ Please read our detailed, beginner-friendly guide:
 | Member Name | Role & Responsibilities | GitHub Username |
 | :--- | :--- | :--- |
 | **Mohamed ElKady** | Architecture, Maven Setup, Common Module & Server | [@kady-x](https://github.com/kady-x) |
-| **Adham Hatem** | Client UI / JavaFX Views & Controllers | [@Adham-Hatem](https://github.com/Adham-Hatem) |
-| **Omar ElSharkawy** | to be selected | [@omarehab544](https://github.com/omarehab544) |
-| **Omar Hany** | to be selected | [@ohmarha5554-spec](https://github.com/ohmarha5554-spec) |
-| **Yousef Gamal** | to be selected | [@tarnished693-max](https://github.com/tarnished693-max) |
-| **Abdullah Salah** | to be selected | [@AbdullahSalah3](https://github.com/AbdullahSalah3) |
+| **Adham Hatem** | Client UI / JavaFX Views & Controllers [1,10] | [@Adham-Hatem](https://github.com/Adham-Hatem) |
+| **Omar ElSharkawy** | Database Design, DAO Layer & Schema | [@omarehab544](https://github.com/omarehab544) |
+| **Omar Hany** | Database Design, Manipulate the Database [11,12] | [@ohmarha5554-spec](https://github.com/ohmarha5554-spec) |
+| **Yousef Gamal** | Client UI / JavaFX Views [2-6] | [@tarnished693-max](https://github.com/tarnished693-max) |
+| **Abdullah Salah** | Handles the clients connections & requests [13,14] | [@AbdullahSalah3](https://github.com/AbdullahSalah3) |
 
 ---
 
 ## 📄 License
-This project is developed for educational purposes under the ITI Java Desktop Applications Track and licensed under the [MIT License](LICENSE).
+This project is developed for educational purposes under the ITI Java Desktop Applications Track and licensed under the [GNU General Public License version 3 (GPLv3)](LICENSE).
