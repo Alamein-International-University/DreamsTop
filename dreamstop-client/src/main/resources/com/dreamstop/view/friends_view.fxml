@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0" style="-fx-background-color: #F8FAFC;" stylesheets="@../css/styles.css"
+    xmlns="http://javafx.com/javafx/13"
+    xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.FriendsController">
+    <padding>
+        <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
+    </padding>
+
+    <!-- Header Section -->
+    <VBox spacing="4.0">
+        <children>
+            <Label styleClass="view-title" text="Friends &amp; Social" />
+            <Label styleClass="view-subtitle" text="Connect with friends, manage requests, and view their dream wishlists" />
+        </children>
+    </VBox>
+
+    <!-- Tab Pane for Tasks 2, 3, 5 -->
+    <TabPane fx:id="friendsTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <tabs>
+            <!-- TAB 1: My Friends (Task 5 & Task 2 Remove) -->
+            <Tab fx:id="tabFriends" text="👥  My Friends">
+                <content>
+                    <VBox spacing="14.0">
+                        <padding>
+                            <Insets bottom="10.0" left="4.0" right="4.0" top="16.0" />
+                        </padding>
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <children>
+                                <TextField fx:id="txtSearchFriends" prefWidth="320.0" promptText="🔍  Filter friends by name..." styleClass="text-field-modern" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="lblFriendsCount" style="-fx-text-fill: #64748B; -fx-font-weight: bold;" text="0 friends" />
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="friendsContainer" spacing="12.0">
+                                    <padding>
+                                        <Insets bottom="10.0" right="8.0" top="4.0" />
+                                    </padding>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <!-- TAB 2: Friend Requests (Task 3: Accept / Decline) -->
+            <Tab fx:id="tabRequests" text="📬  Friend Requests">
+                <content>
+                    <VBox spacing="18.0">
+                        <padding>
+                            <Insets bottom="10.0" left="4.0" right="4.0" top="16.0" />
+                        </padding>
+
+                        <!-- Incoming Section -->
+                        <VBox spacing="8.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="Incoming Requests" />
+                                        <Label fx:id="lblIncomingCount" styleClass="badge" text="0 pending" />
+                                    </children>
+                                </HBox>
+                                <VBox fx:id="incomingContainer" spacing="10.0" />
+                            </children>
+                        </VBox>
+
+                        <!-- Sent Section -->
+                        <VBox spacing="8.0">
+                            <children>
+                                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="Sent Requests (Pending Approval)" />
+                                <VBox fx:id="sentContainer" spacing="10.0" />
+                            </children>
+                        </VBox>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <!-- TAB 3: Find New Friends (Task 2: Add Friend) -->
+            <Tab fx:id="tabFindFriends" text="🔍  Find New Friends">
+                <content>
+                    <VBox spacing="14.0">
+                        <padding>
+                            <Insets bottom="10.0" left="4.0" right="4.0" top="16.0" />
+                        </padding>
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <children>
+                                <TextField fx:id="txtSearchNewUsers" prefWidth="380.0" promptText="🔍  Search users by name, username or email..." styleClass="text-field-modern" />
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="discoverContainer" spacing="12.0">
+                                    <padding>
+                                        <Insets bottom="10.0" right="8.0" top="4.0" />
+                                    </padding>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </VBox>
+                </content>
+            </Tab>
+        </tabs>
+    </TabPane>
+</VBox>
