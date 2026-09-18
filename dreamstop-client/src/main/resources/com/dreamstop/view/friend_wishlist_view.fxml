@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="20.0" style="-fx-background-color: #F8FAFC;" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.FriendWishlistController">
+    <padding>
+        <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
+    </padding>
+
+    <!-- Navigation Header -->
+    <HBox alignment="CENTER_LEFT" spacing="12.0">
+        <children>
+            <Button fx:id="btnBackToFriends" onAction="#handleBack" styleClass="btn-secondary" text="←  Back to Friends" />
+        </children>
+    </HBox>
+
+    <!-- Friend Profile & Wishlist Banner -->
+    <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="card" style="-fx-padding: 20px 24px; -fx-background-color: #FFFFFF;">
+        <children>
+            <StackPane fx:id="friendAvatarPane" styleClass="avatar-circle" style="-fx-pref-width: 54px; -fx-pref-height: 54px;">
+                <children>
+                    <Label fx:id="lblFriendInitials" styleClass="avatar-text" style="-fx-font-size: 18px;" text="MK" />
+                </children>
+            </StackPane>
+            <VBox spacing="4.0">
+                <children>
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <children>
+                            <Label fx:id="lblFriendName" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="Mohamed ElKady" />
+                            <Label fx:id="lblFriendUsername" style="-fx-text-fill: #6366F1; -fx-font-weight: bold;" text="\@kady_x" />
+                        </children>
+                    </HBox>
+                    <Label fx:id="lblFriendBio" style="-fx-text-fill: #64748B; -fx-font-size: 13px;" text="Backend Architect &amp; System Engineer" />
+                </children>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <VBox alignment="CENTER_RIGHT" spacing="4.0">
+                <children>
+                    <Label fx:id="lblFriendItemsCount" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="2 Items on Wishlist" />
+                    <Label fx:id="lblFriendFundingSummary" style="-fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 12px;" text="9,100 / 15,800 EGP Funded (57%)" />
+                </children>
+            </VBox>
+        </children>
+    </HBox>
+
+    <!-- Friend's Wishlist Items Section -->
+    <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+        <children>
+            <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="Wishlist Items &amp; Funding Progress" />
+            <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <content>
+                    <VBox fx:id="friendItemsContainer" spacing="14.0">
+                        <padding>
+                            <Insets bottom="10.0" right="8.0" top="4.0" />
+                        </padding>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </children>
+    </VBox>
+</VBox>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="rootStackPane" prefHeight="720.0" prefWidth="1080.0" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.MainDashboardController">
+    <children>
+        <BorderPane>
+            <!-- Left Sidebar Navigation -->
+            <left>
+                <VBox styleClass="sidebar" spacing="16.0">
+                    <children>
+                        <!-- App Brand Header -->
+                        <VBox spacing="4.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                    <children>
+                                        <Label text="🎁" style="-fx-font-size: 26px;" />
+                                        <Label text="DreamsTop" styleClass="brand-title" />
+                                    </children>
+                                </HBox>
+                                <Label text="i-Wish Desktop Platform" styleClass="brand-subtitle" />
+                            </children>
+                            <padding>
+                                <Insets bottom="12.0" left="4.0" right="4.0" top="4.0" />
+                            </padding>
+                        </VBox>
+
+                        <!-- Nav Buttons -->
+                        <VBox spacing="8.0">
+                            <children>
+                                <Button fx:id="btnNavWishlist" maxWidth="Infinity" onAction="#handleNavWishlist" styleClass="nav-button-active" text="🎁  My Wishlist" />
+                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                    <children>
+                                        <Button fx:id="btnNavFriends" maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#handleNavFriends" styleClass="nav-button" text="👥  Friends &amp; Social" />
+                                        <Label fx:id="lblRequestsBadge" styleClass="badge-count" text="2" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Spacer -->
+                        <Region VBox.vgrow="ALWAYS" />
+
+                        <!-- Active User Profile Widget -->
+                        <VBox styleClass="user-profile-box" spacing="8.0">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                    <children>
+                                        <StackPane fx:id="userAvatarPane" styleClass="avatar-circle">
+                                            <children>
+                                                <Label fx:id="lblUserInitials" styleClass="avatar-text" text="YG" />
+                                            </children>
+                                        </StackPane>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label fx:id="lblUserName" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;" text="Yousef Gamal" />
+                                                <Label fx:id="lblUserHandle" style="-fx-text-fill: #94A3B8; -fx-font-size: 11px;" text="\@yousefgamal" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </left>
+
+            <!-- Center Content Container -->
+            <center>
+                <StackPane fx:id="contentArea" style="-fx-background-color: #F8FAFC;">
+                    <!-- Dynamic views will be loaded here -->
+                </StackPane>
+            </center>
+        </BorderPane>
+
+        <!-- Toast Notifications Overlay -->
+        <StackPane fx:id="toastOverlay" mouseTransparent="true" pickOnBounds="false" />
+    </children>
+</StackPane>
