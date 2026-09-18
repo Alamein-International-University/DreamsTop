@@ -92,6 +92,7 @@ Ensure you have the following installed on your machine:
   ```
 - **Database Engine** (e.g., MySQL / PostgreSQL / Derby as configured in server)
 - **Git**
+- **TLDraw Extension** for VS Code (https://open-vsx.org/vscode/item?itemName=tldraw-org.tldraw-vscode) - for drawing diagrams
 
 ---
 
