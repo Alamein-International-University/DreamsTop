@@ -1,6 +1,5 @@
 package com.dreamstop.controller;
 
-
 import com.dreamstop.model.FriendRequest;
 import com.dreamstop.model.User;
 import com.dreamstop.model.WishlistItem;
@@ -24,21 +23,33 @@ import java.util.stream.Collectors;
 
 public class FriendsController implements Initializable {
 
-    @FXML private TabPane friendsTabPane;
-    @FXML private Tab tabFriends;
-    @FXML private Tab tabRequests;
-    @FXML private Tab tabFindFriends;
+    @FXML
+    private TabPane friendsTabPane;
+    @FXML
+    private Tab tabFriends;
+    @FXML
+    private Tab tabRequests;
+    @FXML
+    private Tab tabFindFriends;
 
-    @FXML private TextField txtSearchFriends;
-    @FXML private Label lblFriendsCount;
-    @FXML private VBox friendsContainer;
+    @FXML
+    private TextField txtSearchFriends;
+    @FXML
+    private Label lblFriendsCount;
+    @FXML
+    private VBox friendsContainer;
 
-    @FXML private Label lblIncomingCount;
-    @FXML private VBox incomingContainer;
-    @FXML private VBox sentContainer;
+    @FXML
+    private Label lblIncomingCount;
+    @FXML
+    private VBox incomingContainer;
+    @FXML
+    private VBox sentContainer;
 
-    @FXML private TextField txtSearchNewUsers;
-    @FXML private VBox discoverContainer;
+    @FXML
+    private TextField txtSearchNewUsers;
+    @FXML
+    private VBox discoverContainer;
 
     private final FriendService friendService = FriendService.getInstance();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM dd, HH:mm");
@@ -94,10 +105,13 @@ public class FriendsController implements Initializable {
             Label emoji = new Label("👥");
             emoji.setStyle("-fx-font-size: 44px;");
 
-            Label title = new Label(q.isEmpty() ? "You don't have any friends added yet!" : "No friends matched \"" + q + "\"");
+            Label title = new Label(
+                    q.isEmpty() ? "You don't have any friends added yet!" : "No friends matched \"" + q + "\"");
             title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #475569;");
 
-            Label sub = new Label(q.isEmpty() ? "Check the \"Find New Friends\" tab or respond to incoming friend requests." : "Try searching by full name or username.");
+            Label sub = new Label(
+                    q.isEmpty() ? "Check the \"Find New Friends\" tab or respond to incoming friend requests."
+                            : "Try searching by full name or username.");
             sub.setStyle("-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
 
             emptyBox.getChildren().addAll(emoji, title, sub);
@@ -117,7 +131,8 @@ public class FriendsController implements Initializable {
 
         // Avatar circle
         StackPane avatarPane = new StackPane();
-        avatarPane.setStyle("-fx-background-color: " + friend.getAvatarColor() + "; -fx-background-radius: 50%; -fx-pref-width: 44px; -fx-pref-height: 44px; -fx-alignment: CENTER;");
+        avatarPane.setStyle("-fx-background-color: " + friend.getAvatarColor()
+                + "; -fx-background-radius: 50%; -fx-pref-width: 44px; -fx-pref-height: 44px; -fx-alignment: CENTER;");
         Label avatarText = new Label(friend.getInitials());
         avatarText.getStyleClass().add("avatar-text");
         avatarPane.getChildren().add(avatarText);
@@ -171,7 +186,8 @@ public class FriendsController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Remove Friend");
         alert.setHeaderText("Remove " + friend.getFullName() + " from your friends?");
-        alert.setContentText("You won't be able to view their private wishlists or contribute to their gifts until you add them again.");
+        alert.setContentText(
+                "You won't be able to view their private wishlists or contribute to their gifts until you add them again.");
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -220,7 +236,8 @@ public class FriendsController implements Initializable {
         User sender = req.getSender();
 
         StackPane avatar = new StackPane();
-        avatar.setStyle("-fx-background-color: " + sender.getAvatarColor() + "; -fx-background-radius: 50%; -fx-pref-width: 40px; -fx-pref-height: 40px; -fx-alignment: CENTER;");
+        avatar.setStyle("-fx-background-color: " + sender.getAvatarColor()
+                + "; -fx-background-radius: 50%; -fx-pref-width: 40px; -fx-pref-height: 40px; -fx-alignment: CENTER;");
         Label avatarText = new Label(sender.getInitials());
         avatarText.getStyleClass().add("avatar-text");
         avatar.getChildren().add(avatarText);
@@ -261,7 +278,8 @@ public class FriendsController implements Initializable {
         User receiver = req.getReceiver();
 
         StackPane avatar = new StackPane();
-        avatar.setStyle("-fx-background-color: " + receiver.getAvatarColor() + "; -fx-background-radius: 50%; -fx-pref-width: 38px; -fx-pref-height: 38px; -fx-alignment: CENTER;");
+        avatar.setStyle("-fx-background-color: " + receiver.getAvatarColor()
+                + "; -fx-background-radius: 50%; -fx-pref-width: 38px; -fx-pref-height: 38px; -fx-alignment: CENTER;");
         Label avatarText = new Label(receiver.getInitials());
         avatarText.getStyleClass().add("avatar-text");
         avatar.getChildren().add(avatarText);
@@ -322,7 +340,8 @@ public class FriendsController implements Initializable {
         card.setAlignment(Pos.CENTER_LEFT);
 
         StackPane avatar = new StackPane();
-        avatar.setStyle("-fx-background-color: " + user.getAvatarColor() + "; -fx-background-radius: 50%; -fx-pref-width: 42px; -fx-pref-height: 42px; -fx-alignment: CENTER;");
+        avatar.setStyle("-fx-background-color: " + user.getAvatarColor()
+                + "; -fx-background-radius: 50%; -fx-pref-width: 42px; -fx-pref-height: 42px; -fx-alignment: CENTER;");
         Label avatarText = new Label(user.getInitials());
         avatarText.getStyleClass().add("avatar-text");
         avatar.getChildren().add(avatarText);

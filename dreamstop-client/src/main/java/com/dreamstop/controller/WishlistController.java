@@ -22,14 +22,22 @@ import java.util.stream.Collectors;
 
 public class WishlistController implements Initializable {
 
-    @FXML private Button btnAddItem;
-    @FXML private Label lblStatTotalItems;
-    @FXML private Label lblStatTotalValue;
-    @FXML private Label lblStatTotalFunded;
-    @FXML private Label lblStatCompleted;
-    @FXML private TextField txtSearchWishlist;
-    @FXML private Label lblItemsCountSubtitle;
-    @FXML private VBox itemsContainer;
+    @FXML
+    private Button btnAddItem;
+    @FXML
+    private Label lblStatTotalItems;
+    @FXML
+    private Label lblStatTotalValue;
+    @FXML
+    private Label lblStatTotalFunded;
+    @FXML
+    private Label lblStatCompleted;
+    @FXML
+    private TextField txtSearchWishlist;
+    @FXML
+    private Label lblItemsCountSubtitle;
+    @FXML
+    private VBox itemsContainer;
 
     private final WishlistService wishlistService = WishlistService.getInstance();
     private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(Locale.US);
@@ -76,7 +84,8 @@ public class WishlistController implements Initializable {
                         (w.getNotes() != null && w.getNotes().toLowerCase().contains(q)))
                 .collect(Collectors.toList());
 
-        lblItemsCountSubtitle.setText("Showing " + filteredList.size() + " of " + wishlistService.getMyWishlist().size() + " items");
+        lblItemsCountSubtitle
+                .setText("Showing " + filteredList.size() + " of " + wishlistService.getMyWishlist().size() + " items");
 
         if (filteredList.isEmpty()) {
             VBox emptyBox = new VBox(12);
@@ -89,7 +98,8 @@ public class WishlistController implements Initializable {
             Label title = new Label(q.isEmpty() ? "Your Wishlist is Empty!" : "No items match your search.");
             title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #475569;");
 
-            Label sub = new Label(q.isEmpty() ? "Add items you'd love your friends to contribute to." : "Try a different search term or add a new item.");
+            Label sub = new Label(q.isEmpty() ? "Add items you'd love your friends to contribute to."
+                    : "Try a different search term or add a new item.");
             sub.setStyle("-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
 
             emptyBox.getChildren().addAll(emoji, title, sub);
@@ -155,7 +165,8 @@ public class WishlistController implements Initializable {
         // Notes box if available
         if (item.getNotes() != null && !item.getNotes().trim().isEmpty()) {
             Label notesLabel = new Label("💡 Note: " + item.getNotes());
-            notesLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #475569; -fx-font-style: italic; -fx-background-color: #F8FAFC; -fx-padding: 6px 12px; -fx-background-radius: 6px;");
+            notesLabel.setStyle(
+                    "-fx-font-size: 12px; -fx-text-fill: #475569; -fx-font-style: italic; -fx-background-color: #F8FAFC; -fx-padding: 6px 12px; -fx-background-radius: 6px;");
             card.getChildren().addAll(topRow, notesLabel);
         } else {
             card.getChildren().add(topRow);
@@ -167,14 +178,16 @@ public class WishlistController implements Initializable {
         progressLabels.setAlignment(Pos.CENTER_LEFT);
 
         double pct = item.getProgressPercentage();
-        Label fundedText = new Label("Funded: " + currencyFormat.format(item.getCurrentAmount()) + " / " + currencyFormat.format(item.getTargetAmount()) + " EGP");
+        Label fundedText = new Label("Funded: " + currencyFormat.format(item.getCurrentAmount()) + " / "
+                + currencyFormat.format(item.getTargetAmount()) + " EGP");
         fundedText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #0F172A;");
 
         Region progSpacer = new Region();
         HBox.setHgrow(progSpacer, Priority.ALWAYS);
 
         Label pctText = new Label(String.format("%.0f%%", pct));
-        pctText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: " + (item.isCompleted() ? "#10B981;" : "#6366F1;"));
+        pctText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: "
+                + (item.isCompleted() ? "#10B981;" : "#6366F1;"));
 
         if (item.isCompleted()) {
             Label compBadge = new Label("COMPLETED 🎉");
@@ -321,7 +334,8 @@ public class WishlistController implements Initializable {
             }
         });
 
-        form.getChildren().addAll(lblMode, modeBox, customBox, catalogBox, lblPrice, txtPrice, lblPriority, cbPriority, lblNotes, txtNotes);
+        form.getChildren().addAll(lblMode, modeBox, customBox, catalogBox, lblPrice, txtPrice, lblPriority, cbPriority,
+                lblNotes, txtNotes);
         pane.setContent(form);
 
         // Validate on OK button click before closing
@@ -378,16 +392,14 @@ public class WishlistController implements Initializable {
                             targetPrice,
                             emoji,
                             cbPriority.getValue(),
-                            txtNotes.getText().trim()
-                    );
+                            txtNotes.getText().trim());
                 } else {
                     Item selectedItem = cbCatalog.getValue();
                     return wishlistService.addItemToMyWishlist(
                             selectedItem,
                             txtNotes.getText().trim(),
                             targetPrice,
-                            cbPriority.getValue()
-                    );
+                            cbPriority.getValue());
                 }
             }
             return null;
@@ -395,7 +407,8 @@ public class WishlistController implements Initializable {
 
         Optional<WishlistItem> result = dialog.showAndWait();
         result.ifPresent(item -> {
-            NotificationUtil.showSuccess("Added \"" + item.getItem().getName() + "\" (" + currencyFormat.format(item.getTargetAmount()) + " EGP) to your wishlist!");
+            NotificationUtil.showSuccess("Added \"" + item.getItem().getName() + "\" ("
+                    + currencyFormat.format(item.getTargetAmount()) + " EGP) to your wishlist!");
         });
     }
 
@@ -440,7 +453,8 @@ public class WishlistController implements Initializable {
                 } catch (NumberFormatException e) {
                     targetPrice = item.getTargetAmount();
                 }
-                return wishlistService.updateWishlistItem(item, txtNotes.getText().trim(), targetPrice, cbPriority.getValue());
+                return wishlistService.updateWishlistItem(item, txtNotes.getText().trim(), targetPrice,
+                        cbPriority.getValue());
             }
             return false;
         });
@@ -455,7 +469,8 @@ public class WishlistController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Wishlist Item");
         alert.setHeaderText("Remove \"" + item.getItem().getName() + "\"?");
-        alert.setContentText("Are you sure you want to remove this item from your wishlist? This action cannot be undone.");
+        alert.setContentText(
+                "Are you sure you want to remove this item from your wishlist? This action cannot be undone.");
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {

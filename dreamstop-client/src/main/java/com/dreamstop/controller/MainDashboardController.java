@@ -23,18 +23,28 @@ public class MainDashboardController implements Initializable {
 
     private static MainDashboardController instance;
 
-    @FXML private StackPane rootStackPane;
-    @FXML private StackPane contentArea;
-    @FXML private StackPane toastOverlay;
+    @FXML
+    private StackPane rootStackPane;
+    @FXML
+    private StackPane contentArea;
+    @FXML
+    private StackPane toastOverlay;
 
-    @FXML private Button btnNavWishlist;
-    @FXML private Button btnNavFriends;
-    @FXML private Label lblRequestsBadge;
+    @FXML
+    private Button btnNavWishlist;
+    @FXML
+    private Button btnNavFriends;
+    @FXML
+    private Label lblRequestsBadge;
 
-    @FXML private StackPane userAvatarPane;
-    @FXML private Label lblUserInitials;
-    @FXML private Label lblUserName;
-    @FXML private Label lblUserHandle;
+    @FXML
+    private StackPane userAvatarPane;
+    @FXML
+    private Label lblUserInitials;
+    @FXML
+    private Label lblUserName;
+    @FXML
+    private Label lblUserHandle;
 
     public static MainDashboardController getInstance() {
         return instance;
@@ -52,7 +62,8 @@ public class MainDashboardController implements Initializable {
         lblUserName.setText(me.getFullName());
         lblUserHandle.setText("@" + me.getUsername());
         lblUserInitials.setText(me.getInitials());
-        userAvatarPane.setStyle("-fx-background-color: " + me.getAvatarColor() + "; -fx-background-radius: 50%; -fx-pref-width: 38px; -fx-pref-height: 38px; -fx-alignment: CENTER;");
+        userAvatarPane.setStyle("-fx-background-color: " + me.getAvatarColor()
+                + "; -fx-background-radius: 50%; -fx-pref-width: 38px; -fx-pref-height: 38px; -fx-alignment: CENTER;");
 
         // Bind pending requests badge
         FriendService friendService = FriendService.getInstance();

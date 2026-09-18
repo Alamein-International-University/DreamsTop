@@ -22,15 +22,24 @@ import java.util.ResourceBundle;
 
 public class FriendWishlistController implements Initializable {
 
-    @FXML private Button btnBackToFriends;
-    @FXML private StackPane friendAvatarPane;
-    @FXML private Label lblFriendInitials;
-    @FXML private Label lblFriendName;
-    @FXML private Label lblFriendUsername;
-    @FXML private Label lblFriendBio;
-    @FXML private Label lblFriendItemsCount;
-    @FXML private Label lblFriendFundingSummary;
-    @FXML private VBox friendItemsContainer;
+    @FXML
+    private Button btnBackToFriends;
+    @FXML
+    private StackPane friendAvatarPane;
+    @FXML
+    private Label lblFriendInitials;
+    @FXML
+    private Label lblFriendName;
+    @FXML
+    private Label lblFriendUsername;
+    @FXML
+    private Label lblFriendBio;
+    @FXML
+    private Label lblFriendItemsCount;
+    @FXML
+    private Label lblFriendFundingSummary;
+    @FXML
+    private VBox friendItemsContainer;
 
     private User currentFriend;
     private final WishlistService wishlistService = WishlistService.getInstance();
@@ -48,13 +57,15 @@ public class FriendWishlistController implements Initializable {
     }
 
     private void updateFriendHeader() {
-        if (currentFriend == null) return;
+        if (currentFriend == null)
+            return;
 
         lblFriendName.setText(currentFriend.getFullName());
         lblFriendUsername.setText("@" + currentFriend.getUsername());
         lblFriendBio.setText(currentFriend.getBio() != null ? currentFriend.getBio() : currentFriend.getEmail());
         lblFriendInitials.setText(currentFriend.getInitials());
-        friendAvatarPane.setStyle("-fx-background-color: " + currentFriend.getAvatarColor() + "; -fx-background-radius: 50%; -fx-pref-width: 54px; -fx-pref-height: 54px; -fx-alignment: CENTER;");
+        friendAvatarPane.setStyle("-fx-background-color: " + currentFriend.getAvatarColor()
+                + "; -fx-background-radius: 50%; -fx-pref-width: 54px; -fx-pref-height: 54px; -fx-alignment: CENTER;");
 
         ObservableList<WishlistItem> items = wishlistService.getFriendWishlist(currentFriend);
         double totalTarget = items.stream().mapToDouble(WishlistItem::getTargetAmount).sum();
@@ -62,13 +73,15 @@ public class FriendWishlistController implements Initializable {
         double pct = totalTarget > 0 ? (totalFunded / totalTarget) * 100.0 : 0;
 
         lblFriendItemsCount.setText(items.size() + (items.size() == 1 ? " Item" : " Items") + " on Wishlist");
-        lblFriendFundingSummary.setText(currencyFormat.format(totalFunded) + " / " + currencyFormat.format(totalTarget) + " EGP Funded (" + String.format("%.0f", pct) + "%)");
+        lblFriendFundingSummary.setText(currencyFormat.format(totalFunded) + " / " + currencyFormat.format(totalTarget)
+                + " EGP Funded (" + String.format("%.0f", pct) + "%)");
     }
 
     private void renderFriendItems() {
         friendItemsContainer.getChildren().clear();
 
-        if (currentFriend == null) return;
+        if (currentFriend == null)
+            return;
 
         ObservableList<WishlistItem> items = wishlistService.getFriendWishlist(currentFriend);
 
@@ -137,7 +150,8 @@ public class FriendWishlistController implements Initializable {
         // Notes box if available
         if (item.getNotes() != null && !item.getNotes().trim().isEmpty()) {
             Label notesLabel = new Label("💡 " + currentFriend.getFullName() + "'s Note: " + item.getNotes());
-            notesLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #475569; -fx-font-style: italic; -fx-background-color: #F8FAFC; -fx-padding: 6px 12px; -fx-background-radius: 6px;");
+            notesLabel.setStyle(
+                    "-fx-font-size: 12px; -fx-text-fill: #475569; -fx-font-style: italic; -fx-background-color: #F8FAFC; -fx-padding: 6px 12px; -fx-background-radius: 6px;");
             card.getChildren().addAll(topRow, notesLabel);
         } else {
             card.getChildren().add(topRow);
@@ -149,14 +163,16 @@ public class FriendWishlistController implements Initializable {
         progressLabels.setAlignment(Pos.CENTER_LEFT);
 
         double pct = item.getProgressPercentage();
-        Label fundedText = new Label("Funded: " + currencyFormat.format(item.getCurrentAmount()) + " / " + currencyFormat.format(item.getTargetAmount()) + " EGP");
+        Label fundedText = new Label("Funded: " + currencyFormat.format(item.getCurrentAmount()) + " / "
+                + currencyFormat.format(item.getTargetAmount()) + " EGP");
         fundedText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #0F172A;");
 
         Region progSpacer = new Region();
         HBox.setHgrow(progSpacer, Priority.ALWAYS);
 
         Label pctText = new Label(String.format("%.0f%%", pct));
-        pctText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: " + (item.isCompleted() ? "#10B981;" : "#6366F1;"));
+        pctText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: "
+                + (item.isCompleted() ? "#10B981;" : "#6366F1;"));
 
         if (item.isCompleted()) {
             Label compBadge = new Label("FULLY FUNDED 🎉");
@@ -190,7 +206,8 @@ public class FriendWishlistController implements Initializable {
 
         Dialog<Double> dialog = new Dialog<>();
         dialog.setTitle("Contribute to Gift");
-        dialog.setHeaderText("Contribute towards " + currentFriend.getFullName() + "'s \"" + item.getItem().getName() + "\"");
+        dialog.setHeaderText(
+                "Contribute towards " + currentFriend.getFullName() + "'s \"" + item.getItem().getName() + "\"");
 
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -244,7 +261,7 @@ public class FriendWishlistController implements Initializable {
         // Preset buttons (capped to remaining so they never show more than needed)
         HBox presetBtns = new HBox(8);
         presetBtns.setAlignment(Pos.CENTER_LEFT);
-        int[] presets = {100, 250, 500, 1000};
+        int[] presets = { 100, 250, 500, 1000 };
         for (int p : presets) {
             Button b = new Button("+" + p);
             b.getStyleClass().add("btn-secondary");
@@ -274,7 +291,8 @@ public class FriendWishlistController implements Initializable {
 
         Optional<Double> result = dialog.showAndWait();
         result.ifPresent(amount -> {
-            if (amount <= 0) return;
+            if (amount <= 0)
+                return;
 
             ContributionResult contribution = wishlistService.contributeToFriendItem(item, amount);
             if (contribution == null) {
@@ -288,19 +306,19 @@ public class FriendWishlistController implements Initializable {
             if (contribution.wasRefunded()) {
                 // Goal reached but user sent too much — show refund notice
                 NotificationUtil.showSuccess(
-                    "🎉 Fully funded! " + currencyFormat.format(contribution.acceptedAmount())
-                    + " EGP accepted — " + currencyFormat.format(contribution.refundedAmount())
-                    + " EGP refunded to you.");
+                        "🎉 Fully funded! " + currencyFormat.format(contribution.acceptedAmount())
+                                + " EGP accepted — " + currencyFormat.format(contribution.refundedAmount())
+                                + " EGP refunded to you.");
             } else if (item.isCompleted()) {
                 // Contribution hit exactly 100%
                 NotificationUtil.showSuccess(
-                    "🎉 You just fully funded " + item.getItem().getName()
-                    + " for " + currentFriend.getFullName() + "!");
+                        "🎉 You just fully funded " + item.getItem().getName()
+                                + " for " + currentFriend.getFullName() + "!");
             } else {
                 // Partial contribution
                 NotificationUtil.showSuccess(
-                    "Contributed " + currencyFormat.format(contribution.acceptedAmount())
-                    + " EGP towards " + currentFriend.getFullName() + "'s gift!");
+                        "Contributed " + currencyFormat.format(contribution.acceptedAmount())
+                                + " EGP towards " + currentFriend.getFullName() + "'s gift!");
             }
         });
     }

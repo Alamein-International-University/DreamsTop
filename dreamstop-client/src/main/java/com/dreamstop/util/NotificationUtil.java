@@ -34,7 +34,8 @@ public class NotificationUtil {
     }
 
     private static void showToast(String message, String bgColor, String prefix) {
-        if (globalToastContainer == null) return;
+        if (globalToastContainer == null)
+            return;
 
         Label label = new Label(prefix + message);
         label.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
@@ -45,9 +46,8 @@ public class NotificationUtil {
         toast.setMinHeight(42);
         toast.setStyle(String.format(
                 "-fx-background-color: %s; -fx-background-radius: 20px; -fx-padding: 10px 20px; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 10, 0, 0, 4);",
-                bgColor
-        ));
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 10, 0, 0, 4);",
+                bgColor));
         toast.setOpacity(0);
 
         StackPane.setAlignment(toast, Pos.TOP_CENTER);

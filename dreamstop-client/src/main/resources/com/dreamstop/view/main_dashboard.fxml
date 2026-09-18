@@ -10,7 +10,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="rootStackPane" prefHeight="720.0" prefWidth="1080.0" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.MainDashboardController">
+<StackPane fx:id="rootStackPane" prefHeight="720.0" prefWidth="1080.0" stylesheets="@../css/styles.css"
+    xmlns="http://javafx.com/javafx/13"
+    xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.MainDashboardController">
     <children>
         <BorderPane>
             <!-- Left Sidebar Navigation -->

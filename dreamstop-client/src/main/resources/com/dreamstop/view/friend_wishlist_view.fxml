@@ -10,7 +10,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="20.0" style="-fx-background-color: #F8FAFC;" stylesheets="@../css/styles.css" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.FriendWishlistController">
+<VBox spacing="20.0" style="-fx-background-color: #F8FAFC;" stylesheets="@../css/styles.css"
+    xmlns="http://javafx.com/javafx/13"
+    xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.FriendWishlistController">
     <padding>
         <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
     </padding>
