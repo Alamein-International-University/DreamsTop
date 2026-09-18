@@ -9,16 +9,29 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.dreamstop.server.network.ClientHandler;
+import com.dreamstop.server.network.RequestDispatcher;
+import com.dreamstop.server.network.SessionManager;
+
+
 public final class ServerDaemon {
 
     private static final Logger LOGGER = Logger.getLogger(ServerDaemon.class.getName());
     private static final int DEFAULT_PORT = 5005;
+
+    private final RequestDispatcher dispatcher;
+    private final SessionManager sessionManager;
 
     private ServerSocket serverSocket;
     private ExecutorService threadPool;
     private Thread acceptThread;
     private volatile boolean running;
     private int port = DEFAULT_PORT;
+
+    public ServerDaemon() {
+        this.sessionManager = new SessionManager();
+        this.dispatcher = ServerRequestHandlers.buildDefault();
+    }
 
     public synchronized void start(int listenPort) throws IOException {
         if (running) {
@@ -70,6 +83,11 @@ public final class ServerDaemon {
             try {
                 Socket clientSocket = serverSocket.accept();
                 LOGGER.info("Client connected from: " + clientSocket.getRemoteSocketAddress());
+
+                //delegate client connection handling to thread pool with session and dispatch contexts
+                ClientHandler clientHandler = new ClientHandler(clientSocket, dispatcher, sessionManager);
+                threadPool.submit(clientHandler);
+
             } catch (IOException e) {
                 if (running) {
                     LOGGER.log(Level.WARNING, "Error accepting client connection", e);
