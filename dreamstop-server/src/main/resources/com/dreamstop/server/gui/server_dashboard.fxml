@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/13"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.dreamstop.server.gui.ServerGuiController"
+      styleClass="main-container"
+      stylesheets="@server_style.css"
+      prefWidth="780.0" prefHeight="580.0">
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <VBox styleClass="app-header" HBox.hgrow="ALWAYS">
+            <Label text="DreamsTop Server Control" styleClass="app-title"/>
+            <Label text="i-Wish Backend Daemon &amp; Connection Manager" styleClass="app-subtitle"/>
+        </VBox>
+        <Label fx:id="lblBadge" text="STOPPED" styleClass="badge-stopped"/>
+    </HBox>
+
+    <!-- Control Bar: Port + Start/Stop Button -->
+    <HBox styleClass="control-bar">
+        <Label text="PORT:" styleClass="port-label"/>
+        <TextField fx:id="txtPort" text="5005" styleClass="port-input"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnToggle" text="▶ Start Server" styleClass="btn-start" onAction="#handleToggleServer"/>
+    </HBox>
+
+    <!-- Stat Cards Row -->
+    <HBox styleClass="stats-row" fillHeight="true">
+        <!-- Card 1: State -->
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="SERVER STATUS" styleClass="stat-card-title"/>
+            <Label fx:id="lblCardStatus" text="OFFLINE" styleClass="stat-card-value"/>
+            <Label fx:id="lblCardStatusSub" text="Socket is closed" styleClass="stat-card-sub"/>
+        </VBox>
+
+        <!-- Card 2: Port -->
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="LISTENING PORT" styleClass="stat-card-title"/>
+            <Label fx:id="lblCardPort" text="5005" styleClass="stat-card-value"/>
+            <Label text="TCP socket bind port" styleClass="stat-card-sub"/>
+        </VBox>
+
+        <!-- Card 3: Active Clients -->
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="ACTIVE CLIENTS" styleClass="stat-card-title"/>
+            <Label fx:id="lblCardClients" text="0" styleClass="stat-card-value"/>
+            <Label text="Concurrent connections" styleClass="stat-card-sub"/>
+        </VBox>
+    </HBox>
+
+    <!-- Live Activity Log Section -->
+    <VBox styleClass="log-section" VBox.vgrow="ALWAYS">
+        <HBox styleClass="log-header">
+            <Label text="Activity &amp; Connection Log" styleClass="log-title" HBox.hgrow="ALWAYS"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Clear Log" styleClass="btn-secondary" onAction="#handleClearLogs"/>
+        </HBox>
+        <TextArea fx:id="txtLogs" editable="false" wrapText="true" styleClass="log-terminal" VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+</VBox>

@@ -1,0 +1,191 @@
+/* DreamsTop Server Controller Design System */
+
+.root {
+    -fx-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    -fx-background-color: #0F172A;
+}
+
+.main-container {
+    -fx-background-color: #0F172A;
+    -fx-padding: 24px;
+    -fx-spacing: 20px;
+}
+
+/* Header */
+.app-header {
+    -fx-spacing: 8px;
+}
+
+.app-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+}
+
+.app-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #94A3B8;
+}
+
+/* Control Panel Bar */
+.control-bar {
+    -fx-background-color: #1E293B;
+    -fx-background-radius: 12px;
+    -fx-padding: 16px 20px;
+    -fx-spacing: 16px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.port-label {
+    -fx-text-fill: #CBD5E1;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.port-input {
+    -fx-background-color: #0F172A;
+    -fx-text-fill: #F8FAFC;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 8px 14px;
+    -fx-pref-width: 110px;
+}
+
+.port-input:focused {
+    -fx-border-color: #6366F1;
+}
+
+/* Toggle Buttons */
+.btn-start {
+    -fx-background-color: #10B981;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 24px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.btn-start:hover {
+    -fx-background-color: #059669;
+}
+
+.btn-stop {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 24px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.btn-stop:hover {
+    -fx-background-color: #DC2626;
+}
+
+/* Status Badges */
+.badge-running {
+    -fx-background-color: rgba(16, 185, 129, 0.15);
+    -fx-text-fill: #34D399;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 14px;
+    -fx-background-radius: 20px;
+    -fx-border-color: #10B981;
+    -fx-border-radius: 20px;
+    -fx-border-width: 1px;
+}
+
+.badge-stopped {
+    -fx-background-color: rgba(239, 68, 68, 0.15);
+    -fx-text-fill: #F87171;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6px 14px;
+    -fx-background-radius: 20px;
+    -fx-border-color: #EF4444;
+    -fx-border-radius: 20px;
+    -fx-border-width: 1px;
+}
+
+/* Stat Cards */
+.stats-row {
+    -fx-spacing: 16px;
+}
+
+.stat-card {
+    -fx-background-color: #1E293B;
+    -fx-background-radius: 12px;
+    -fx-padding: 18px;
+    -fx-spacing: 8px;
+    -fx-pref-width: 220px;
+}
+
+.stat-card-title {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.stat-card-value {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.stat-card-sub {
+    -fx-text-fill: #64748B;
+    -fx-font-size: 11px;
+}
+
+/* Log Terminal Section */
+.log-section {
+    -fx-background-color: #1E293B;
+    -fx-background-radius: 12px;
+    -fx-padding: 16px;
+    -fx-spacing: 12px;
+}
+
+.log-header {
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 12px;
+}
+
+.log-title {
+    -fx-text-fill: #E2E8F0;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.btn-secondary {
+    -fx-background-color: #334155;
+    -fx-text-fill: #CBD5E1;
+    -fx-font-size: 12px;
+    -fx-padding: 6px 14px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #475569;
+    -fx-text-fill: #FFFFFF;
+}
+
+.log-terminal {
+    -fx-font-family: 'Consolas', 'Courier New', monospace;
+    -fx-font-size: 12px;
+    -fx-control-inner-background: #090D16;
+    -fx-text-fill: #10B981;
+    -fx-highlight-fill: #334155;
+    -fx-highlight-text-fill: #FFFFFF;
+    -fx-background-color: #090D16;
+    -fx-background-radius: 8px;
+    -fx-border-color: #1E293B;
+    -fx-border-radius: 8px;
+    -fx-pref-height: 250px;
+}
