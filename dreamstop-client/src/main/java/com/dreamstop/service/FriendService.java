@@ -2,7 +2,6 @@ package com.dreamstop.service;
 
 import com.dreamstop.common.dto.FriendshipDTO;
 import com.dreamstop.common.dto.UserDTO;
-import com.dreamstop.common.model.FriendshipStatus;
 import com.dreamstop.common.model.RequestType;
 import com.dreamstop.common.protocol.JsonUtils;
 import com.dreamstop.common.protocol.Request;
