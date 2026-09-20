@@ -79,6 +79,7 @@ public final class DatabaseManager {
                     ""
             );
             try {
+                Class.forName(config.getDriver());
                 executeScript("database/schema.sql");
                 executeScript("database/seed.sql");
                 LOGGER.info("Embedded in-memory database initialized successfully with seed data.");
