@@ -1,25 +1,27 @@
 package com.dreamstop.server.network;
 
 import com.dreamstop.common.model.RequestType;
+import com.dreamstop.common.protocol.JsonUtils;
 import com.dreamstop.common.protocol.Request;
 import com.dreamstop.common.protocol.Response;
 import com.dreamstop.common.protocol.ServerNotification;
 
-import java.io.EOFException;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /*****
- * Handles one client connection in its own thread.
- * Responsible for reading requests, dispatching them, and sending responses.
+ * Handles one client connection in its own thread using line-delimited JSON.
+ * Responsible for reading JSON requests, dispatching them, and sending JSON responses.
  */
-
 public final class ClientHandler implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(ClientHandler.class.getName());
@@ -29,10 +31,10 @@ public final class ClientHandler implements Runnable {
     private final SessionManager sessionManager;
     private final Consumer<ClientHandler> onDisconnect;
 
-    private ObjectOutputStream out;
-    private ObjectInputStream in;
-    private volatile boolean running = true; // flag
-    private Integer userId; // only used for logging
+    private BufferedReader in;
+    private PrintWriter out;
+    private volatile boolean running = true;
+    private Integer userId;
 
     public ClientHandler(Socket socket, RequestDispatcher dispatcher, SessionManager sessionManager) {
         this(socket, dispatcher, sessionManager, null);
@@ -48,32 +50,41 @@ public final class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            // Create output stream first to avoid deadlock
-            out = new ObjectOutputStream(socket.getOutputStream());
-            out.flush(); // use flush to forces header bytes through the socket immediately
-            in = new ObjectInputStream(socket.getInputStream());
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
 
-            while (running) {
-                Request request = (Request) in.readObject();
+            String line;
+            while (running && (line = in.readLine()) != null) {
+                String trimmedLine = line.trim();
+                if (trimmedLine.isEmpty()) {
+                    continue;
+                }
+
+                Request request = JsonUtils.fromJson(trimmedLine, Request.class);
+                if (request == null) {
+                    sendResponse(Response.badRequest("Malformed JSON request"));
+                    continue;
+                }
 
                 if (request.getType() == RequestType.LOGOUT) {
-                    sessionManager.logout(request.getToken());
-                    sendResponse(Response.success("Logged out"));
+                    if (request.getToken() != null) {
+                        sessionManager.logout(request.getToken());
+                    }
+                    sendResponse(Response.success("Logged out successfully"));
                     break;
                 }
 
                 sendResponse(dispatcher.dispatch(request, this));
             }
-        } catch (EOFException | SocketException e) {
+        } catch (SocketException e) {
             LOGGER.info(() -> "Client disconnected: " + describeClient());
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Error handling client " + describeClient(), e);
         } finally {
-            close(); // socket closed
+            close();
         }
     }
 
-    // because there might be more than one thread trying to write on the same ObjectOutputStream
     public synchronized void sendResponse(Response response) {
         write(response);
     }
@@ -83,12 +94,14 @@ public final class ClientHandler implements Runnable {
     }
 
     private void write(Object payload) {
-        if (out == null) return;
+        if (out == null || socket.isClosed()) {
+            return;
+        }
         try {
-            out.writeObject(payload);
+            String json = JsonUtils.toJson(payload);
+            out.println(json);
             out.flush();
-            out.reset();
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Failed to send data to " + describeClient(), e);
         }
     }
@@ -115,6 +128,12 @@ public final class ClientHandler implements Runnable {
 
     private void close() {
         running = false;
+        try {
+            if (in != null) in.close();
+        } catch (IOException ignored) {}
+        try {
+            if (out != null) out.close();
+        } catch (Exception ignored) {}
         try {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
