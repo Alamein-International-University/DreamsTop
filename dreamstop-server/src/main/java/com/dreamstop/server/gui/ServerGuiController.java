@@ -63,7 +63,8 @@ public class ServerGuiController implements ServerListener {
     }
 
     private void syncInitialState() {
-        if (daemon == null) return;
+        if (daemon == null)
+            return;
 
         Platform.runLater(() -> {
             boolean running = daemon.isRunning();
@@ -82,7 +83,8 @@ public class ServerGuiController implements ServerListener {
 
     @FXML
     private void handleToggleServer(ActionEvent event) {
-        if (daemon == null) return;
+        if (daemon == null)
+            return;
 
         if (daemon.isRunning()) {
             // Stop Server
@@ -116,7 +118,8 @@ public class ServerGuiController implements ServerListener {
                     daemon.start(selectedPort);
                 } catch (IOException e) {
                     Platform.runLater(() -> {
-                        showError("Server Start Failed", "Could not start server on port " + selectedPort + ":\n" + e.getMessage());
+                        showError("Server Start Failed",
+                                "Could not start server on port " + selectedPort + ":\n" + e.getMessage());
                         onServerStopped();
                     });
                 } finally {
