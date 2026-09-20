@@ -17,12 +17,17 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/com/dreamstop/view/main_dashboard.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/com/dreamstop/view/login_view.fxml"));
         scene = new Scene(root, 1100, 720);
         stage.setTitle("DreamsTop (i-Wish) 🎁");
         stage.setMinWidth(960);
         stage.setMinHeight(640);
         stage.setScene(scene);
+
+        stage.setOnCloseRequest(e -> {
+            com.dreamstop.network.NetworkClient.getInstance().disconnect();
+        });
+
         stage.show();
     }
 

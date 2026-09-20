@@ -56,6 +56,8 @@ public final class ServerDaemon {
         this.threadPool = Executors.newCachedThreadPool();
         this.running = true;
 
+        com.dreamstop.server.database.DatabaseManager.getInstance().initDatabaseIfAvailable();
+
         this.acceptThread = new Thread(this::listenForConnections, "server-accept-loop");
         this.acceptThread.setDaemon(true);
         this.acceptThread.start();

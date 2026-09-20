@@ -69,6 +69,33 @@ public final class DatabaseManager {
         }
     }
 
+    public synchronized void initDatabaseIfAvailable() {
+        if (!testConnection()) {
+            LOGGER.warning("Could not connect to configured database at " + config.getUrl() + ". Falling back to embedded in-memory database.");
+            config.overrideConfig(
+                    "org.h2.Driver",
+                    "jdbc:h2:mem:dreamstop_db;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH",
+                    "sa",
+                    ""
+            );
+            try {
+                executeScript("database/schema.sql");
+                executeScript("database/seed.sql");
+                LOGGER.info("Embedded in-memory database initialized successfully with seed data.");
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Failed to initialize embedded database", e);
+            }
+        } else if (config.isAutoInit()) {
+            try {
+                executeScript("database/schema.sql");
+                executeScript("database/seed.sql");
+                LOGGER.info("Database initialized successfully with schema and seed data.");
+            } catch (Exception e) {
+                LOGGER.log(Level.INFO, "Auto-init scripts skipped or already executed: " + e.getMessage());
+            }
+        }
+    }
+
     // ==========================================
     // Lightweight Query & Execution Helpers
     // ==========================================

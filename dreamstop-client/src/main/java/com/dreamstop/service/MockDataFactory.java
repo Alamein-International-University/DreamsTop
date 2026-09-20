@@ -137,6 +137,15 @@ public class MockDataFactory {
         return currentUser;
     }
 
+    public static void setCurrentUser(User user) {
+        if (user != null) {
+            currentUser = user;
+            if (!allUsers.contains(user)) {
+                allUsers.add(user);
+            }
+        }
+    }
+
     public static List<User> getAllUsers() {
         return allUsers;
     }
