@@ -18,6 +18,10 @@ public class ServerNotification implements Serializable {
         this.timestamp = LocalDateTime.now();
     }
 
+    public ServerNotification(NotificationType type, String title, String message) {
+        this(type, title, message, null);
+    }
+
     public ServerNotification(NotificationType type, String title, String message, Integer relatedWishlistItemId) {
         this.type = type;
         this.title = title;
