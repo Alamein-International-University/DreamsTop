@@ -2,6 +2,7 @@ module com.dreamstop {
     requires javafx.controls;
     requires javafx.fxml;
     requires transitive javafx.graphics;
+    requires java.logging;
     requires com.dreamstop.common;
     requires com.google.gson;
 
@@ -13,4 +14,5 @@ module com.dreamstop {
     exports com.dreamstop.controller;
     exports com.dreamstop.model;
     exports com.dreamstop.service;
+    exports com.dreamstop.network;
 }
