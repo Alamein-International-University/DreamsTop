@@ -3,7 +3,7 @@ module com.dreamstop {
     requires javafx.fxml;
     requires transitive javafx.graphics;
     requires java.logging;
-    requires com.dreamstop.common;
+    requires transitive com.dreamstop.common;
     requires com.google.gson;
 
     opens com.dreamstop to javafx.fxml;

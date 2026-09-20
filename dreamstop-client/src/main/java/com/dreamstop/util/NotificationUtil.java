@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class NotificationUtil {
@@ -38,16 +39,17 @@ public class NotificationUtil {
             return;
 
         Label label = new Label(prefix + message);
-        label.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;");
+        label.getStyleClass().add("toast-label");
 
         HBox toast = new HBox(label);
         toast.setAlignment(Pos.CENTER);
         toast.setMaxWidth(380);
+        toast.setPrefHeight(42);
         toast.setMinHeight(42);
-        toast.setStyle(String.format(
-                "-fx-background-color: %s; -fx-background-radius: 20px; -fx-padding: 10px 20px; " +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.25), 10, 0, 0, 4);",
-                bgColor));
+        toast.setMaxHeight(42);
+        toast.getStyleClass().add("toast");
+        toast.setBackground(new javafx.scene.layout.Background(new javafx.scene.layout.BackgroundFill(
+                Color.web(bgColor), new javafx.scene.layout.CornerRadii(20), javafx.geometry.Insets.EMPTY)));
         toast.setOpacity(0);
 
         StackPane.setAlignment(toast, Pos.TOP_CENTER);

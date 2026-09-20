@@ -1,9 +1,11 @@
 package com.dreamstop.controller;
 
+import com.dreamstop.App;
 import com.dreamstop.model.User;
 import com.dreamstop.service.FriendService;
 import com.dreamstop.service.MockDataFactory;
 import com.dreamstop.util.NotificationUtil;
+import com.dreamstop.util.UiStyleUtil;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
@@ -23,8 +25,6 @@ public class MainDashboardController implements Initializable {
 
     private static MainDashboardController instance;
 
-    @FXML
-    private StackPane rootStackPane;
     @FXML
     private StackPane contentArea;
     @FXML
@@ -62,8 +62,7 @@ public class MainDashboardController implements Initializable {
         lblUserName.setText(me.getFullName());
         lblUserHandle.setText("@" + me.getUsername());
         lblUserInitials.setText(me.getInitials());
-        userAvatarPane.setStyle("-fx-background-color: " + me.getAvatarColor()
-                + "; -fx-background-radius: 50%; -fx-pref-width: 38px; -fx-pref-height: 38px; -fx-alignment: CENTER;");
+        UiStyleUtil.applyAvatar(userAvatarPane, me.getAvatarColor(), "avatar-circle-profile");
 
         // Bind pending requests badge
         FriendService friendService = FriendService.getInstance();
@@ -97,6 +96,12 @@ public class MainDashboardController implements Initializable {
     public void handleNavFriends(ActionEvent event) {
         setActiveNav(btnNavFriends, btnNavWishlist);
         loadView("friends_view.fxml");
+    }
+
+    @FXML
+    public void handleSignOut(ActionEvent event) throws IOException {
+        instance = null;
+        App.setRoot("login_view");
     }
 
     public void openFriendWishlist(User friend) {

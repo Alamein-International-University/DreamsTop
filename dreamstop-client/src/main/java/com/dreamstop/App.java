@@ -20,7 +20,7 @@ public class App extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/com/dreamstop/view/login_view.fxml"));
         scene = new Scene(root, 1100, 720);
         stage.setTitle("DreamsTop (i-Wish) 🎁");
-        stage.setMinWidth(960);
+        stage.setMinWidth(1050);
         stage.setMinHeight(640);
         stage.setScene(scene);
 

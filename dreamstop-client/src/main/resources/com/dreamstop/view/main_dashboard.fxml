@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
@@ -24,7 +25,7 @@
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="8.0">
                                     <children>
-                                        <Label text="🎁" style="-fx-font-size: 26px;" />
+                                        <Label text="🎁" styleClass="brand-emoji" />
                                         <Label text="DreamsTop" styleClass="brand-title" />
                                     </children>
                                 </HBox>
@@ -39,12 +40,16 @@
                         <VBox spacing="8.0">
                             <children>
                                 <Button fx:id="btnNavWishlist" maxWidth="Infinity" onAction="#handleNavWishlist" styleClass="nav-button-active" text="🎁  My Wishlist" />
-                                <HBox alignment="CENTER_LEFT" spacing="6.0">
+                                <StackPane maxWidth="Infinity">
                                     <children>
-                                        <Button fx:id="btnNavFriends" maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#handleNavFriends" styleClass="nav-button" text="👥  Friends &amp; Social" />
-                                        <Label fx:id="lblRequestsBadge" styleClass="badge-count" text="2" />
+                                        <Button fx:id="btnNavFriends" maxWidth="Infinity" onAction="#handleNavFriends" styleClass="nav-button nav-button-with-badge" text="👥  Friends &amp; Social" />
+                                        <Label fx:id="lblRequestsBadge" mouseTransparent="true" styleClass="badge-count" text="2" StackPane.alignment="CENTER_RIGHT">
+                                            <StackPane.margin>
+                                                <Insets right="12.0" />
+                                            </StackPane.margin>
+                                        </Label>
                                     </children>
-                                </HBox>
+                                </StackPane>
                             </children>
                         </VBox>
 
@@ -63,10 +68,16 @@
                                         </StackPane>
                                         <VBox spacing="2.0">
                                             <children>
-                                                <Label fx:id="lblUserName" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;" text="Yousef Gamal" />
-                                                <Label fx:id="lblUserHandle" style="-fx-text-fill: #94A3B8; -fx-font-size: 11px;" text="\@yousefgamal" />
+                                                <Label fx:id="lblUserName" styleClass="profile-name" text="Yousef Gamal" />
+                                                <Label fx:id="lblUserHandle" styleClass="profile-handle" text="\@yousefgamal" />
                                             </children>
                                         </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="btnSignOut" onAction="#handleSignOut" styleClass="btn-signout" text="↪">
+                                            <tooltip>
+                                                <Tooltip text="Sign out" />
+                                            </tooltip>
+                                        </Button>
                                     </children>
                                 </HBox>
                             </children>
@@ -77,7 +88,7 @@
 
             <!-- Center Content Container -->
             <center>
-                <StackPane fx:id="contentArea" style="-fx-background-color: #F8FAFC;">
+                <StackPane fx:id="contentArea" styleClass="dashboard-content">
                     <!-- Dynamic views will be loaded here -->
                 </StackPane>
             </center>
