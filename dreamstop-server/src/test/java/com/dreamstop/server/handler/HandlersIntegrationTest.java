@@ -31,7 +31,6 @@ public class HandlersIntegrationTest {
     private ClientHandler clientHandler;
 
     private AuthRequestHandler authHandler;
-    private ProfileRequestHandler profileHandler;
     private WishlistRequestHandler wishlistHandler;
     private FriendRequestHandler friendHandler;
     private ContributionRequestHandler contributionHandler;
@@ -43,8 +42,7 @@ public class HandlersIntegrationTest {
                 "org.h2.Driver",
                 "jdbc:h2:mem:dreamstop_handlers_db;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH",
                 "sa",
-                ""
-        );
+                "");
         dbManager = DatabaseManager.getInstance();
     }
 
@@ -57,7 +55,6 @@ public class HandlersIntegrationTest {
         clientHandler = new ClientHandler(new Socket(), new RequestDispatcher(), sessionManager);
 
         authHandler = new AuthRequestHandler();
-        profileHandler = new ProfileRequestHandler();
         wishlistHandler = new WishlistRequestHandler();
         friendHandler = new FriendRequestHandler();
         contributionHandler = new ContributionRequestHandler();
@@ -93,8 +90,7 @@ public class HandlersIntegrationTest {
                 "newplayer",
                 "player@dreamstop.com",
                 "Secret123!",
-                new BigDecimal("500.00")
-        );
+                new BigDecimal("500.00"));
         Request req = Request.of(RequestType.REGISTER, dto);
         Response res = authHandler.handleRegister(req, clientHandler);
 

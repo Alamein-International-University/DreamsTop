@@ -5,6 +5,8 @@ import com.dreamstop.model.WishlistItem;
 import com.dreamstop.service.ContributionResult;
 import com.dreamstop.service.WishlistService;
 import com.dreamstop.util.NotificationUtil;
+import com.dreamstop.util.UiStyleUtil;
+import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.text.NumberFormat;
@@ -22,8 +25,6 @@ import java.util.ResourceBundle;
 
 public class FriendWishlistController implements Initializable {
 
-    @FXML
-    private Button btnBackToFriends;
     @FXML
     private StackPane friendAvatarPane;
     @FXML
@@ -64,8 +65,7 @@ public class FriendWishlistController implements Initializable {
         lblFriendUsername.setText("@" + currentFriend.getUsername());
         lblFriendBio.setText(currentFriend.getBio() != null ? currentFriend.getBio() : currentFriend.getEmail());
         lblFriendInitials.setText(currentFriend.getInitials());
-        friendAvatarPane.setStyle("-fx-background-color: " + currentFriend.getAvatarColor()
-                + "; -fx-background-radius: 50%; -fx-pref-width: 54px; -fx-pref-height: 54px; -fx-alignment: CENTER;");
+        UiStyleUtil.applyAvatar(friendAvatarPane, currentFriend.getAvatarColor(), "avatar-circle-large");
 
         ObservableList<WishlistItem> items = wishlistService.getFriendWishlist(currentFriend);
         double totalTarget = items.stream().mapToDouble(WishlistItem::getTargetAmount).sum();
@@ -91,13 +91,13 @@ public class FriendWishlistController implements Initializable {
             emptyBox.setPadding(new Insets(50, 20, 50, 20));
 
             Label emoji = new Label("🎁");
-            emoji.setStyle("-fx-font-size: 44px;");
+            emoji.getStyleClass().add("empty-emoji-large");
 
             Label title = new Label(currentFriend.getFullName() + " hasn't added any items to their wishlist yet!");
-            title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #475569;");
+            title.getStyleClass().add("empty-title");
 
             Label sub = new Label("Check back later or invite them to share their wishes.");
-            sub.setStyle("-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
+            sub.getStyleClass().add("empty-subtitle");
 
             emptyBox.getChildren().addAll(emoji, title, sub);
             friendItemsContainer.getChildren().add(emptyBox);
@@ -116,13 +116,16 @@ public class FriendWishlistController implements Initializable {
         // Top Row: Emoji, Name, Category badge, Priority badge, Contribute Action
         HBox topRow = new HBox(12);
         topRow.setAlignment(Pos.CENTER_LEFT);
+        topRow.setMaxWidth(Double.MAX_VALUE);
 
         Label iconLabel = new Label(item.getItem().getIconEmoji());
-        iconLabel.setStyle("-fx-font-size: 26px; -fx-padding: 4px;");
+        iconLabel.getStyleClass().add("card-icon");
 
         VBox titleBox = new VBox(3);
-        HBox nameAndBadges = new HBox(8);
-        nameAndBadges.setAlignment(Pos.CENTER_LEFT);
+        FlowPane nameAndBadges = new FlowPane();
+        nameAndBadges.setHgap(8);
+        nameAndBadges.setVgap(4);
+        nameAndBadges.setMaxWidth(Double.MAX_VALUE);
 
         Label nameLabel = new Label(item.getItem().getName());
         nameLabel.getStyleClass().add("card-title");
@@ -134,24 +137,32 @@ public class FriendWishlistController implements Initializable {
 
         Label descLabel = new Label(item.getItem().getDescription());
         descLabel.getStyleClass().add("card-desc");
+        descLabel.setWrapText(true);
+        descLabel.setMinWidth(0);
+        descLabel.setMaxWidth(Double.MAX_VALUE);
 
         titleBox.getChildren().addAll(nameAndBadges, descLabel);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        titleBox.setMinWidth(0);
+        titleBox.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(titleBox, Priority.ALWAYS);
 
         Button btnContribute = new Button(item.isCompleted() ? "Completed 🎉" : "🎁 Contribute");
         btnContribute.getStyleClass().add(item.isCompleted() ? "btn-secondary" : "btn-primary");
+        btnContribute.getStyleClass().add("contribute-button");
+        btnContribute.setMinWidth(160);
+        btnContribute.setPrefWidth(160);
+        btnContribute.setMaxWidth(160);
         btnContribute.setDisable(item.isCompleted());
         btnContribute.setOnAction(e -> handleContribute(item));
 
-        topRow.getChildren().addAll(iconLabel, titleBox, spacer, btnContribute);
+        topRow.getChildren().addAll(iconLabel, titleBox, btnContribute);
 
         // Notes box if available
         if (item.getNotes() != null && !item.getNotes().trim().isEmpty()) {
             Label notesLabel = new Label("💡 " + currentFriend.getFullName() + "'s Note: " + item.getNotes());
-            notesLabel.setStyle(
-                    "-fx-font-size: 12px; -fx-text-fill: #475569; -fx-font-style: italic; -fx-background-color: #F8FAFC; -fx-padding: 6px 12px; -fx-background-radius: 6px;");
+            notesLabel.getStyleClass().add("notes-label");
+            notesLabel.setWrapText(true);
+            notesLabel.setMaxWidth(Double.MAX_VALUE);
             card.getChildren().addAll(topRow, notesLabel);
         } else {
             card.getChildren().add(topRow);
@@ -159,29 +170,41 @@ public class FriendWishlistController implements Initializable {
 
         // Progress Section
         VBox progressSection = new VBox(6);
-        HBox progressLabels = new HBox();
+        HBox progressLabels = new HBox(8);
         progressLabels.setAlignment(Pos.CENTER_LEFT);
+        progressLabels.setMaxWidth(Double.MAX_VALUE);
+        progressLabels.getStyleClass().add("progress-labels");
 
         double pct = item.getProgressPercentage();
         Label fundedText = new Label("Funded: " + currencyFormat.format(item.getCurrentAmount()) + " / "
                 + currencyFormat.format(item.getTargetAmount()) + " EGP");
-        fundedText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #0F172A;");
+        fundedText.getStyleClass().add("funded-value");
+        fundedText.setWrapText(true);
+        fundedText.setMinWidth(0);
+        fundedText.setMaxWidth(Double.MAX_VALUE);
 
-        Region progSpacer = new Region();
-        HBox.setHgrow(progSpacer, Priority.ALWAYS);
+        Region progressSpacer = new Region();
+        HBox.setHgrow(fundedText, Priority.ALWAYS);
+        HBox.setHgrow(progressSpacer, Priority.ALWAYS);
 
         Label pctText = new Label(String.format("%.0f%%", pct));
-        pctText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: "
-                + (item.isCompleted() ? "#10B981;" : "#6366F1;"));
+        pctText.getStyleClass().add(item.isCompleted() ? "percent-complete" : "percent-active");
+        pctText.setMinWidth(44);
+        pctText.setPrefWidth(44);
+        pctText.setMaxWidth(44);
+        pctText.setAlignment(Pos.CENTER_RIGHT);
 
         if (item.isCompleted()) {
             Label compBadge = new Label("FULLY FUNDED 🎉");
             compBadge.getStyleClass().add("badge-completed");
-            progressLabels.getChildren().addAll(fundedText, progSpacer, compBadge, new Label(" "), pctText);
+            progressLabels.getChildren().addAll(fundedText, progressSpacer, compBadge, pctText);
         } else {
             Label remText = new Label("(" + currencyFormat.format(item.getRemainingAmount()) + " EGP remaining)");
-            remText.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
-            progressLabels.getChildren().addAll(fundedText, new Label("  "), remText, progSpacer, pctText);
+            remText.getStyleClass().add("remaining-label");
+            remText.setWrapText(true);
+            remText.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(remText, Priority.ALWAYS);
+            progressLabels.getChildren().addAll(fundedText, remText, progressSpacer, pctText);
         }
 
         ProgressBar pb = new ProgressBar(item.getProgressRatio());
@@ -212,9 +235,21 @@ public class FriendWishlistController implements Initializable {
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         pane.getStylesheets().add(getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
+        pane.getStyleClass().add("wishlist-dialog-pane");
+        dialog.setResizable(true);
+        pane.setMinWidth(460);
+        pane.setMinHeight(360);
+        pane.setPrefWidth(540);
+        dialog.setOnShown(event -> {
+            Stage window = (Stage) dialog.getDialogPane().getScene().getWindow();
+            window.setMinWidth(500);
+            window.setMinHeight(380);
+        });
 
         VBox form = new VBox(12);
-        form.setPrefWidth(440);
+        form.getStyleClass().add("wishlist-dialog-form");
+        form.setPrefWidth(480);
+        form.setMaxWidth(Double.MAX_VALUE);
         form.setPadding(new Insets(16));
 
         double remaining = item.getRemainingAmount();
@@ -223,19 +258,20 @@ public class FriendWishlistController implements Initializable {
         HBox remainingRow = new HBox(8);
         remainingRow.setAlignment(Pos.CENTER_LEFT);
         Label remainingLbl = new Label("Remaining to complete: " + currencyFormat.format(remaining) + " EGP");
-        remainingLbl.setStyle("-fx-font-weight: bold; -fx-text-fill: #6366F1; -fx-font-size: 14px;");
+        remainingLbl.getStyleClass().add("contribution-remaining");
         remainingRow.getChildren().add(remainingLbl);
 
         // Cap-warning label (hidden until the user types more than remaining)
         Label capWarningLbl = new Label();
-        capWarningLbl.setStyle("-fx-text-fill: #D97706; -fx-font-size: 12px; -fx-font-weight: bold;");
+        capWarningLbl.getStyleClass().add("dialog-warning");
         capWarningLbl.setVisible(false);
         capWarningLbl.setManaged(false);
 
         Label promptLbl = new Label("Enter contribution amount (EGP):");
-        promptLbl.setStyle("-fx-font-weight: bold;");
+        promptLbl.getStyleClass().add("dialog-field-label");
 
         TextField txtAmount = new TextField(String.valueOf((int) Math.min(200, remaining)));
+        txtAmount.setMaxWidth(Double.MAX_VALUE);
         txtAmount.getStyleClass().add("text-field-modern");
 
         // Live validation: warn & show refund preview when over the goal
@@ -259,8 +295,10 @@ public class FriendWishlistController implements Initializable {
         });
 
         // Preset buttons (capped to remaining so they never show more than needed)
-        HBox presetBtns = new HBox(8);
-        presetBtns.setAlignment(Pos.CENTER_LEFT);
+        FlowPane presetBtns = new FlowPane();
+        presetBtns.setHgap(8);
+        presetBtns.setVgap(8);
+        presetBtns.setMaxWidth(Double.MAX_VALUE);
         int[] presets = { 100, 250, 500, 1000 };
         for (int p : presets) {
             Button b = new Button("+" + p);
@@ -276,7 +314,15 @@ public class FriendWishlistController implements Initializable {
         });
 
         form.getChildren().addAll(remainingRow, capWarningLbl, promptLbl, txtAmount, presetBtns, btnExact);
-        pane.setContent(form);
+        ScrollPane formScroll = new ScrollPane(form);
+        formScroll.setFitToWidth(true);
+        formScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        formScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        formScroll.setPannable(true);
+        formScroll.getStyleClass().add("dialog-form-scroll");
+        form.prefWidthProperty().bind(Bindings.createDoubleBinding(
+                () -> formScroll.getViewportBounds().getWidth(), formScroll.viewportBoundsProperty()));
+        pane.setContent(formScroll);
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {

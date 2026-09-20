@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="rootPane" prefHeight="720.0" prefWidth="1100.0" stylesheets="@../css/styles.css"
+<StackPane prefHeight="720.0" prefWidth="1100.0" stylesheets="@../css/styles.css"
            style="-fx-background-color: #0B0F19;"
            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.dreamstop.controller.LoginController">

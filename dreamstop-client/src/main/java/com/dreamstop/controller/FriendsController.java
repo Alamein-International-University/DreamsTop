@@ -6,6 +6,7 @@ import com.dreamstop.model.WishlistItem;
 import com.dreamstop.service.FriendService;
 import com.dreamstop.service.MockDataFactory;
 import com.dreamstop.util.NotificationUtil;
+import com.dreamstop.util.UiStyleUtil;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -103,16 +104,16 @@ public class FriendsController implements Initializable {
             emptyBox.setPadding(new Insets(50, 20, 50, 20));
 
             Label emoji = new Label("👥");
-            emoji.setStyle("-fx-font-size: 44px;");
+            emoji.getStyleClass().add("empty-emoji-large");
 
             Label title = new Label(
                     q.isEmpty() ? "You don't have any friends added yet!" : "No friends matched \"" + q + "\"");
-            title.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #475569;");
+            title.getStyleClass().add("empty-title");
 
             Label sub = new Label(
                     q.isEmpty() ? "Check the \"Find New Friends\" tab or respond to incoming friend requests."
                             : "Try searching by full name or username.");
-            sub.setStyle("-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
+            sub.getStyleClass().add("empty-subtitle");
 
             emptyBox.getChildren().addAll(emoji, title, sub);
             friendsContainer.getChildren().add(emptyBox);
@@ -128,11 +129,11 @@ public class FriendsController implements Initializable {
         HBox card = new HBox(16);
         card.getStyleClass().add("card");
         card.setAlignment(Pos.CENTER_LEFT);
+        card.setMaxWidth(Double.MAX_VALUE);
 
         // Avatar circle
         StackPane avatarPane = new StackPane();
-        avatarPane.setStyle("-fx-background-color: " + friend.getAvatarColor()
-                + "; -fx-background-radius: 50%; -fx-pref-width: 44px; -fx-pref-height: 44px; -fx-alignment: CENTER;");
+        UiStyleUtil.applyAvatar(avatarPane, friend.getAvatarColor(), "avatar-circle-medium");
         Label avatarText = new Label(friend.getInitials());
         avatarText.getStyleClass().add("avatar-text");
         avatarPane.getChildren().add(avatarText);
@@ -146,7 +147,7 @@ public class FriendsController implements Initializable {
         nameLabel.getStyleClass().add("card-title");
 
         Label handleLabel = new Label("@" + friend.getUsername());
-        handleLabel.setStyle("-fx-text-fill: #6366F1; -fx-font-size: 12px; -fx-font-weight: bold;");
+        handleLabel.getStyleClass().add("handle-label");
 
         // Wishlist items count
         List<WishlistItem> friendItems = MockDataFactory.getWishlistsByUser().getOrDefault(friend.getId(), List.of());
@@ -159,6 +160,9 @@ public class FriendsController implements Initializable {
         bioLabel.getStyleClass().add("card-desc");
 
         infoBox.getChildren().addAll(nameLine, bioLabel);
+        infoBox.setMinWidth(0);
+        infoBox.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(infoBox, Priority.ALWAYS);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -208,7 +212,7 @@ public class FriendsController implements Initializable {
 
         if (incoming.isEmpty()) {
             Label noInc = new Label("No pending incoming requests.");
-            noInc.setStyle("-fx-text-fill: #94A3B8; -fx-font-style: italic; -fx-padding: 10px;");
+            noInc.getStyleClass().add("empty-request");
             incomingContainer.getChildren().add(noInc);
         } else {
             for (FriendRequest req : incoming) {
@@ -219,7 +223,7 @@ public class FriendsController implements Initializable {
         var sent = friendService.getSentRequests();
         if (sent.isEmpty()) {
             Label noSent = new Label("No outgoing sent requests.");
-            noSent.setStyle("-fx-text-fill: #94A3B8; -fx-font-style: italic; -fx-padding: 10px;");
+            noSent.getStyleClass().add("empty-request");
             sentContainer.getChildren().add(noSent);
         } else {
             for (FriendRequest req : sent) {
@@ -232,12 +236,12 @@ public class FriendsController implements Initializable {
         HBox card = new HBox(14);
         card.getStyleClass().add("card");
         card.setAlignment(Pos.CENTER_LEFT);
+        card.setMaxWidth(Double.MAX_VALUE);
 
         User sender = req.getSender();
 
         StackPane avatar = new StackPane();
-        avatar.setStyle("-fx-background-color: " + sender.getAvatarColor()
-                + "; -fx-background-radius: 50%; -fx-pref-width: 40px; -fx-pref-height: 40px; -fx-alignment: CENTER;");
+        UiStyleUtil.applyAvatar(avatar, sender.getAvatarColor(), "avatar-circle-small");
         Label avatarText = new Label(sender.getInitials());
         avatarText.getStyleClass().add("avatar-text");
         avatar.getChildren().add(avatarText);
@@ -246,8 +250,11 @@ public class FriendsController implements Initializable {
         Label name = new Label(sender.getFullName() + " (@" + sender.getUsername() + ")");
         name.getStyleClass().add("card-title");
         Label time = new Label("Requested on " + req.getCreatedAt().format(dateFormatter));
-        time.setStyle("-fx-text-fill: #64748B; -fx-font-size: 11px;");
+        time.getStyleClass().add("request-time");
         info.getChildren().addAll(name, time);
+        info.setMinWidth(0);
+        info.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(info, Priority.ALWAYS);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -274,12 +281,12 @@ public class FriendsController implements Initializable {
         HBox card = new HBox(14);
         card.getStyleClass().add("card");
         card.setAlignment(Pos.CENTER_LEFT);
+        card.setMaxWidth(Double.MAX_VALUE);
 
         User receiver = req.getReceiver();
 
         StackPane avatar = new StackPane();
-        avatar.setStyle("-fx-background-color: " + receiver.getAvatarColor()
-                + "; -fx-background-radius: 50%; -fx-pref-width: 38px; -fx-pref-height: 38px; -fx-alignment: CENTER;");
+        UiStyleUtil.applyAvatar(avatar, receiver.getAvatarColor(), "avatar-circle-request");
         Label avatarText = new Label(receiver.getInitials());
         avatarText.getStyleClass().add("avatar-text");
         avatar.getChildren().add(avatarText);
@@ -288,8 +295,11 @@ public class FriendsController implements Initializable {
         Label name = new Label("Sent to " + receiver.getFullName() + " (@" + receiver.getUsername() + ")");
         name.getStyleClass().add("card-title");
         Label status = new Label("Status: Pending approval • " + req.getCreatedAt().format(dateFormatter));
-        status.setStyle("-fx-text-fill: #D97706; -fx-font-size: 11px; -fx-font-weight: bold;");
+        status.getStyleClass().add("request-status");
         info.getChildren().addAll(name, status);
+        info.setMinWidth(0);
+        info.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(info, Priority.ALWAYS);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -319,10 +329,10 @@ public class FriendsController implements Initializable {
             empty.setPadding(new Insets(40, 20, 40, 20));
 
             Label emoji = new Label("🔍");
-            emoji.setStyle("-fx-font-size: 40px;");
+            emoji.getStyleClass().add("empty-emoji-medium");
 
             Label title = new Label("No new users found.");
-            title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #64748B;");
+            title.getStyleClass().add("empty-title-small");
 
             empty.getChildren().addAll(emoji, title);
             discoverContainer.getChildren().add(empty);
@@ -338,10 +348,10 @@ public class FriendsController implements Initializable {
         HBox card = new HBox(14);
         card.getStyleClass().add("card");
         card.setAlignment(Pos.CENTER_LEFT);
+        card.setMaxWidth(Double.MAX_VALUE);
 
         StackPane avatar = new StackPane();
-        avatar.setStyle("-fx-background-color: " + user.getAvatarColor()
-                + "; -fx-background-radius: 50%; -fx-pref-width: 42px; -fx-pref-height: 42px; -fx-alignment: CENTER;");
+        UiStyleUtil.applyAvatar(avatar, user.getAvatarColor(), "avatar-circle-discover");
         Label avatarText = new Label(user.getInitials());
         avatarText.getStyleClass().add("avatar-text");
         avatar.getChildren().add(avatarText);
@@ -353,13 +363,16 @@ public class FriendsController implements Initializable {
         Label name = new Label(user.getFullName());
         name.getStyleClass().add("card-title");
         Label handle = new Label("@" + user.getUsername());
-        handle.setStyle("-fx-text-fill: #6366F1; -fx-font-size: 12px; -fx-font-weight: bold;");
+        handle.getStyleClass().add("handle-label");
         nameLine.getChildren().addAll(name, handle);
 
         Label bio = new Label(user.getBio() != null ? user.getBio() : user.getEmail());
         bio.getStyleClass().add("card-desc");
 
         info.getChildren().addAll(nameLine, bio);
+        info.setMinWidth(0);
+        info.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(info, Priority.ALWAYS);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);

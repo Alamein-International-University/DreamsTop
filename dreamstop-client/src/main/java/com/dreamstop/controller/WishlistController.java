@@ -4,6 +4,7 @@ import com.dreamstop.model.Item;
 import com.dreamstop.model.WishlistItem;
 import com.dreamstop.service.WishlistService;
 import com.dreamstop.util.NotificationUtil;
+import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,8 +13,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Optional;
@@ -33,6 +36,8 @@ public class WishlistController implements Initializable {
     @FXML
     private Label lblStatCompleted;
     @FXML
+    private HBox statsCardsRow;
+    @FXML
     private TextField txtSearchWishlist;
     @FXML
     private Label lblItemsCountSubtitle;
@@ -41,10 +46,20 @@ public class WishlistController implements Initializable {
 
     private final WishlistService wishlistService = WishlistService.getInstance();
     private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(Locale.US);
+    private final DecimalFormat compactNumberFormat = new DecimalFormat("0.#");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         currencyFormat.setMaximumFractionDigits(0);
+
+        if (!btnAddItem.getStyleClass().contains("btn-primary")) {
+            btnAddItem.getStyleClass().add("btn-primary");
+        }
+        if (!btnAddItem.getStyleClass().contains("page-header-action")) {
+            btnAddItem.getStyleClass().add("page-header-action");
+        }
+
+        statsCardsRow.widthProperty().addListener((obs, oldWidth, newWidth) -> updateStatistics());
 
         renderWishlistItems("");
         updateStatistics();
@@ -67,10 +82,41 @@ public class WishlistController implements Initializable {
 
         double pct = totalVal > 0 ? (fundedVal / totalVal) * 100.0 : 0;
 
-        lblStatTotalItems.setText(String.valueOf(totalItems));
-        lblStatTotalValue.setText(currencyFormat.format(totalVal) + " EGP");
-        lblStatTotalFunded.setText(currencyFormat.format(fundedVal) + " EGP (" + String.format("%.0f", pct) + "%)");
-        lblStatCompleted.setText(completed + " 🎉");
+        boolean compact = statsCardsRow.getWidth() > 0 && statsCardsRow.getWidth() < 760;
+        setCompactStats(compact);
+
+        lblStatTotalItems.setText(formatStatNumber(totalItems, compact));
+        lblStatTotalValue.setText(formatStatNumber(totalVal, compact) + " EGP");
+        lblStatTotalFunded.setText(formatStatNumber(fundedVal, compact) + " EGP (" + String.format("%.0f", pct) + "%)");
+        lblStatCompleted.setText(formatStatNumber(completed, compact) + " 🎉");
+    }
+
+    private String formatStatNumber(double value, boolean compact) {
+        if (!compact) {
+            return currencyFormat.format(value);
+        }
+        double absoluteValue = Math.abs(value);
+        if (absoluteValue >= 1_000_000) {
+            return compactNumberFormat.format(value / 1_000_000) + "M";
+        }
+        if (absoluteValue >= 1_000) {
+            return compactNumberFormat.format(value / 1_000) + "k";
+        }
+        return currencyFormat.format(value);
+    }
+
+    private void setCompactStats(boolean compact) {
+        for (Label valueLabel : new Label[] {
+                lblStatTotalItems, lblStatTotalValue, lblStatTotalFunded, lblStatCompleted
+        }) {
+            if (compact) {
+                if (!valueLabel.getStyleClass().contains("stat-value-compact")) {
+                    valueLabel.getStyleClass().add("stat-value-compact");
+                }
+            } else {
+                valueLabel.getStyleClass().remove("stat-value-compact");
+            }
+        }
     }
 
     private void renderWishlistItems(String filter) {
@@ -93,14 +139,14 @@ public class WishlistController implements Initializable {
             emptyBox.setPadding(new Insets(60, 20, 60, 20));
 
             Label emoji = new Label("🎁");
-            emoji.setStyle("-fx-font-size: 48px;");
+            emoji.getStyleClass().add("empty-emoji-xlarge");
 
             Label title = new Label(q.isEmpty() ? "Your Wishlist is Empty!" : "No items match your search.");
-            title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #475569;");
+            title.getStyleClass().add("empty-title-large");
 
             Label sub = new Label(q.isEmpty() ? "Add items you'd love your friends to contribute to."
                     : "Try a different search term or add a new item.");
-            sub.setStyle("-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
+            sub.getStyleClass().add("empty-subtitle");
 
             emptyBox.getChildren().addAll(emoji, title, sub);
             if (q.isEmpty()) {
@@ -127,11 +173,13 @@ public class WishlistController implements Initializable {
         topRow.setAlignment(Pos.CENTER_LEFT);
 
         Label iconLabel = new Label(item.getItem().getIconEmoji());
-        iconLabel.setStyle("-fx-font-size: 26px; -fx-padding: 4px;");
+        iconLabel.getStyleClass().add("card-icon");
 
         VBox titleBox = new VBox(3);
-        HBox nameAndBadges = new HBox(8);
-        nameAndBadges.setAlignment(Pos.CENTER_LEFT);
+        FlowPane nameAndBadges = new FlowPane();
+        nameAndBadges.setHgap(8);
+        nameAndBadges.setVgap(4);
+        nameAndBadges.setMaxWidth(Double.MAX_VALUE);
 
         Label nameLabel = new Label(item.getItem().getName());
         nameLabel.getStyleClass().add("card-title");
@@ -140,7 +188,7 @@ public class WishlistController implements Initializable {
         catBadge.getStyleClass().add("badge");
 
         Label priorityBadge = new Label(item.getPriority() + " PRIORITY");
-        priorityBadge.setStyle(getPriorityBadgeStyle(item.getPriority()));
+        priorityBadge.getStyleClass().add(getPriorityBadgeClass(item.getPriority()));
 
         nameAndBadges.getChildren().addAll(nameLabel, catBadge, priorityBadge);
 
@@ -148,9 +196,8 @@ public class WishlistController implements Initializable {
         descLabel.getStyleClass().add("card-desc");
 
         titleBox.getChildren().addAll(nameAndBadges, descLabel);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        titleBox.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(titleBox, Priority.ALWAYS);
 
         Button btnEdit = new Button("✏️ Edit");
         btnEdit.getStyleClass().add("btn-secondary");
@@ -160,13 +207,12 @@ public class WishlistController implements Initializable {
         btnDelete.getStyleClass().add("btn-danger");
         btnDelete.setOnAction(e -> handleDeleteItem(item));
 
-        topRow.getChildren().addAll(iconLabel, titleBox, spacer, btnEdit, btnDelete);
+        topRow.getChildren().addAll(iconLabel, titleBox, btnEdit, btnDelete);
 
         // Notes box if available
         if (item.getNotes() != null && !item.getNotes().trim().isEmpty()) {
             Label notesLabel = new Label("💡 Note: " + item.getNotes());
-            notesLabel.setStyle(
-                    "-fx-font-size: 12px; -fx-text-fill: #475569; -fx-font-style: italic; -fx-background-color: #F8FAFC; -fx-padding: 6px 12px; -fx-background-radius: 6px;");
+            notesLabel.getStyleClass().add("notes-label");
             card.getChildren().addAll(topRow, notesLabel);
         } else {
             card.getChildren().add(topRow);
@@ -174,29 +220,41 @@ public class WishlistController implements Initializable {
 
         // Progress Section
         VBox progressSection = new VBox(6);
-        HBox progressLabels = new HBox();
+        HBox progressLabels = new HBox(8);
         progressLabels.setAlignment(Pos.CENTER_LEFT);
+        progressLabels.setMaxWidth(Double.MAX_VALUE);
+        progressLabels.getStyleClass().add("progress-labels");
 
         double pct = item.getProgressPercentage();
         Label fundedText = new Label("Funded: " + currencyFormat.format(item.getCurrentAmount()) + " / "
                 + currencyFormat.format(item.getTargetAmount()) + " EGP");
-        fundedText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #0F172A;");
+        fundedText.getStyleClass().add("funded-value");
+        fundedText.setWrapText(true);
+        fundedText.setMinWidth(0);
+        fundedText.setMaxWidth(Double.MAX_VALUE);
 
-        Region progSpacer = new Region();
-        HBox.setHgrow(progSpacer, Priority.ALWAYS);
+        Region progressSpacer = new Region();
+        HBox.setHgrow(fundedText, Priority.ALWAYS);
+        HBox.setHgrow(progressSpacer, Priority.ALWAYS);
 
         Label pctText = new Label(String.format("%.0f%%", pct));
-        pctText.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: "
-                + (item.isCompleted() ? "#10B981;" : "#6366F1;"));
+        pctText.getStyleClass().add(item.isCompleted() ? "percent-complete" : "percent-active");
+        pctText.setMinWidth(44);
+        pctText.setPrefWidth(44);
+        pctText.setMaxWidth(44);
+        pctText.setAlignment(Pos.CENTER_RIGHT);
 
         if (item.isCompleted()) {
             Label compBadge = new Label("COMPLETED 🎉");
             compBadge.getStyleClass().add("badge-completed");
-            progressLabels.getChildren().addAll(fundedText, progSpacer, compBadge, new Label(" "), pctText);
+            progressLabels.getChildren().addAll(fundedText, progressSpacer, compBadge, pctText);
         } else {
             Label remText = new Label("(" + currencyFormat.format(item.getRemainingAmount()) + " EGP left)");
-            remText.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
-            progressLabels.getChildren().addAll(fundedText, new Label("  "), remText, progSpacer, pctText);
+            remText.getStyleClass().add("remaining-label");
+            remText.setWrapText(true);
+            remText.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(remText, Priority.ALWAYS);
+            progressLabels.getChildren().addAll(fundedText, remText, progressSpacer, pctText);
         }
 
         ProgressBar pb = new ProgressBar(item.getProgressRatio());
@@ -212,13 +270,13 @@ public class WishlistController implements Initializable {
         return card;
     }
 
-    private String getPriorityBadgeStyle(String priority) {
+    private String getPriorityBadgeClass(String priority) {
         if ("HIGH".equalsIgnoreCase(priority)) {
-            return "-fx-background-color: #FEE2E2; -fx-text-fill: #DC2626; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 2px 8px; -fx-background-radius: 10px;";
+            return "priority-high";
         } else if ("LOW".equalsIgnoreCase(priority)) {
-            return "-fx-background-color: #F1F5F9; -fx-text-fill: #64748B; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 2px 8px; -fx-background-radius: 10px;";
+            return "priority-low";
         }
-        return "-fx-background-color: #FEF3C7; -fx-text-fill: #D97706; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 2px 8px; -fx-background-radius: 10px;";
+        return "priority-medium";
     }
 
     @FXML
@@ -230,14 +288,26 @@ public class WishlistController implements Initializable {
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         pane.getStylesheets().add(getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
+        pane.getStyleClass().add("wishlist-dialog-pane");
+        dialog.setResizable(true);
+        pane.setMinWidth(500);
+        pane.setMinHeight(500);
+        pane.setPrefWidth(620);
+        dialog.setOnShown(shownEvent -> {
+            Stage window = (Stage) dialog.getDialogPane().getScene().getWindow();
+            window.setMinWidth(540);
+            window.setMinHeight(520);
+        });
 
         VBox form = new VBox(14);
-        form.setPrefWidth(480);
+        form.getStyleClass().add("wishlist-dialog-form");
+        form.setPrefWidth(560);
+        form.setMaxWidth(Double.MAX_VALUE);
         form.setPadding(new Insets(16));
 
         // Mode Switcher: Custom vs Catalog
         Label lblMode = new Label("Choose Item Source:");
-        lblMode.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        lblMode.getStyleClass().add("dialog-field-label");
 
         ToggleGroup modeGroup = new ToggleGroup();
         RadioButton rbCustom = new RadioButton("✍️ Write Custom Item");
@@ -246,32 +316,40 @@ public class WishlistController implements Initializable {
         rbCatalog.setToggleGroup(modeGroup);
         rbCustom.setSelected(true); // Default to custom as requested
 
-        HBox modeBox = new HBox(20, rbCustom, rbCatalog);
-        modeBox.setStyle("-fx-background-color: #F1F5F9; -fx-padding: 10px 14px; -fx-background-radius: 8px;");
+        FlowPane modeBox = new FlowPane();
+        modeBox.setHgap(20);
+        modeBox.setVgap(8);
+        modeBox.getChildren().addAll(rbCustom, rbCatalog);
+        modeBox.getStyleClass().add("wishlist-mode-box");
 
         // --- Container 1: Custom Item Inputs ---
         VBox customBox = new VBox(10);
         Label lblCustomName = new Label("Item Name *:");
-        lblCustomName.setStyle("-fx-font-weight: bold;");
+        lblCustomName.getStyleClass().add("dialog-field-label");
         TextField txtCustomName = new TextField();
         txtCustomName.setPromptText("e.g. Mechanical Gaming Keyboard, RTX 5090, PS5 Controller...");
+        txtCustomName.setMaxWidth(Double.MAX_VALUE);
         txtCustomName.getStyleClass().add("text-field-modern");
 
-        HBox catAndEmoji = new HBox(12);
+        FlowPane catAndEmoji = new FlowPane();
+        catAndEmoji.setHgap(12);
+        catAndEmoji.setVgap(8);
+        catAndEmoji.setMaxWidth(Double.MAX_VALUE);
         VBox catBox = new VBox(4);
         Label lblCat = new Label("Category:");
-        lblCat.setStyle("-fx-font-weight: bold;");
+        lblCat.getStyleClass().add("dialog-field-label");
         ComboBox<String> cbCategory = new ComboBox<>();
+        cbCategory.getStyleClass().add("combo-box-modern");
         cbCategory.getItems().addAll("Gaming", "Hardware", "Peripherals", "Console", "Steam", "Tech", "Other");
         cbCategory.getSelectionModel().select("Gaming");
         cbCategory.setMaxWidth(Double.MAX_VALUE);
         catBox.getChildren().addAll(lblCat, cbCategory);
-        HBox.setHgrow(catBox, Priority.ALWAYS);
 
         VBox emojiBox = new VBox(4);
         Label lblEmoji = new Label("Icon:");
-        lblEmoji.setStyle("-fx-font-weight: bold;");
+        lblEmoji.getStyleClass().add("dialog-field-label");
         ComboBox<String> cbEmoji = new ComboBox<>();
+        cbEmoji.getStyleClass().add("combo-box-modern");
         cbEmoji.getItems().addAll("🎁", "🎮", "💻", "🎧", "🖥️", "📱", "⚔️", "⚡", "🔥");
         cbEmoji.getSelectionModel().select("🎁");
         cbEmoji.setMaxWidth(Double.MAX_VALUE);
@@ -283,8 +361,9 @@ public class WishlistController implements Initializable {
         // --- Container 2: Catalog Inputs ---
         VBox catalogBox = new VBox(10);
         Label lblCatalog = new Label("Select Catalog Item:");
-        lblCatalog.setStyle("-fx-font-weight: bold;");
+        lblCatalog.getStyleClass().add("dialog-field-label");
         ComboBox<Item> cbCatalog = new ComboBox<>(wishlistService.getCatalog());
+        cbCatalog.getStyleClass().add("combo-box-modern");
         cbCatalog.setMaxWidth(Double.MAX_VALUE);
         if (!wishlistService.getCatalog().isEmpty()) {
             cbCatalog.getSelectionModel().selectFirst();
@@ -295,24 +374,27 @@ public class WishlistController implements Initializable {
 
         // --- Common Inputs: Target Amount, Priority, Notes ---
         Label lblPrice = new Label("Target Amount / Price (EGP) *:");
-        lblPrice.setStyle("-fx-font-weight: bold;");
+        lblPrice.getStyleClass().add("dialog-field-label");
         TextField txtPrice = new TextField();
         txtPrice.setPromptText("e.g. 3500");
+        txtPrice.setMaxWidth(Double.MAX_VALUE);
         txtPrice.getStyleClass().add("text-field-modern");
 
         // Priority
         Label lblPriority = new Label("Priority:");
-        lblPriority.setStyle("-fx-font-weight: bold;");
+        lblPriority.getStyleClass().add("dialog-field-label");
         ComboBox<String> cbPriority = new ComboBox<>();
+        cbPriority.getStyleClass().add("combo-box-modern");
         cbPriority.getItems().addAll("HIGH", "MEDIUM", "LOW");
         cbPriority.getSelectionModel().select("HIGH");
         cbPriority.setMaxWidth(Double.MAX_VALUE);
 
         // Notes
         Label lblNotes = new Label("Notes / Specific Preferences:");
-        lblNotes.setStyle("-fx-font-weight: bold;");
+        lblNotes.getStyleClass().add("dialog-field-label");
         TextField txtNotes = new TextField();
         txtNotes.setPromptText("e.g. Preferred color, size, model variation...");
+        txtNotes.setMaxWidth(Double.MAX_VALUE);
         txtNotes.getStyleClass().add("text-field-modern");
 
         // Toggle behavior
@@ -336,7 +418,23 @@ public class WishlistController implements Initializable {
 
         form.getChildren().addAll(lblMode, modeBox, customBox, catalogBox, lblPrice, txtPrice, lblPriority, cbPriority,
                 lblNotes, txtNotes);
-        pane.setContent(form);
+        ScrollPane formScroll = new ScrollPane(form);
+        formScroll.setFitToWidth(true);
+        formScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        formScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        formScroll.setPannable(true);
+        formScroll.getStyleClass().add("dialog-form-scroll");
+        form.prefWidthProperty().bind(Bindings.createDoubleBinding(
+                () -> formScroll.getViewportBounds().getWidth(), formScroll.viewportBoundsProperty()));
+        catAndEmoji.prefWrapLengthProperty().bind(Bindings.createDoubleBinding(
+                () -> formScroll.getViewportBounds().getWidth(), formScroll.viewportBoundsProperty()));
+        formScroll.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            double availableWidth = newBounds.getWidth();
+            double columnWidth = Math.max(140, (availableWidth - catAndEmoji.getHgap()) / 2);
+            catBox.setPrefWidth(columnWidth);
+            emojiBox.setPrefWidth(columnWidth);
+        });
+        pane.setContent(formScroll);
 
         // Validate on OK button click before closing
         Button okButton = (Button) pane.lookupButton(ButtonType.OK);
@@ -422,23 +520,24 @@ public class WishlistController implements Initializable {
         pane.getStylesheets().add(getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
 
         VBox form = new VBox(14);
+        form.getStyleClass().add("wishlist-dialog-form");
         form.setPrefWidth(440);
         form.setPadding(new Insets(16));
 
         Label lblPrice = new Label("Target Price (EGP):");
-        lblPrice.setStyle("-fx-font-weight: bold;");
+        lblPrice.getStyleClass().add("dialog-field-label");
         TextField txtPrice = new TextField(String.valueOf((int) item.getTargetAmount()));
         txtPrice.getStyleClass().add("text-field-modern");
 
         Label lblPriority = new Label("Priority:");
-        lblPriority.setStyle("-fx-font-weight: bold;");
+        lblPriority.getStyleClass().add("dialog-field-label");
         ComboBox<String> cbPriority = new ComboBox<>();
         cbPriority.getItems().addAll("HIGH", "MEDIUM", "LOW");
         cbPriority.setValue(item.getPriority());
         cbPriority.setMaxWidth(Double.MAX_VALUE);
 
         Label lblNotes = new Label("Notes / Preferences:");
-        lblNotes.setStyle("-fx-font-weight: bold;");
+        lblNotes.getStyleClass().add("dialog-field-label");
         TextField txtNotes = new TextField(item.getNotes() != null ? item.getNotes() : "");
         txtNotes.getStyleClass().add("text-field-modern");
 

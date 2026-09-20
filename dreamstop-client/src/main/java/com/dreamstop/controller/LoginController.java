@@ -7,7 +7,6 @@ import com.dreamstop.common.dto.RegisterRequestDTO;
 import com.dreamstop.common.dto.UserDTO;
 import com.dreamstop.common.model.RequestType;
 import com.dreamstop.common.protocol.Request;
-import com.dreamstop.common.protocol.Response;
 import com.dreamstop.model.User;
 import com.dreamstop.network.NetworkClient;
 import com.dreamstop.service.MockDataFactory;
@@ -31,8 +30,6 @@ import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
 
-    @FXML
-    private StackPane rootPane;
     @FXML
     private StackPane toastOverlay;
 
@@ -75,7 +72,8 @@ public class LoginController implements Initializable {
         if (!network.isConnected()) {
             try {
                 network.connect();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         Platform.runLater(() -> {
@@ -92,8 +90,10 @@ public class LoginController implements Initializable {
     @FXML
     public void handleSwitchToSignIn(ActionEvent event) {
         isRegisterMode = false;
-        btnTabSignIn.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 8px; -fx-cursor: hand;");
-        btnTabRegister.setStyle("-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 8px; -fx-cursor: hand;");
+        btnTabSignIn.setStyle(
+                "-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 8px; -fx-cursor: hand;");
+        btnTabRegister.setStyle(
+                "-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 8px; -fx-cursor: hand;");
 
         boxEmail.setVisible(false);
         boxEmail.setManaged(false);
@@ -104,8 +104,10 @@ public class LoginController implements Initializable {
     @FXML
     public void handleSwitchToRegister(ActionEvent event) {
         isRegisterMode = true;
-        btnTabRegister.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 8px; -fx-cursor: hand;");
-        btnTabSignIn.setStyle("-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 8px; -fx-cursor: hand;");
+        btnTabRegister.setStyle(
+                "-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 8px; -fx-cursor: hand;");
+        btnTabSignIn.setStyle(
+                "-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 8px; -fx-cursor: hand;");
 
         boxEmail.setVisible(true);
         boxEmail.setManaged(true);
@@ -171,7 +173,8 @@ public class LoginController implements Initializable {
                 MockDataFactory.setCurrentUser(localMatch.get());
                 navigateToDashboard();
             } else {
-                User demoUser = new User("usr-" + username, username, username, username + "@dreamstop.com", "#6366F1", "Player");
+                User demoUser = new User("usr-" + username, username, username, username + "@dreamstop.com", "#6366F1",
+                        "Player");
                 MockDataFactory.setCurrentUser(demoUser);
                 navigateToDashboard();
             }
@@ -239,15 +242,15 @@ public class LoginController implements Initializable {
     }
 
     private void syncLocalUser(UserDTO dto) {
-        if (dto == null) return;
+        if (dto == null)
+            return;
         User user = new User(
                 String.valueOf(dto.getId()),
                 dto.getUsername(),
                 dto.getUsername(),
                 dto.getEmail(),
                 "#6366F1",
-                "Connected Player"
-        );
+                "Connected Player");
         MockDataFactory.setCurrentUser(user);
     }
 

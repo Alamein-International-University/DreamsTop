@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="18.0" style="-fx-background-color: #F8FAFC;" stylesheets="@../css/styles.css"
+<VBox spacing="18.0" styleClass="page-surface" stylesheets="@../css/styles.css"
     xmlns="http://javafx.com/javafx/13"
     xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.FriendsController">
     <padding>
@@ -40,10 +40,10 @@
                             <children>
                                 <TextField fx:id="txtSearchFriends" prefWidth="320.0" promptText="🔍  Filter friends by name..." styleClass="text-field-modern" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label fx:id="lblFriendsCount" style="-fx-text-fill: #64748B; -fx-font-weight: bold;" text="0 friends" />
+                                <Label fx:id="lblFriendsCount" styleClass="count-label" text="0 friends" />
                             </children>
                         </HBox>
-                        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                        <ScrollPane fitToWidth="true" styleClass="transparent-scroll" VBox.vgrow="ALWAYS">
                             <content>
                                 <VBox fx:id="friendsContainer" spacing="12.0">
                                     <padding>
@@ -69,7 +69,7 @@
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="8.0">
                                     <children>
-                                        <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="Incoming Requests" />
+                                        <Label styleClass="section-title" text="Incoming Requests" />
                                         <Label fx:id="lblIncomingCount" styleClass="badge" text="0 pending" />
                                     </children>
                                 </HBox>
@@ -80,7 +80,7 @@
                         <!-- Sent Section -->
                         <VBox spacing="8.0">
                             <children>
-                                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="Sent Requests (Pending Approval)" />
+                                <Label styleClass="section-title" text="Sent Requests (Pending Approval)" />
                                 <VBox fx:id="sentContainer" spacing="10.0" />
                             </children>
                         </VBox>
@@ -100,7 +100,7 @@
                                 <TextField fx:id="txtSearchNewUsers" prefWidth="380.0" promptText="🔍  Search users by name, username or email..." styleClass="text-field-modern" />
                             </children>
                         </HBox>
-                        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                        <ScrollPane fitToWidth="true" styleClass="transparent-scroll" VBox.vgrow="ALWAYS">
                             <content>
                                 <VBox fx:id="discoverContainer" spacing="12.0">
                                     <padding>

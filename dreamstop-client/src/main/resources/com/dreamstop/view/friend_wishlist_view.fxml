@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="20.0" style="-fx-background-color: #F8FAFC;" stylesheets="@../css/styles.css"
+<VBox spacing="20.0" styleClass="page-surface" stylesheets="@../css/styles.css"
     xmlns="http://javafx.com/javafx/13"
     xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.FriendWishlistController">
     <padding>
@@ -25,29 +25,29 @@
     </HBox>
 
     <!-- Friend Profile & Wishlist Banner -->
-    <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="card" style="-fx-padding: 20px 24px; -fx-background-color: #FFFFFF;">
+    <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="card friend-profile-card">
         <children>
-            <StackPane fx:id="friendAvatarPane" styleClass="avatar-circle" style="-fx-pref-width: 54px; -fx-pref-height: 54px;">
+            <StackPane fx:id="friendAvatarPane" styleClass="avatar-circle avatar-circle-large">
                 <children>
-                    <Label fx:id="lblFriendInitials" styleClass="avatar-text" style="-fx-font-size: 18px;" text="MK" />
+                    <Label fx:id="lblFriendInitials" styleClass="avatar-text avatar-text-large" text="MK" />
                 </children>
             </StackPane>
-            <VBox spacing="4.0">
+            <VBox spacing="4.0" styleClass="friend-profile-details" HBox.hgrow="ALWAYS">
                 <children>
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <children>
-                            <Label fx:id="lblFriendName" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="Mohamed ElKady" />
-                            <Label fx:id="lblFriendUsername" style="-fx-text-fill: #6366F1; -fx-font-weight: bold;" text="\@kady_x" />
+                            <Label fx:id="lblFriendName" styleClass="friend-name" text="Mohamed ElKady" />
+                            <Label fx:id="lblFriendUsername" styleClass="friend-username" text="\@kady_x" />
                         </children>
                     </HBox>
-                    <Label fx:id="lblFriendBio" style="-fx-text-fill: #64748B; -fx-font-size: 13px;" text="Backend Architect &amp; System Engineer" />
+                    <Label fx:id="lblFriendBio" styleClass="profile-bio" text="Backend Architect &amp; System Engineer" />
                 </children>
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <VBox alignment="CENTER_RIGHT" spacing="4.0">
+            <VBox alignment="CENTER_RIGHT" spacing="4.0" styleClass="friend-profile-summary">
                 <children>
-                    <Label fx:id="lblFriendItemsCount" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="2 Items on Wishlist" />
-                    <Label fx:id="lblFriendFundingSummary" style="-fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 12px;" text="9,100 / 15,800 EGP Funded (57%)" />
+                    <Label fx:id="lblFriendItemsCount" styleClass="friend-items-count" text="2 Items on Wishlist" />
+                    <Label fx:id="lblFriendFundingSummary" styleClass="friend-funding-summary" text="9,100 / 15,800 EGP Funded (57%)" />
                 </children>
             </VBox>
         </children>
@@ -56,8 +56,8 @@
     <!-- Friend's Wishlist Items Section -->
     <VBox spacing="10.0" VBox.vgrow="ALWAYS">
         <children>
-            <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0F172A;" text="Wishlist Items &amp; Funding Progress" />
-            <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+            <Label styleClass="section-title" text="Wishlist Items &amp; Funding Progress" />
+            <ScrollPane fitToWidth="true" styleClass="transparent-scroll" VBox.vgrow="ALWAYS">
                 <content>
                     <VBox fx:id="friendItemsContainer" spacing="14.0">
                         <padding>
