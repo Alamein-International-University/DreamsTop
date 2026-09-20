@@ -43,4 +43,15 @@ public final class SessionManager {
         handler.sendNotification(notification);
         return true;
     }
+
+    public void unregisterHandler(ClientHandler handler) {
+        if (handler == null) return;
+        userIdToHandler.values().remove(handler);
+        tokenToUserId.entrySet().removeIf(entry -> !userIdToHandler.containsKey(entry.getValue()));
+    }
+
+    public void clearAll() {
+        tokenToUserId.clear();
+        userIdToHandler.clear();
+    }
 }

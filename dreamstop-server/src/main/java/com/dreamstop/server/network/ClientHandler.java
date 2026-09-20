@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,6 +27,7 @@ public final class ClientHandler implements Runnable {
     private final Socket socket;
     private final RequestDispatcher dispatcher;
     private final SessionManager sessionManager;
+    private final Consumer<ClientHandler> onDisconnect;
 
     private ObjectOutputStream out;
     private ObjectInputStream in;
@@ -33,9 +35,14 @@ public final class ClientHandler implements Runnable {
     private Integer userId; // only used for logging
 
     public ClientHandler(Socket socket, RequestDispatcher dispatcher, SessionManager sessionManager) {
+        this(socket, dispatcher, sessionManager, null);
+    }
+
+    public ClientHandler(Socket socket, RequestDispatcher dispatcher, SessionManager sessionManager, Consumer<ClientHandler> onDisconnect) {
         this.socket = socket;
         this.dispatcher = dispatcher;
         this.sessionManager = sessionManager;
+        this.onDisconnect = onDisconnect;
     }
 
     @Override
@@ -109,11 +116,28 @@ public final class ClientHandler implements Runnable {
     private void close() {
         running = false;
         try {
-            socket.close();
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
         } catch (IOException ignored) {}
+
+        if (sessionManager != null) {
+            sessionManager.unregisterHandler(this);
+        }
+
+        if (onDisconnect != null) {
+            onDisconnect.accept(this);
+        }
+    }
+
+    public String getRemoteAddress() {
+        if (socket != null && socket.getRemoteSocketAddress() != null) {
+            return socket.getRemoteSocketAddress().toString();
+        }
+        return describeClient();
     }
 
     private String describeClient() {
-        return userId != null ? "user#" + userId : String.valueOf(socket.getRemoteSocketAddress());
+        return userId != null ? "user#" + userId : (socket != null ? String.valueOf(socket.getRemoteSocketAddress()) : "unknown");
     }
 }
