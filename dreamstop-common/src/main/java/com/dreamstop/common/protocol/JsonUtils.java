@@ -39,4 +39,11 @@ public final class JsonUtils {
         }
         return GSON.fromJson(json, classOfT);
     }
+
+    public static <T> T fromJson(String json, java.lang.reflect.Type typeOfT) {
+        if (json == null || json.trim().isEmpty()) {
+            return null;
+        }
+        return GSON.fromJson(json, typeOfT);
+    }
 }
