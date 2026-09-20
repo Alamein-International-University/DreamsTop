@@ -6,6 +6,7 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![H2 Database](https://img.shields.io/badge/H2-In--Memory_Fallback-007ACC?style=for-the-badge)](https://www.h2database.com/)
 [![Tests](https://img.shields.io/badge/Tests-24%20Passing-success?style=for-the-badge&logo=junit5&logoColor=white)](#-automated-testing)
+[![Changelog](https://img.shields.io/badge/Changelog-v0.1.0-blueviolet?style=for-the-badge)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](LICENSE)
 
 > **ITI - Building Java Desktop Applications (Orange Belt Final Project)**  
@@ -83,6 +84,8 @@ dreamstop/
 ├── dreamstop-server/         # TCP Socket Server daemon, DAOs, H2/MySQL manager (Java 21)
 └── dreamstop-client/         # Modern JavaFX Desktop GUI application (Java 21)
 ```
+
+> 📖 **Deep Dive**: For complete protocol JSON schemas, action codes, database relational constraints, and threading mechanics, read **[ARCHITECTURE.md](ARCHITECTURE.md)**.
 
 ### Protocol Sequence Diagram (Contribution & Push Notification)
 
