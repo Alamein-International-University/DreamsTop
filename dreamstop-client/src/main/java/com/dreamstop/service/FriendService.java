@@ -9,6 +9,7 @@ import com.dreamstop.common.protocol.Request;
 import com.dreamstop.model.FriendRequest;
 import com.dreamstop.model.User;
 import com.dreamstop.network.NetworkClient;
+import com.dreamstop.util.ModelMapper;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
@@ -56,7 +57,7 @@ public class FriendService {
                 }.getType();
                 List<UserDTO> dtos = JsonUtils.fromJson(response.getDataJson(), listType);
                 if (dtos != null) {
-                    List<User> userModels = dtos.stream().map(this::toModel).collect(Collectors.toList());
+                    List<User> userModels = dtos.stream().map(ModelMapper::toUser).collect(Collectors.toList());
                     Platform.runLater(() -> friends.setAll(userModels));
                 }
             }
@@ -69,7 +70,7 @@ public class FriendService {
                 }.getType();
                 List<FriendshipDTO> dtos = JsonUtils.fromJson(response.getDataJson(), listType);
                 if (dtos != null) {
-                    List<FriendRequest> reqModels = dtos.stream().map(this::toModel).collect(Collectors.toList());
+                    List<FriendRequest> reqModels = dtos.stream().map(ModelMapper::toFriendRequest).collect(Collectors.toList());
                     Platform.runLater(() -> incomingRequests.setAll(reqModels));
                 }
             }
@@ -120,7 +121,7 @@ public class FriendService {
                     }.getType();
                     List<UserDTO> dtos = JsonUtils.fromJson(response.getDataJson(), listType);
                     if (dtos != null) {
-                        return dtos.stream().map(this::toModel).collect(Collectors.toList());
+                        return dtos.stream().map(ModelMapper::toUser).collect(Collectors.toList());
                     }
                 }
             } catch (Exception ignored) {
@@ -156,7 +157,7 @@ public class FriendService {
         NetworkClient network = NetworkClient.getInstance();
         if (network.isConnected() && network.getSessionToken() != null) {
             try {
-                int targetId = parseNumericId(targetUser.getId());
+                int targetId = ModelMapper.parseNumericId(targetUser.getId());
                 JsonObject payload = new JsonObject();
                 payload.addProperty("targetUserId", targetId);
                 Request req = Request.of(RequestType.SEND_FRIEND_REQUEST, network.getSessionToken(), payload);
@@ -192,7 +193,7 @@ public class FriendService {
         NetworkClient network = NetworkClient.getInstance();
         if (network.isConnected() && network.getSessionToken() != null) {
             try {
-                int reqId = parseNumericId(request.getId());
+                int reqId = ModelMapper.parseNumericId(request.getId());
                 JsonObject payload = new JsonObject();
                 payload.addProperty("requestId", reqId);
                 Request req = Request.of(RequestType.ACCEPT_FRIEND_REQUEST, network.getSessionToken(), payload);
@@ -218,7 +219,7 @@ public class FriendService {
         NetworkClient network = NetworkClient.getInstance();
         if (network.isConnected() && network.getSessionToken() != null) {
             try {
-                int reqId = parseNumericId(request.getId());
+                int reqId = ModelMapper.parseNumericId(request.getId());
                 JsonObject payload = new JsonObject();
                 payload.addProperty("requestId", reqId);
                 Request req = Request.of(RequestType.DECLINE_FRIEND_REQUEST, network.getSessionToken(), payload);
@@ -245,7 +246,7 @@ public class FriendService {
         NetworkClient network = NetworkClient.getInstance();
         if (network.isConnected() && network.getSessionToken() != null) {
             try {
-                int friendId = parseNumericId(friend.getId());
+                int friendId = ModelMapper.parseNumericId(friend.getId());
                 JsonObject payload = new JsonObject();
                 payload.addProperty("friendId", friendId);
                 Request req = Request.of(RequestType.REMOVE_FRIEND, network.getSessionToken(), payload);
@@ -255,49 +256,5 @@ public class FriendService {
         }
 
         return true;
-    }
-
-    private User toModel(UserDTO dto) {
-        if (dto == null)
-            return null;
-        return new User(
-                String.valueOf(dto.getId()),
-                dto.getUsername(),
-                dto.getUsername(),
-                dto.getEmail(),
-                "#6366F1",
-                "Player");
-    }
-
-    private FriendRequest toModel(FriendshipDTO dto) {
-        if (dto == null)
-            return null;
-        User sender = toModel(dto.getRequester());
-        User receiver = toModel(dto.getAddressee());
-        FriendRequest.Status status = FriendRequest.Status.PENDING;
-        if (dto.getStatus() == FriendshipStatus.ACCEPTED)
-            status = FriendRequest.Status.ACCEPTED;
-        if (dto.getStatus() == FriendshipStatus.DECLINED)
-            status = FriendRequest.Status.DECLINED;
-
-        return new FriendRequest(
-                String.valueOf(dto.getId()),
-                sender,
-                receiver,
-                status,
-                LocalDateTime.now());
-    }
-
-    private int parseNumericId(String idStr) {
-        if (idStr == null)
-            return 0;
-        if (idStr.startsWith("usr-") || idStr.startsWith("req-")) {
-            idStr = idStr.substring(4);
-        }
-        try {
-            return Integer.parseInt(idStr);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
 }

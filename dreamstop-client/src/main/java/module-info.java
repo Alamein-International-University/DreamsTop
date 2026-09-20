@@ -15,4 +15,5 @@ module com.dreamstop {
     exports com.dreamstop.model;
     exports com.dreamstop.service;
     exports com.dreamstop.network;
+    exports com.dreamstop.util;
 }

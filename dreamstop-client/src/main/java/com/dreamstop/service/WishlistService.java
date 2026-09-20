@@ -10,6 +10,7 @@ import com.dreamstop.model.Item;
 import com.dreamstop.model.User;
 import com.dreamstop.model.WishlistItem;
 import com.dreamstop.network.NetworkClient;
+import com.dreamstop.util.ModelMapper;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
@@ -50,7 +51,7 @@ public class WishlistService {
                     Type listType = new TypeToken<List<ItemDTO>>() {}.getType();
                     List<ItemDTO> dtos = JsonUtils.fromJson(response.getDataJson(), listType);
                     if (dtos != null && !dtos.isEmpty()) {
-                        List<Item> items = dtos.stream().map(this::toModel).collect(Collectors.toList());
+                        List<Item> items = dtos.stream().map(ModelMapper::toItem).collect(Collectors.toList());
                         Platform.runLater(() -> catalog.setAll(items));
                     }
                 }
@@ -67,7 +68,7 @@ public class WishlistService {
                     Type listType = new TypeToken<List<WishlistItemDTO>>() {}.getType();
                     List<WishlistItemDTO> dtos = JsonUtils.fromJson(response.getDataJson(), listType);
                     if (dtos != null) {
-                        List<WishlistItem> items = dtos.stream().map(this::toModel).collect(Collectors.toList());
+                        List<WishlistItem> items = dtos.stream().map(ModelMapper::toWishlistItem).collect(Collectors.toList());
                         Platform.runLater(() -> myWishlist.setAll(items));
                     }
                 }
@@ -94,7 +95,7 @@ public class WishlistService {
         NetworkClient network = NetworkClient.getInstance();
         if (network.isConnected() && network.getSessionToken() != null) {
             try {
-                int itemId = parseNumericId(item.getId());
+                int itemId = ModelMapper.parseNumericId(item.getId());
                 JsonObject payload = new JsonObject();
                 payload.addProperty("itemId", itemId);
                 payload.addProperty("targetAmount", price);
@@ -161,7 +162,7 @@ public class WishlistService {
         NetworkClient network = NetworkClient.getInstance();
         if (network.isConnected() && network.getSessionToken() != null) {
             try {
-                int wishlistItemId = parseNumericId(item.getId());
+                int wishlistItemId = ModelMapper.parseNumericId(item.getId());
                 JsonObject payload = new JsonObject();
                 payload.addProperty("wishlistItemId", wishlistItemId);
                 Request req = Request.of(RequestType.REMOVE_FROM_WISHLIST, network.getSessionToken(), payload);
@@ -181,7 +182,7 @@ public class WishlistService {
         NetworkClient network = NetworkClient.getInstance();
         if (network.isConnected() && network.getSessionToken() != null) {
             try {
-                int friendId = parseNumericId(friend.getId());
+                int friendId = ModelMapper.parseNumericId(friend.getId());
                 JsonObject payload = new JsonObject();
                 payload.addProperty("friendId", friendId);
                 Request req = Request.of(RequestType.GET_FRIEND_WISHLIST, network.getSessionToken(), payload);
@@ -190,7 +191,7 @@ public class WishlistService {
                     Type listType = new TypeToken<List<WishlistItemDTO>>() {}.getType();
                     List<WishlistItemDTO> dtos = JsonUtils.fromJson(res.getDataJson(), listType);
                     if (dtos != null) {
-                        List<WishlistItem> items = dtos.stream().map(this::toModel).collect(Collectors.toList());
+                        List<WishlistItem> items = dtos.stream().map(ModelMapper::toWishlistItem).collect(Collectors.toList());
                         return FXCollections.observableArrayList(items);
                     }
                 }
@@ -207,7 +208,7 @@ public class WishlistService {
         NetworkClient network = NetworkClient.getInstance();
         if (network.isConnected() && network.getSessionToken() != null) {
             try {
-                int wishlistItemId = parseNumericId(item.getId());
+                int wishlistItemId = ModelMapper.parseNumericId(item.getId());
                 ContributeRequestDTO payload = new ContributeRequestDTO(wishlistItemId, BigDecimal.valueOf(amount));
                 Request req = Request.of(RequestType.CONTRIBUTE, network.getSessionToken(), payload);
                 network.sendRequestAsync(req);
@@ -232,58 +233,5 @@ public class WishlistService {
 
     public long getCompletedItemsCount() {
         return myWishlist.stream().filter(WishlistItem::isCompleted).count();
-    }
-
-    private Item toModel(ItemDTO dto) {
-        if (dto == null) return null;
-        String emoji = "🎮";
-        if (dto.getCategory() != null) {
-            switch (dto.getCategory().toUpperCase()) {
-                case "GPU" -> emoji = "🔥";
-                case "CONSOLE" -> emoji = "🎮";
-                case "STEAM" -> emoji = "💳";
-                case "PERIPHERALS" -> emoji = "🎧";
-                case "MONITOR" -> emoji = "🖥️";
-                case "GAME" -> emoji = "⚔️";
-                default -> emoji = "🎁";
-            }
-        }
-        return new Item(
-                String.valueOf(dto.getId()),
-                dto.getName(),
-                dto.getDescription() != null ? dto.getDescription() : "",
-                dto.getCategory() != null ? dto.getCategory() : "Store",
-                dto.getPrice() != null ? dto.getPrice().doubleValue() : 0.0,
-                emoji
-        );
-    }
-
-    private WishlistItem toModel(WishlistItemDTO dto) {
-        if (dto == null) return null;
-        Item itemModel = toModel(dto.getItem());
-        double target = itemModel != null ? itemModel.getPrice() : 0.0;
-        double current = dto.getCurrentPaidAmount() != null ? dto.getCurrentPaidAmount().doubleValue() : 0.0;
-
-        return new WishlistItem(
-                String.valueOf(dto.getId()),
-                String.valueOf(dto.getUserId()),
-                itemModel,
-                "",
-                target,
-                current,
-                "HIGH"
-        );
-    }
-
-    private int parseNumericId(String idStr) {
-        if (idStr == null) return 0;
-        if (idStr.startsWith("itm-") || idStr.startsWith("wl-") || idStr.startsWith("usr-")) {
-            idStr = idStr.substring(4);
-        }
-        try {
-            return Integer.parseInt(idStr);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
 }
