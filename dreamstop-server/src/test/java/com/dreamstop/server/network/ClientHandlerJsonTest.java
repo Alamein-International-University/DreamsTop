@@ -4,8 +4,11 @@ import com.dreamstop.common.model.RequestType;
 import com.dreamstop.common.protocol.JsonUtils;
 import com.dreamstop.common.protocol.Request;
 import com.dreamstop.common.protocol.Response;
+import com.dreamstop.server.database.DatabaseConfig;
+import com.dreamstop.server.database.DatabaseManager;
 import com.dreamstop.server.handler.AuthRequestHandler;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +23,6 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,8 +33,21 @@ public class ClientHandlerJsonTest {
     private SessionManager sessionManager;
     private RequestDispatcher dispatcher;
 
+    @BeforeAll
+    static void initTestSuite() {
+        DatabaseConfig.getInstance().overrideConfig(
+                "org.h2.Driver",
+                "jdbc:h2:mem:dreamstop_clienthandler_db;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH",
+                "sa",
+                ""
+        );
+    }
+
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() throws Exception {
+        DatabaseManager.getInstance().executeScript("database/schema.sql");
+        DatabaseManager.getInstance().executeScript("database/seed.sql");
+
         serverSocket = new ServerSocket(0); // bind to any free port
         executor = Executors.newCachedThreadPool();
         sessionManager = new SessionManager();
@@ -75,7 +90,7 @@ public class ClientHandlerJsonTest {
              PrintWriter writer = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8), true)) {
 
             // 3. Send JSON LOGIN request
-            String loginPayload = "{\"usernameOrEmail\":\"yousef\",\"password\":\"secret\"}";
+            String loginPayload = "{\"usernameOrEmail\":\"kady_x\",\"password\":\"password123\"}";
             Request loginRequest = new Request(RequestType.LOGIN, null, loginPayload);
             String jsonToSend = JsonUtils.toJson(loginRequest);
 

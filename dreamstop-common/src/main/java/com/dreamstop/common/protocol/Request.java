@@ -13,6 +13,14 @@ public class Request implements Serializable {
     public Request() {
     }
 
+    public Request(RequestType type) {
+        this(type, null, null);
+    }
+
+    public Request(RequestType type, String payloadJson) {
+        this(type, null, payloadJson);
+    }
+
     public Request(RequestType type, String token, String payloadJson) {
         this.type = type;
         this.token = token;
