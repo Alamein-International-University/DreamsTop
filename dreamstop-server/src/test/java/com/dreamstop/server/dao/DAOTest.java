@@ -95,6 +95,20 @@ public class DAOTest {
         assertEquals(0, new BigDecimal("2000.00").compareTo(currentBalance));
     }
 
+    @Test
+    @DisplayName("UserDAO: Update profile details successfully")
+    void testUpdateProfile() throws SQLException {
+        UserDAO userDAO = daoFactory.getUserDAO();
+        boolean updated = userDAO.updateProfile(2, "Mohamed ElKady (Lead)", "#EF4444", "Updated bio for test");
+        assertTrue(updated);
+
+        Optional<UserDTO> userOpt = userDAO.findById(2);
+        assertTrue(userOpt.isPresent());
+        assertEquals("Mohamed ElKady (Lead)", userOpt.get().getFullName());
+        assertEquals("#EF4444", userOpt.get().getAvatarColor());
+        assertEquals("Updated bio for test", userOpt.get().getBio());
+    }
+
     // ==========================================
     // 2. ItemDAO Tests
     // ==========================================

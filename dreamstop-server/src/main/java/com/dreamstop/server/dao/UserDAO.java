@@ -66,4 +66,9 @@ public interface UserDAO {
      * Retrieves the current balance of a user.
      */
     BigDecimal getBalance(int userId) throws SQLException;
+
+    /**
+     * Updates a user's profile details (full name, avatar color, bio).
+     */
+    boolean updateProfile(int userId, String fullName, String avatarColor, String bio) throws SQLException;
 }

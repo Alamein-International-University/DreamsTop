@@ -37,7 +37,8 @@ public class FriendService {
             NotificationType type = notification.getType();
             if (type == NotificationType.FRIEND_REQUEST
                     || type == NotificationType.FRIEND_REQUEST_ACCEPTED
-                    || type == NotificationType.FRIEND_REMOVED) {
+                    || type == NotificationType.FRIEND_REMOVED
+                    || type == NotificationType.PROFILE_UPDATED) {
                 refreshState();
             }
         });

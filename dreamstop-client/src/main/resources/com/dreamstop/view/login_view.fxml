@@ -106,11 +106,6 @@
                         </children>
                     </HBox>
 
-                    <!-- Offline Mode Fallback -->
-                    <Button onAction="#handleEnterOfflineMode" maxWidth="Infinity"
-                            text="Proceed in Offline Demo Mode →"
-                            style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 12px; -fx-cursor: hand;" />
-
                     <!-- Server Connection Indicator -->
                     <HBox alignment="CENTER" spacing="6.0">
                         <children>

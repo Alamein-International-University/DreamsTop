@@ -4,6 +4,7 @@ import com.dreamstop.common.dto.AuthResultDTO;
 import com.dreamstop.common.dto.ContributeRequestDTO;
 import com.dreamstop.common.dto.LoginRequestDTO;
 import com.dreamstop.common.dto.RegisterRequestDTO;
+import com.dreamstop.common.dto.UserDTO;
 import com.dreamstop.common.model.RequestType;
 import com.dreamstop.common.model.ResponseStatus;
 import com.dreamstop.common.protocol.Request;
@@ -35,6 +36,7 @@ public class HandlersIntegrationTest {
     private FriendRequestHandler friendHandler;
     private ContributionRequestHandler contributionHandler;
     private NotificationRequestHandler notificationHandler;
+    private ProfileRequestHandler profileHandler;
 
     @BeforeAll
     static void initTestSuite() {
@@ -59,6 +61,7 @@ public class HandlersIntegrationTest {
         friendHandler = new FriendRequestHandler();
         contributionHandler = new ContributionRequestHandler();
         notificationHandler = new NotificationRequestHandler();
+        profileHandler = new ProfileRequestHandler();
     }
 
     @Test
@@ -167,5 +170,23 @@ public class HandlersIntegrationTest {
         Request markReq = Request.of(RequestType.MARK_NOTIFICATION_READ, token, 1);
         Response markRes = notificationHandler.handleMarkNotificationRead(markReq, clientHandler);
         assertEquals(ResponseStatus.SUCCESS, markRes.getStatus());
+    }
+
+    @Test
+    @DisplayName("Profile: Update profile persists changes and broadcasts to friends")
+    void testProfileUpdate() {
+        String token = clientHandler.bindUser(2); // kady_x
+        com.dreamstop.common.dto.UpdateProfileRequestDTO dto = new com.dreamstop.common.dto.UpdateProfileRequestDTO(
+                "Kady The Architect", "#EC4899", "Building cool systems"
+        );
+        Request req = Request.of(RequestType.UPDATE_PROFILE, token, dto);
+
+        Response res = profileHandler.handleUpdateProfile(req, clientHandler);
+        assertEquals(ResponseStatus.SUCCESS, res.getStatus());
+        UserDTO user = res.getDataAs(UserDTO.class);
+        assertNotNull(user);
+        assertEquals("Kady The Architect", user.getFullName());
+        assertEquals("#EC4899", user.getAvatarColor());
+        assertEquals("Building cool systems", user.getBio());
     }
 }

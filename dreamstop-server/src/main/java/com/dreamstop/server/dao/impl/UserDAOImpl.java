@@ -54,12 +54,12 @@ public class UserDAOImpl implements UserDAO {
             }
         }
 
-        return new UserDTO(id, req.getUsername(), req.getEmail(), bal);
+        return new UserDTO(id, req.getUsername(), req.getEmail(), bal, name, color, bio);
     }
 
     @Override
     public Optional<UserDTO> authenticate(String usernameOrEmail, String plainPassword) throws SQLException {
-        String sql = "SELECT id, username, email, password_hash, balance FROM users WHERE username = ? OR email = ?";
+        String sql = "SELECT id, username, email, password_hash, balance, full_name, avatar_color, bio FROM users WHERE username = ? OR email = ?";
         try (Connection conn = DatabaseManager.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, usernameOrEmail.trim());
@@ -78,7 +78,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<UserDTO> findById(int id) throws SQLException {
-        String sql = "SELECT id, username, email, balance FROM users WHERE id = ?";
+        String sql = "SELECT id, username, email, balance, full_name, avatar_color, bio FROM users WHERE id = ?";
         try (Connection conn = DatabaseManager.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -93,7 +93,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<UserDTO> findByUsername(String username) throws SQLException {
-        String sql = "SELECT id, username, email, balance FROM users WHERE username = ?";
+        String sql = "SELECT id, username, email, balance, full_name, avatar_color, bio FROM users WHERE username = ?";
         try (Connection conn = DatabaseManager.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username.trim());
@@ -108,7 +108,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<UserDTO> findByEmail(String email) throws SQLException {
-        String sql = "SELECT id, username, email, balance FROM users WHERE email = ?";
+        String sql = "SELECT id, username, email, balance, full_name, avatar_color, bio FROM users WHERE email = ?";
         try (Connection conn = DatabaseManager.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email.trim().toLowerCase());
@@ -124,7 +124,7 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public List<UserDTO> searchUsers(String query, int excludeUserId) throws SQLException {
         List<UserDTO> list = new ArrayList<>();
-        String sql = "SELECT id, username, email, balance FROM users WHERE (username LIKE ? OR full_name LIKE ? OR email LIKE ?) AND id <> ? ORDER BY username ASC LIMIT 50";
+        String sql = "SELECT id, username, email, balance, full_name, avatar_color, bio FROM users WHERE (username LIKE ? OR full_name LIKE ? OR email LIKE ?) AND id <> ? ORDER BY username ASC LIMIT 50";
         String pattern = "%" + (query != null ? query.trim() : "") + "%";
 
         try (Connection conn = DatabaseManager.getInstance().getConnection();
@@ -190,12 +190,28 @@ public class UserDAOImpl implements UserDAO {
         return BigDecimal.ZERO;
     }
 
+    @Override
+    public boolean updateProfile(int userId, String fullName, String avatarColor, String bio) throws SQLException {
+        String sql = "UPDATE users SET full_name = ?, avatar_color = ?, bio = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, fullName != null ? fullName.trim() : "");
+            stmt.setString(2, avatarColor != null && !avatarColor.isBlank() ? avatarColor : "#6366F1");
+            stmt.setString(3, bio != null ? bio.trim() : "");
+            stmt.setInt(4, userId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
     private UserDTO mapUser(ResultSet rs) throws SQLException {
         return new UserDTO(
                 rs.getInt("id"),
                 rs.getString("username"),
                 rs.getString("email"),
-                rs.getBigDecimal("balance")
+                rs.getBigDecimal("balance"),
+                rs.getString("full_name"),
+                rs.getString("avatar_color"),
+                rs.getString("bio")
         );
     }
 }

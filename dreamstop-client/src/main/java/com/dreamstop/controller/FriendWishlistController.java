@@ -60,7 +60,8 @@ public class FriendWishlistController implements Initializable {
             NotificationType type = notification.getType();
             if (type == NotificationType.CONTRIBUTION_RECEIVED
                     || type == NotificationType.ITEM_COMPLETED_RECEIVER
-                    || type == NotificationType.ITEM_COMPLETED_BUYER) {
+                    || type == NotificationType.ITEM_COMPLETED_BUYER
+                    || type == NotificationType.PROFILE_UPDATED) {
                 Platform.runLater(() -> {
                     if (currentFriend != null) {
                         updateFriendHeader();
