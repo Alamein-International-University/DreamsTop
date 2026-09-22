@@ -18,6 +18,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Handles store catalog browsing and user wishlist operations.
+ */
 public class WishlistRequestHandler {
 
     private static final Logger LOGGER = Logger.getLogger(WishlistRequestHandler.class.getName());
@@ -71,46 +74,22 @@ public class WishlistRequestHandler {
             return Response.unauthorized("Unauthorized request");
         }
 
-        int itemId = 0;
-        BigDecimal targetAmount = null;
-        String notes = "";
-        String priority = "MEDIUM";
-
-        try {
-            WishlistItemDTO dto = request.getPayloadAs(WishlistItemDTO.class);
-            if (dto != null && dto.getItem() != null) {
-                itemId = dto.getItem().getId();
-                targetAmount = dto.getItem().getPrice();
-            }
-        } catch (Exception ignored) {}
-
-        if (itemId == 0) {
-            try {
-                JsonObject json = request.getPayloadAs(JsonObject.class);
-                if (json != null) {
-                    if (json.has("itemId")) itemId = json.get("itemId").getAsInt();
-                    if (json.has("targetAmount")) targetAmount = json.get("targetAmount").getAsBigDecimal();
-                    if (json.has("targetPrice")) targetAmount = json.get("targetPrice").getAsBigDecimal();
-                    if (json.has("notes")) notes = json.get("notes").getAsString();
-                    if (json.has("priority")) priority = json.get("priority").getAsString();
-                }
-            } catch (Exception ignored) {}
-        }
-
-        if (itemId <= 0) {
+        AddItemParams params = extractAddItemParams(request);
+        if (params == null || params.itemId <= 0) {
             return Response.badRequest("Valid item ID is required");
         }
 
         try {
+            BigDecimal targetAmount = params.targetAmount;
             if (targetAmount == null || targetAmount.compareTo(BigDecimal.ZERO) <= 0) {
-                Optional<ItemDTO> itemOpt = itemDAO.findById(itemId);
+                Optional<ItemDTO> itemOpt = itemDAO.findById(params.itemId);
                 if (itemOpt.isEmpty()) {
                     return Response.badRequest("Catalog item does not exist");
                 }
                 targetAmount = itemOpt.get().getPrice();
             }
 
-            WishlistItemDTO addedItem = wishlistDAO.addItem(userId, itemId, targetAmount, notes, priority);
+            WishlistItemDTO addedItem = wishlistDAO.addItem(userId, params.itemId, targetAmount, params.notes, params.priority);
             return Response.success(addedItem, "Item added to wishlist successfully");
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Failed to add item to wishlist for user " + userId, e);
@@ -124,7 +103,7 @@ public class WishlistRequestHandler {
             return Response.unauthorized("Unauthorized request");
         }
 
-        int wishlistItemId = extractWishlistItemId(request);
+        int wishlistItemId = extractId(request, "wishlistItemId", "id");
         if (wishlistItemId <= 0) {
             return Response.badRequest("Valid wishlist item ID is required");
         }
@@ -153,7 +132,7 @@ public class WishlistRequestHandler {
             return Response.unauthorized("Unauthorized request");
         }
 
-        int friendId = extractFriendId(request);
+        int friendId = extractId(request, "friendId", "userId", "id");
         if (friendId <= 0) {
             return Response.badRequest("Valid friend ID is required");
         }
@@ -172,7 +151,8 @@ public class WishlistRequestHandler {
         }
     }
 
-    private int extractWishlistItemId(Request request) {
+    private int extractId(Request request, String... propertyNames) {
+        if (request == null) return 0;
         try {
             Integer id = request.getPayloadAs(Integer.class);
             if (id != null) return id;
@@ -180,33 +160,50 @@ public class WishlistRequestHandler {
 
         try {
             JsonObject json = request.getPayloadAs(JsonObject.class);
-            if (json != null && json.has("wishlistItemId")) {
-                return json.get("wishlistItemId").getAsInt();
-            }
-            if (json != null && json.has("id")) {
-                return json.get("id").getAsInt();
+            if (json != null && propertyNames != null) {
+                for (String prop : propertyNames) {
+                    if (json.has(prop)) {
+                        return json.get(prop).getAsInt();
+                    }
+                }
             }
         } catch (Exception ignored) {}
 
         return 0;
     }
 
-    private int extractFriendId(Request request) {
+    private AddItemParams extractAddItemParams(Request request) {
+        if (request == null) return null;
+        AddItemParams p = new AddItemParams();
+
         try {
-            Integer id = request.getPayloadAs(Integer.class);
-            if (id != null) return id;
+            WishlistItemDTO dto = request.getPayloadAs(WishlistItemDTO.class);
+            if (dto != null && dto.getItem() != null) {
+                p.itemId = dto.getItem().getId();
+                p.targetAmount = dto.getItem().getPrice();
+                return p;
+            }
         } catch (Exception ignored) {}
 
         try {
             JsonObject json = request.getPayloadAs(JsonObject.class);
-            if (json != null && json.has("friendId")) {
-                return json.get("friendId").getAsInt();
-            }
-            if (json != null && json.has("userId")) {
-                return json.get("userId").getAsInt();
+            if (json != null) {
+                if (json.has("itemId")) p.itemId = json.get("itemId").getAsInt();
+                if (json.has("targetAmount")) p.targetAmount = json.get("targetAmount").getAsBigDecimal();
+                else if (json.has("targetPrice")) p.targetAmount = json.get("targetPrice").getAsBigDecimal();
+                if (json.has("notes")) p.notes = json.get("notes").getAsString();
+                if (json.has("priority")) p.priority = json.get("priority").getAsString();
+                return p;
             }
         } catch (Exception ignored) {}
 
-        return 0;
+        return null;
+    }
+
+    private static class AddItemParams {
+        int itemId;
+        BigDecimal targetAmount;
+        String notes = "";
+        String priority = "MEDIUM";
     }
 }
