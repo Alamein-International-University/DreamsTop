@@ -14,12 +14,10 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -68,15 +66,13 @@ public class SettingsController implements Initializable {
             "#8B5CF6", // Purple
             "#3B82F6", // Blue
             "#06B6D4", // Cyan
-            "#EF4444"  // Red
+            "#EF4444" // Red
     };
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         currencyFormat.setMinimumFractionDigits(2);
         currencyFormat.setMaximumFractionDigits(2);
-
-
 
         // 1. Initialize Theme Selector UI
         updateThemeCards(ThemeManager.getCurrentTheme());
@@ -146,14 +142,14 @@ public class SettingsController implements Initializable {
                     + "-fx-cursor: hand; ";
 
             if (isSelected) {
-                chip.setStyle(baseStyle 
+                chip.setStyle(baseStyle
                         + "-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-border-radius: 50%; "
                         + "-fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.75), 8, 0, 0, 0);");
                 Label check = new Label("✓");
                 check.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;");
                 chip.getChildren().setAll(check);
             } else {
-                chip.setStyle(baseStyle 
+                chip.setStyle(baseStyle
                         + "-fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1px; -fx-border-radius: 50%;");
             }
 
@@ -216,7 +212,8 @@ public class SettingsController implements Initializable {
                     }
                     NotificationUtil.showSuccess("Profile updated successfully!");
                 } else {
-                    NotificationUtil.showError(resp.getMessage() != null ? resp.getMessage() : "Failed to update profile.");
+                    NotificationUtil
+                            .showError(resp.getMessage() != null ? resp.getMessage() : "Failed to update profile.");
                 }
             })).exceptionally(ex -> {
                 Platform.runLater(() -> NotificationUtil.showError("Connection error: " + ex.getMessage()));
@@ -276,8 +273,7 @@ public class SettingsController implements Initializable {
         if (network.isConnected() && network.getCurrentUser() != null) {
             com.dreamstop.common.protocol.Request req = com.dreamstop.common.protocol.Request.of(
                     com.dreamstop.common.model.RequestType.RECHARGE_BALANCE,
-                    BigDecimal.valueOf(amount)
-            );
+                    BigDecimal.valueOf(amount));
             network.sendRequestAsync(req).thenAccept(resp -> Platform.runLater(() -> {
                 if (resp.isSuccess()) {
                     try {
