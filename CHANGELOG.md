@@ -7,15 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.6.0] - 2026-09-22
 
 ### Added
-- GitHub issue templates for bug reports (`bug_report.md`) and feature proposals (`feature_request.md`).
-- Centralized technical architecture specification in [`ARCHITECTURE.md`](ARCHITECTURE.md) detailing protocol envelopes, database constraints, and threading model.
-- Dedicated Visual Tour and Demo showcase placeholders in `docs/screenshots/` and `docs/videos/`.
+- **Full Real-Time Synchronization**: Live bidirectional push notifications (`WISHLIST_UPDATED`, `PROFILE_UPDATED`) updating viewing friends instantly without page re-entry or manual refresh.
+- **Wishlist Editing & Custom Item Persistence**: Introduced `UPDATE_WISHLIST_ITEM` protocol, server handler, and dynamic custom item persistence in database `items` table.
+- **Dual Themes & Vector Iconography Engine**: Seamless Dark Glassmorphism and Clean Light Mode with high-DPI vector icons and custom dialog styling.
+- **Server Connection Lifecycle**: Active connection health check on login/registration and graceful forced signout with alert notification upon server termination.
+- **Multi-Client Demo Asset**: Added crisp Full HD demo thumbnail (`06_multi_client_demo.png`) linking to video walkthrough in `README.md`.
 
 ### Refactored
-- Centralized UI model mapping and numeric ID parsing into [`ModelMapper.java`](dreamstop-client/src/main/java/com/dreamstop/util/ModelMapper.java) (`com.dreamstop.util`), eliminating code duplication across client services.
+- Cleaned up DAO layer into pure, readable, idiomatic JDBC.
+- Centralized UI model mapping and numeric ID parsing into [`ModelMapper.java`](dreamstop-client/src/main/java/com/dreamstop/util/ModelMapper.java).
 
 ---
 

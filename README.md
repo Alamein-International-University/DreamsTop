@@ -5,7 +5,7 @@
 [![Maven](https://img.shields.io/badge/Maven-3.8+-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)](https://maven.apache.org/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![H2 Database](https://img.shields.io/badge/H2-In--Memory_Fallback-007ACC?style=for-the-badge)](https://www.h2database.com/)
-[![Tests](https://img.shields.io/badge/Tests-24%20Passing-success?style=for-the-badge&logo=junit5&logoColor=white)](#-automated-testing)
+[![Tests](https://img.shields.io/badge/Tests-26%20Passing-success?style=for-the-badge&logo=junit5&logoColor=white)](#-automated-testing)
 [![Changelog](https://img.shields.io/badge/Changelog-v0.1.0-blueviolet?style=for-the-badge)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](LICENSE)
 
@@ -42,8 +42,9 @@
 
 - **Multi-Module Maven Architecture**: Cleanly separated into `dreamstop-parent`, `dreamstop-common`, `dreamstop-client`, and `dreamstop-server`.
 - **Zero-Config Database Fallback**: Auto-connects to MySQL if running, or falls back automatically to an **embedded in-memory H2 database** pre-seeded with catalog items, users, friendships, and wishlists.
-- **Real-Time Push Notifications**: Bidirectional TCP socket communication delivering instant alerts to buyers and receivers when goals are met.
-- **Glassmorphic JavaFX UI**: Modern dark theme with CSS custom styles, smooth micro-interactions, responsive progress bars, and toast alerts.
+- **Full Real-Time Bidirectional Synchronization**: Push notifications over TCP sockets deliver live instant updates when friends modify wishlists, update profiles, or meet gift goals.
+- **Wishlist CRUD & Custom Item Persistence**: Supports store catalog and custom item creation, live target price and priority editing, and atomic persistence in database.
+- **Dual Themes & Vector Iconography Engine**: Seamless Dark Glassmorphism and Clean Light Mode with high-DPI vector icons, custom dialogs, and responsive layouts.
 - **Atomic Financial Contributions**: Thread-safe database transactions ensuring exact goal funding and automatic excess refund calculations.
 
 ---
@@ -62,8 +63,8 @@
 
 | 05. Server Admin GUI & Console | 06. Multi-Client Real-Time Demo |
 | :---: | :---: |
-| ![Server GUI](docs/screenshots/05_server_gui_dashboard.png) | [![Demo Video](docs/videos/demo.mp4)](docs/videos/demo.mp4) |
-| *Server status toggle, active client counters, and timestamped audit logs.* | *Watch 1-2 minute walkthrough of simultaneous multi-client real-time interactions.* |
+| ![Server GUI](docs/screenshots/05_server_gui_dashboard.png) | [![Multi-Client Real-Time Demo](docs/screenshots/06_multi_client_demo.png)](docs/videos/demo.mp4) |
+| *Server status toggle, active client counters, and timestamped audit logs.* | *Simultaneous multi-client real-time interaction (Click image to play video).* |
 
 > [!NOTE]
 > All visual assets are stored in the [docs/screenshots/](docs/screenshots/) and [docs/videos/](docs/videos/) folders.
@@ -192,7 +193,7 @@ The database comes pre-seeded with 6 accounts (Default password for all accounts
 
 ## 🧪 Automated Testing
 
-DreamsTop includes a comprehensive unit and integration test suite with **24 automated tests** covering network protocols, DAOs, handlers, and concurrency:
+DreamsTop includes a comprehensive unit and integration test suite with **26 automated tests** covering network protocols, DAOs, handlers, wishlist persistence, and concurrency:
 
 ```powershell
 mvn clean test
@@ -203,7 +204,7 @@ mvn clean test
 [INFO] dreamstop-parent ................................... SUCCESS
 [INFO] dreamstop-common ................................... SUCCESS
 [INFO] dreamstop-client ................................... SUCCESS (8 tests)
-[INFO] dreamstop-server ................................... SUCCESS (16 tests)
+[INFO] dreamstop-server ................................... SUCCESS (18 tests)
 [INFO] BUILD SUCCESS
 ```
 
