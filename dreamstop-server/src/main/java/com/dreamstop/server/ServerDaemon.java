@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.dreamstop.server.database.DatabaseManager;
 import com.dreamstop.server.network.ClientHandler;
 import com.dreamstop.server.network.RequestDispatcher;
 import com.dreamstop.server.network.SessionManager;
@@ -56,7 +57,7 @@ public final class ServerDaemon {
         this.threadPool = Executors.newCachedThreadPool();
         this.running = true;
 
-        com.dreamstop.server.database.DatabaseManager.getInstance().initDatabaseIfAvailable();
+        DatabaseManager.getInstance().initDatabaseIfAvailable();
 
         this.acceptThread = new Thread(this::listenForConnections, "server-accept-loop");
         this.acceptThread.setDaemon(true);
