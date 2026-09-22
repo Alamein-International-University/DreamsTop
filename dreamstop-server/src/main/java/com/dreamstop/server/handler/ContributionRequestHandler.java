@@ -1,6 +1,7 @@
 package com.dreamstop.server.handler;
 
 import com.dreamstop.common.dto.ContributeRequestDTO;
+import com.dreamstop.common.dto.UserDTO;
 import com.dreamstop.common.model.NotificationType;
 import com.dreamstop.common.protocol.Request;
 import com.dreamstop.common.protocol.Response;
@@ -8,6 +9,7 @@ import com.dreamstop.common.protocol.ServerNotification;
 import com.dreamstop.server.dao.ContributionDAO;
 import com.dreamstop.server.dao.ContributionResult;
 import com.dreamstop.server.dao.DAOFactory;
+import com.dreamstop.server.dao.FriendshipDAO;
 import com.dreamstop.server.dao.WishlistDAO;
 import com.dreamstop.server.network.ClientHandler;
 import com.google.gson.JsonObject;
@@ -27,14 +29,20 @@ public class ContributionRequestHandler {
 
     private final ContributionDAO contributionDAO;
     private final WishlistDAO wishlistDAO;
+    private final FriendshipDAO friendshipDAO;
 
     public ContributionRequestHandler() {
-        this(DAOFactory.getInstance().getContributionDAO(), DAOFactory.getInstance().getWishlistDAO());
+        this(DAOFactory.getInstance().getContributionDAO(), DAOFactory.getInstance().getWishlistDAO(), DAOFactory.getInstance().getFriendshipDAO());
     }
 
     public ContributionRequestHandler(ContributionDAO contributionDAO, WishlistDAO wishlistDAO) {
+        this(contributionDAO, wishlistDAO, DAOFactory.getInstance().getFriendshipDAO());
+    }
+
+    public ContributionRequestHandler(ContributionDAO contributionDAO, WishlistDAO wishlistDAO, FriendshipDAO friendshipDAO) {
         this.contributionDAO = contributionDAO;
         this.wishlistDAO = wishlistDAO;
+        this.friendshipDAO = friendshipDAO;
     }
 
     public Response handleContribution(Request request, ClientHandler client) {
@@ -86,6 +94,23 @@ public class ContributionRequestHandler {
                             wishlistItemId
                     )
             );
+
+            // Broadcast WISHLIST_UPDATED to all online friends of owner so viewing clients see progress update live
+            try {
+                List<UserDTO> friends = friendshipDAO.getFriends(ownerId);
+                for (UserDTO friend : friends) {
+                    ServerNotification friendNotif = new ServerNotification(
+                            NotificationType.WISHLIST_UPDATED,
+                            "Contribution Update",
+                            "A wishlist item received a contribution.",
+                            wishlistItemId
+                    );
+                    friendNotif.setExtraDataJson(String.valueOf(ownerId));
+                    client.getSessionManager().push(friend.getId(), friendNotif);
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Failed to broadcast contribution update to friends", e);
+            }
 
             if (result.isItemCompleted()) {
                 client.getSessionManager().push(
