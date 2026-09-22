@@ -73,6 +73,11 @@ public class FriendshipDAOImpl implements FriendshipDAO {
     }
 
     @Override
+    public Optional<FriendshipDTO> getFriendshipById(int requestId) throws SQLException {
+        return db.queryOne(SELECT_FRIENDSHIP + "WHERE f.id = ?", this::mapFriendship, requestId);
+    }
+
+    @Override
     public boolean acceptFriendRequest(int requestId) throws SQLException {
         return db.update("UPDATE friendships SET status = 'ACCEPTED' WHERE id = ? AND status = 'PENDING'", requestId) > 0;
     }

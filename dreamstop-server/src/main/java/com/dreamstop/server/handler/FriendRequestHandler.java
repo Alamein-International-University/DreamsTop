@@ -125,6 +125,13 @@ public class FriendRequestHandler {
         }
 
         try {
+            int notifyRecipientUserId = requestIdOrSenderId;
+            Optional<FriendshipDTO> friendshipOpt = friendshipDAO.getFriendshipById(requestIdOrSenderId);
+            if (friendshipOpt.isPresent()) {
+                FriendshipDTO f = friendshipOpt.get();
+                notifyRecipientUserId = (f.getRequester().getId() == userId) ? f.getAddressee().getId() : f.getRequester().getId();
+            }
+
             boolean accepted = friendshipDAO.acceptFriendRequest(requestIdOrSenderId);
             if (!accepted) {
                 accepted = friendshipDAO.acceptFriendRequest(requestIdOrSenderId, userId);
@@ -141,10 +148,10 @@ public class FriendRequestHandler {
 
                 String title = "Friend Request Accepted";
                 String msg = accepterName + " accepted your friend request!";
-                notificationDAO.create(requestIdOrSenderId, NotificationType.FRIEND_REQUEST_ACCEPTED, title, msg, null);
+                notificationDAO.create(notifyRecipientUserId, NotificationType.FRIEND_REQUEST_ACCEPTED, title, msg, null);
 
                 client.getSessionManager().push(
-                        requestIdOrSenderId,
+                        notifyRecipientUserId,
                         new ServerNotification(NotificationType.FRIEND_REQUEST_ACCEPTED, title, msg)
                 );
 
@@ -196,6 +203,19 @@ public class FriendRequestHandler {
         try {
             boolean removed = friendshipDAO.removeFriend(userId, friendUserId);
             if (removed) {
+                String userName = "A friend";
+                try {
+                    Optional<UserDTO> userOpt = userDAO.findById(userId);
+                    if (userOpt.isPresent()) {
+                        userName = userOpt.get().getUsername();
+                    }
+                } catch (Exception ignored) {}
+
+                client.getSessionManager().push(
+                        friendUserId,
+                        new ServerNotification(NotificationType.FRIEND_REMOVED, "Friend Removed", userName + " removed you from their friends list.")
+                );
+
                 return Response.success("Friend removed successfully");
             } else {
                 return Response.badRequest("Friend relationship not found");

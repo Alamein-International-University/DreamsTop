@@ -3,6 +3,7 @@ package com.dreamstop.service;
 import com.dreamstop.common.dto.ContributeRequestDTO;
 import com.dreamstop.common.dto.ItemDTO;
 import com.dreamstop.common.dto.WishlistItemDTO;
+import com.dreamstop.common.model.NotificationType;
 import com.dreamstop.common.model.RequestType;
 import com.dreamstop.common.protocol.JsonUtils;
 import com.dreamstop.common.protocol.Request;
@@ -33,6 +34,16 @@ public class WishlistService {
         catalog.setAll(MockDataFactory.getCatalogItems());
         loadCatalogFromNetwork();
         refreshMyWishlist();
+
+        NetworkClient.getInstance().addNotificationListener(notification -> {
+            if (notification == null) return;
+            NotificationType type = notification.getType();
+            if (type == NotificationType.CONTRIBUTION_RECEIVED
+                    || type == NotificationType.ITEM_COMPLETED_RECEIVER
+                    || type == NotificationType.ITEM_COMPLETED_BUYER) {
+                refreshMyWishlist();
+            }
+        });
     }
 
     public static synchronized WishlistService getInstance() {

@@ -1,11 +1,15 @@
 package com.dreamstop.controller;
 
+import com.dreamstop.common.model.NotificationType;
+import com.dreamstop.common.protocol.ServerNotification;
 import com.dreamstop.model.User;
 import com.dreamstop.model.WishlistItem;
+import com.dreamstop.network.NetworkClient;
 import com.dreamstop.service.ContributionResult;
 import com.dreamstop.service.WishlistService;
 import com.dreamstop.util.NotificationUtil;
 import com.dreamstop.util.UiStyleUtil;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -49,6 +53,21 @@ public class FriendWishlistController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         currencyFormat.setMaximumFractionDigits(0);
+
+        NetworkClient.getInstance().addNotificationListener(notification -> {
+            if (notification == null) return;
+            NotificationType type = notification.getType();
+            if (type == NotificationType.CONTRIBUTION_RECEIVED
+                    || type == NotificationType.ITEM_COMPLETED_RECEIVER
+                    || type == NotificationType.ITEM_COMPLETED_BUYER) {
+                Platform.runLater(() -> {
+                    if (currentFriend != null) {
+                        updateFriendHeader();
+                        renderFriendItems();
+                    }
+                });
+            }
+        });
     }
 
     public void setFriend(User friend) {

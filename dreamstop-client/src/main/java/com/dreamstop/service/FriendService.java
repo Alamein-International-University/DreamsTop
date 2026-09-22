@@ -2,6 +2,7 @@ package com.dreamstop.service;
 
 import com.dreamstop.common.dto.FriendshipDTO;
 import com.dreamstop.common.dto.UserDTO;
+import com.dreamstop.common.model.NotificationType;
 import com.dreamstop.common.model.RequestType;
 import com.dreamstop.common.protocol.JsonUtils;
 import com.dreamstop.common.protocol.Request;
@@ -30,6 +31,16 @@ public class FriendService {
 
     private FriendService() {
         refreshState();
+
+        NetworkClient.getInstance().addNotificationListener(notification -> {
+            if (notification == null) return;
+            NotificationType type = notification.getType();
+            if (type == NotificationType.FRIEND_REQUEST
+                    || type == NotificationType.FRIEND_REQUEST_ACCEPTED
+                    || type == NotificationType.FRIEND_REMOVED) {
+                refreshState();
+            }
+        });
     }
 
     public static synchronized FriendService getInstance() {

@@ -36,6 +36,11 @@ public interface FriendshipDAO {
     FriendshipDTO sendFriendRequest(int requesterId, int addresseeId) throws SQLException;
 
     /**
+     * Finds a friendship record by its request ID.
+     */
+    Optional<FriendshipDTO> getFriendshipById(int requestId) throws SQLException;
+
+    /**
      * Accepts a pending friend request by request ID.
      */
     boolean acceptFriendRequest(int requestId) throws SQLException;
