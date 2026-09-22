@@ -31,9 +31,20 @@ public class ServerGuiApp extends Application {
             if (daemon != null && daemon.isRunning()) {
                 daemon.stop();
             }
+            javafx.application.Platform.exit();
+            System.exit(0);
         });
 
         stage.show();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        if (daemon != null && daemon.isRunning()) {
+            daemon.stop();
+        }
+        super.stop();
+        System.exit(0);
     }
 
     public static void main(String[] args) {

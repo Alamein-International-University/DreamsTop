@@ -215,6 +215,8 @@ public final class NetworkClient {
             NotificationUtil.showInfo("💰 " + text);
         } else if (type == NotificationType.FRIEND_REQUEST || type == NotificationType.FRIEND_REQUEST_ACCEPTED) {
             NotificationUtil.showInfo("👥 " + text);
+        } else if (type == NotificationType.FRIEND_REMOVED) {
+            NotificationUtil.showWarning("👥 " + text);
         } else {
             NotificationUtil.showInfo(text);
         }

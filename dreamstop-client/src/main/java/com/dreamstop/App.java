@@ -26,9 +26,18 @@ public class App extends Application {
 
         stage.setOnCloseRequest(e -> {
             com.dreamstop.network.NetworkClient.getInstance().disconnect();
+            javafx.application.Platform.exit();
+            System.exit(0);
         });
 
         stage.show();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        com.dreamstop.network.NetworkClient.getInstance().disconnect();
+        super.stop();
+        System.exit(0);
     }
 
     public static void setRoot(String fxml) throws IOException {

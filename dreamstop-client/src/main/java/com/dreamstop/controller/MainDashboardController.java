@@ -64,8 +64,12 @@ public class MainDashboardController implements Initializable {
         lblUserInitials.setText(me.getInitials());
         UiStyleUtil.applyAvatar(userAvatarPane, me.getAvatarColor(), "avatar-circle-profile");
 
-        // Bind pending requests badge
+        // Refresh server state for the current user
         FriendService friendService = FriendService.getInstance();
+        friendService.refreshState();
+        com.dreamstop.service.WishlistService.getInstance().refreshMyWishlist();
+
+        // Bind pending requests badge
         updateBadge(friendService.getIncomingRequests().size());
         friendService.getIncomingRequests().addListener((ListChangeListener<Object>) c -> {
             Platform.runLater(() -> updateBadge(friendService.getIncomingRequests().size()));
@@ -89,18 +93,22 @@ public class MainDashboardController implements Initializable {
     @FXML
     public void handleNavWishlist(ActionEvent event) {
         setActiveNav(btnNavWishlist, btnNavFriends);
+        com.dreamstop.service.WishlistService.getInstance().refreshMyWishlist();
         loadView("wishlist_view.fxml");
     }
 
     @FXML
     public void handleNavFriends(ActionEvent event) {
         setActiveNav(btnNavFriends, btnNavWishlist);
+        FriendService.getInstance().refreshState();
         loadView("friends_view.fxml");
     }
 
     @FXML
     public void handleSignOut(ActionEvent event) throws IOException {
         instance = null;
+        com.dreamstop.network.NetworkClient.getInstance().setSessionToken(null);
+        com.dreamstop.network.NetworkClient.getInstance().setCurrentUser(null);
         App.setRoot("login_view");
     }
 

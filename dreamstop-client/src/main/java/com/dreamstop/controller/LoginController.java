@@ -64,7 +64,9 @@ public class LoginController implements Initializable {
         NotificationUtil.registerToastContainer(toastOverlay);
 
         // Attempt background socket connection to server
-        new Thread(this::checkAndConnectServer, "network-client-init").start();
+        Thread initThread = new Thread(this::checkAndConnectServer, "network-client-init");
+        initThread.setDaemon(true);
+        initThread.start();
     }
 
     private void checkAndConnectServer() {
