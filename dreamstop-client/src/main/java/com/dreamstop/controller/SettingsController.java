@@ -25,9 +25,22 @@ import java.util.*;
 public class SettingsController implements Initializable {
 
     @FXML
+    private Label lblSettingsTitle;
+    @FXML
+    private Label lblThemeHeading;
+    @FXML
+    private Label lblProfileHeading;
+    @FXML
+    private Label lblWalletHeading;
+
+    @FXML
     private VBox boxThemeDark;
     @FXML
     private VBox boxThemeLight;
+    @FXML
+    private StackPane iconDarkTheme;
+    @FXML
+    private StackPane iconLightTheme;
 
     @FXML
     private StackPane avatarPreviewPane;
@@ -50,6 +63,8 @@ public class SettingsController implements Initializable {
     @FXML
     private Label lblWalletBalance;
     @FXML
+    private StackPane walletBannerIconBox;
+    @FXML
     private TextField txtCustomRecharge;
 
     private String selectedAvatarColor = "#6366F1";
@@ -71,6 +86,32 @@ public class SettingsController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         currencyFormat.setMinimumFractionDigits(2);
         currencyFormat.setMaximumFractionDigits(2);
+
+        // Vector SVG Icons for Section Headers
+        if (lblSettingsTitle != null) {
+            com.dreamstop.util.IconUtil.styleLabel(lblSettingsTitle, com.dreamstop.util.IconUtil.IconType.SETTINGS, "Settings & Profile", 22, "#818CF8");
+        }
+        if (lblThemeHeading != null) {
+            com.dreamstop.util.IconUtil.styleLabel(lblThemeHeading, com.dreamstop.util.IconUtil.IconType.PALETTE, "Application Theme", 18, "#818CF8");
+        }
+        if (lblProfileHeading != null) {
+            com.dreamstop.util.IconUtil.styleLabel(lblProfileHeading, com.dreamstop.util.IconUtil.IconType.USER, "Profile Details", 18, "#818CF8");
+        }
+        if (lblWalletHeading != null) {
+            com.dreamstop.util.IconUtil.styleLabel(lblWalletHeading, com.dreamstop.util.IconUtil.IconType.WALLET, "Wallet & Financial Balance", 18, "#818CF8");
+        }
+        if (iconDarkTheme != null) {
+            iconDarkTheme.getChildren().setAll(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.MOON, 22, "#FACC15"));
+        }
+        if (iconLightTheme != null) {
+            iconLightTheme.getChildren().setAll(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.SUN, 22, "#F59E0B"));
+        }
+        if (btnSaveProfile != null) {
+            com.dreamstop.util.IconUtil.styleButton(btnSaveProfile, com.dreamstop.util.IconUtil.IconType.SAVE, "Save Profile Changes", 15, "#FFFFFF");
+        }
+        if (walletBannerIconBox != null) {
+            walletBannerIconBox.getChildren().setAll(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.DIAMOND, 38, "rgba(255, 255, 255, 0.9)"));
+        }
 
         // 1. Initialize Theme Selector UI
         updateThemeCards(ThemeManager.getCurrentTheme());
@@ -115,14 +156,14 @@ public class SettingsController implements Initializable {
     public void handleSelectDarkTheme() {
         ThemeManager.setTheme(ThemeManager.Theme.DARK);
         updateThemeCards(ThemeManager.Theme.DARK);
-        NotificationUtil.showInfo("Switched to Dark Glassmorphism 🌙");
+        NotificationUtil.showInfo("Switched to Dark Glassmorphism mode");
     }
 
     @FXML
     public void handleSelectLightTheme() {
         ThemeManager.setTheme(ThemeManager.Theme.LIGHT);
         updateThemeCards(ThemeManager.Theme.LIGHT);
-        NotificationUtil.showInfo("Switched to Clean Light Mode ☀️");
+        NotificationUtil.showInfo("Switched to Clean Light mode");
     }
 
     private void renderColorChips() {
@@ -130,10 +171,25 @@ public class SettingsController implements Initializable {
         for (String hex : PALETTE) {
             StackPane chip = new StackPane();
             chip.getStyleClass().add("avatar-chip");
-            if (hex.equalsIgnoreCase(selectedAvatarColor)) {
-                chip.getStyleClass().add("avatar-chip-selected");
+            boolean isSelected = hex.equalsIgnoreCase(selectedAvatarColor);
+
+            String baseStyle = "-fx-background-color: " + hex + "; "
+                    + "-fx-background-radius: 50%; "
+                    + "-fx-min-width: 32px; -fx-min-height: 32px; "
+                    + "-fx-pref-width: 32px; -fx-pref-height: 32px; "
+                    + "-fx-max-width: 32px; -fx-max-height: 32px; "
+                    + "-fx-cursor: hand; ";
+
+            if (isSelected) {
+                chip.setStyle(baseStyle 
+                        + "-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-border-radius: 50%; "
+                        + "-fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.75), 8, 0, 0, 0);");
+                chip.getChildren().setAll(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.CHECK, 13, "#FFFFFF"));
+            } else {
+                chip.setStyle(baseStyle 
+                        + "-fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1px; -fx-border-radius: 50%;");
             }
-            chip.setBackground(new Background(new BackgroundFill(Color.web(hex), new CornerRadii(50), Insets.EMPTY)));
+
             chip.setOnMouseClicked(e -> {
                 selectedAvatarColor = hex;
                 updateAvatarPreview(txtFullName.getText(), selectedAvatarColor);
@@ -180,7 +236,7 @@ public class SettingsController implements Initializable {
                 dashboard.refreshUserProfileDisplay();
             }
 
-            NotificationUtil.showSuccess("Profile updated successfully! ✨");
+            NotificationUtil.showSuccess("Profile updated successfully!");
         }
     }
 
@@ -248,7 +304,7 @@ public class SettingsController implements Initializable {
                         localWalletBalance += amount;
                     }
                     updateWalletDisplay();
-                    NotificationUtil.showSuccess("Recharged +" + currencyFormat.format(amount) + " EGP successfully! 💳");
+                    NotificationUtil.showSuccess("Recharged +" + currencyFormat.format(amount) + " EGP successfully!");
                 } else {
                     NotificationUtil.showError(resp.getMessage() != null ? resp.getMessage() : "Recharge failed.");
                 }
@@ -257,7 +313,7 @@ public class SettingsController implements Initializable {
             // Local fallback balance update
             localWalletBalance += amount;
             updateWalletDisplay();
-            NotificationUtil.showSuccess("Recharged +" + currencyFormat.format(amount) + " EGP successfully! 💳");
+            NotificationUtil.showSuccess("Recharged +" + currencyFormat.format(amount) + " EGP successfully!");
         }
     }
 }

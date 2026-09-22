@@ -15,6 +15,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
@@ -108,6 +109,7 @@ public class MainDashboardController implements Initializable {
         User me = MockDataFactory.getCurrentUser();
         if (me != null) {
             lblUserName.setText(me.getFullName());
+            lblUserName.setTooltip(new Tooltip(me.getFullName()));
             lblUserHandle.setText("@" + me.getUsername());
             lblUserInitials.setText(me.getInitials());
             UiStyleUtil.applyAvatar(userAvatarPane, me.getAvatarColor(), "avatar-circle-profile");

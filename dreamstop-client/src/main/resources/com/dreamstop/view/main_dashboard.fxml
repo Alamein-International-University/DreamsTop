@@ -64,7 +64,7 @@
                         <!-- Active User Profile Widget -->
                         <VBox styleClass="user-profile-box" spacing="8.0">
                             <children>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <HBox alignment="CENTER_LEFT" spacing="8.0">
                                     <children>
                                         <StackPane fx:id="userAvatarPane" styleClass="avatar-circle">
                                             <children>
@@ -77,7 +77,7 @@
                                                 <Label fx:id="lblUserHandle" styleClass="profile-handle" text="\@yousefgamal" />
                                             </children>
                                         </VBox>
-                                        <Button fx:id="btnSignOut" onAction="#handleSignOut" styleClass="btn-signout" text="⎋">
+                                        <Button fx:id="btnSignOut" onAction="#handleSignOut" styleClass="btn-signout" text="">
                                             <tooltip>
                                                 <Tooltip text="Sign out" />
                                             </tooltip>
