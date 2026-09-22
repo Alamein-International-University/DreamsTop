@@ -66,35 +66,29 @@ public class NotificationRequestHandler {
     }
 
     private boolean extractUnreadOnly(Request request) {
+        if (request == null) return false;
         try {
             Boolean b = request.getPayloadAs(Boolean.class);
             if (b != null) return b;
-        } catch (Exception ignored) {}
-
-        try {
             JsonObject json = request.getPayloadAs(JsonObject.class);
             if (json != null && json.has("unreadOnly")) {
                 return json.get("unreadOnly").getAsBoolean();
             }
         } catch (Exception ignored) {}
-
         return false;
     }
 
     private int extractNotificationId(Request request) {
+        if (request == null) return 0;
         try {
             Integer id = request.getPayloadAs(Integer.class);
             if (id != null) return id;
-        } catch (Exception ignored) {}
-
-        try {
             JsonObject json = request.getPayloadAs(JsonObject.class);
             if (json != null) {
                 if (json.has("notificationId")) return json.get("notificationId").getAsInt();
                 if (json.has("id")) return json.get("id").getAsInt();
             }
         } catch (Exception ignored) {}
-
         return 0;
     }
 }
