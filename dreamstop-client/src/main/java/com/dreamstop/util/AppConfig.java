@@ -23,7 +23,7 @@ public final class AppConfig {
     // Brand & Application Metadata
     // ==========================================
     public static final String APP_NAME = "DreamsTop";
-    public static final String APP_TAGLINE = "i-Wish Desktop Platform";
+    public static final String APP_TAGLINE = "DreamsTop App";
     public static final String APP_VERSION = "1.0.0-RELEASE";
     public static final String APP_WINDOW_TITLE = APP_NAME + " — " + APP_TAGLINE;
     public static final String CURRENCY = "EGP";

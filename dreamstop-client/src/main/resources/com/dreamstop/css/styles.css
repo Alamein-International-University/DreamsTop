@@ -1148,81 +1148,336 @@
 }
 
 /* ===================================================
-   11. DIALOG PANES & TOASTS
+   11. DIALOG PANES, COMBOBOXES, FORMS & TOASTS
    =================================================== */
-.theme-dark .dialog-pane {
-  -fx-background-color: #0f172a;
+
+/* Dark Mode Dialog Panes */
+.theme-dark.dialog-pane,
+.theme-dark .dialog-pane,
+.theme-dark.modern-dialog-pane,
+.theme-dark .wishlist-dialog-pane,
+.theme-dark.wishlist-dialog-pane {
+  -fx-background-color: #0b0f19;
+  -fx-border-color: #1e293b;
+  -fx-border-width: 1px;
 }
 
+.theme-dark.dialog-pane > .header-panel,
 .theme-dark .dialog-pane > .header-panel {
-  -fx-background-color: #080c14;
-  -fx-padding: 18px 22px;
+  -fx-background-color: #131b2e;
+  -fx-border-color: transparent transparent #1e293b transparent;
+  -fx-border-width: 0 0 1px 0;
+  -fx-padding: 16px 22px;
 }
 
+.theme-dark.dialog-pane > .header-panel .label,
 .theme-dark .dialog-pane > .header-panel .label {
-  -fx-text-fill: #ffffff;
-  -fx-font-size: 17px;
+  -fx-text-fill: #f8fafc;
+  -fx-font-size: 15px;
   -fx-font-weight: bold;
 }
 
+.theme-dark.dialog-pane > .content,
+.theme-dark .dialog-pane > .content,
+.theme-dark .wishlist-dialog-form {
+  -fx-background-color: #0b0f19;
+}
+
+.theme-dark.dialog-pane .label,
 .theme-dark .dialog-pane .label {
-  -fx-text-fill: #e2e8f0;
+  -fx-text-fill: #cbd5e1;
 }
 
-.theme-light .dialog-pane {
-  -fx-background-color: #f8fafc;
+/* Light Mode Dialog Panes */
+.theme-light.dialog-pane,
+.theme-light .dialog-pane,
+.theme-light.modern-dialog-pane,
+.theme-light .wishlist-dialog-pane,
+.theme-light.wishlist-dialog-pane {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #e2e8f0;
+  -fx-border-width: 1px;
 }
 
+.theme-light.dialog-pane > .header-panel,
 .theme-light .dialog-pane > .header-panel {
-  -fx-background-color: #0f172a;
-  -fx-padding: 18px 22px;
+  -fx-background-color: #f8fafc;
+  -fx-border-color: transparent transparent #e2e8f0 transparent;
+  -fx-border-width: 0 0 1px 0;
+  -fx-padding: 16px 22px;
 }
 
+.theme-light.dialog-pane > .header-panel .label,
 .theme-light .dialog-pane > .header-panel .label {
-  -fx-text-fill: #ffffff;
-  -fx-font-size: 17px;
+  -fx-text-fill: #0f172a;
+  -fx-font-size: 15px;
   -fx-font-weight: bold;
 }
 
-.dialog-pane > .content {
-  -fx-padding: 20px;
+.theme-light.dialog-pane > .content,
+.theme-light .dialog-pane > .content,
+.theme-light .wishlist-dialog-form {
+  -fx-background-color: #ffffff;
 }
 
+.theme-light.dialog-pane .label,
+.theme-light .dialog-pane .label {
+  -fx-text-fill: #334155;
+}
+
+/* Dialog Form Field Labels */
+.dialog-field-label {
+  -fx-font-size: 12px;
+  -fx-font-weight: bold;
+}
+
+.theme-dark .dialog-field-label,
+.theme-dark.dialog-pane .dialog-field-label {
+  -fx-text-fill: #94a3b8;
+}
+
+.theme-light .dialog-field-label,
+.theme-light.dialog-pane .dialog-field-label {
+  -fx-text-fill: #64748b;
+}
+
+/* Modern ComboBox Styling */
+.combo-box,
+.combo-box-modern {
+  -fx-background-radius: 8px;
+  -fx-border-radius: 8px;
+  -fx-border-width: 1px;
+  -fx-padding: 4px 10px;
+  -fx-cursor: hand;
+  -fx-font-size: 13px;
+}
+
+.theme-dark .combo-box,
+.theme-dark .combo-box-modern,
+.theme-dark.dialog-pane .combo-box,
+.theme-dark.dialog-pane .combo-box-modern {
+  -fx-background-color: #131b2e;
+  -fx-border-color: #1e293b;
+}
+
+.theme-dark .combo-box:hover,
+.theme-dark .combo-box-modern:hover,
+.theme-dark.dialog-pane .combo-box:hover,
+.theme-dark.dialog-pane .combo-box-modern:hover {
+  -fx-border-color: #6366f1;
+}
+
+.theme-dark .combo-box .list-cell,
+.theme-dark .combo-box-modern .list-cell,
+.theme-dark.dialog-pane .combo-box .list-cell,
+.theme-dark.dialog-pane .combo-box-modern .list-cell {
+  -fx-text-fill: #f8fafc;
+  -fx-background-color: transparent;
+}
+
+.theme-dark .combo-box .arrow,
+.theme-dark .combo-box-modern .arrow {
+  -fx-background-color: #94a3b8;
+}
+
+.theme-light .combo-box,
+.theme-light .combo-box-modern,
+.theme-light.dialog-pane .combo-box,
+.theme-light.dialog-pane .combo-box-modern {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #cbd5e1;
+}
+
+.theme-light .combo-box:hover,
+.theme-light .combo-box-modern:hover,
+.theme-light.dialog-pane .combo-box:hover,
+.theme-light.dialog-pane .combo-box-modern:hover {
+  -fx-border-color: #6366f1;
+}
+
+.theme-light .combo-box .list-cell,
+.theme-light .combo-box-modern .list-cell,
+.theme-light.dialog-pane .combo-box .list-cell,
+.theme-light.dialog-pane .combo-box-modern .list-cell {
+  -fx-text-fill: #0f172a;
+  -fx-background-color: transparent;
+}
+
+.theme-light .combo-box .arrow,
+.theme-light .combo-box-modern .arrow {
+  -fx-background-color: #64748b;
+}
+
+/* ComboBox Popup List Styling */
+.combo-box-popup .list-view {
+  -fx-background-radius: 8px;
+  -fx-border-radius: 8px;
+  -fx-border-width: 1px;
+}
+
+.theme-dark .combo-box-popup .list-view,
+.theme-dark.dialog-pane .combo-box-popup .list-view {
+  -fx-background-color: #131b2e;
+  -fx-border-color: #1e293b;
+  -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.5), 14, 0, 0, 4);
+}
+
+.theme-dark .combo-box-popup .list-cell {
+  -fx-background-color: #131b2e;
+  -fx-text-fill: #f8fafc;
+  -fx-padding: 8px 12px;
+}
+
+.theme-dark .combo-box-popup .list-cell:hover {
+  -fx-background-color: rgba(99, 102, 241, 0.25);
+  -fx-text-fill: #ffffff;
+}
+
+.theme-dark .combo-box-popup .list-cell:filled:selected {
+  -fx-background-color: #6366f1;
+  -fx-text-fill: #ffffff;
+}
+
+.theme-light .combo-box-popup .list-view,
+.theme-light.dialog-pane .combo-box-popup .list-view {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #cbd5e1;
+  -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.12), 14, 0, 0, 4);
+}
+
+.theme-light .combo-box-popup .list-cell {
+  -fx-background-color: #ffffff;
+  -fx-text-fill: #0f172a;
+  -fx-padding: 8px 12px;
+}
+
+.theme-light .combo-box-popup .list-cell:hover {
+  -fx-background-color: #eef2ff;
+  -fx-text-fill: #4f46e5;
+}
+
+.theme-light .combo-box-popup .list-cell:filled:selected {
+  -fx-background-color: #6366f1;
+  -fx-text-fill: #ffffff;
+}
+
+/* Dialog Button Bar & Action Buttons */
 .dialog-pane .button-bar {
-  -fx-padding: 0 18px 18px 18px;
+  -fx-padding: 14px 20px;
+}
+
+.theme-dark.dialog-pane .button-bar,
+.theme-dark .dialog-pane .button-bar {
+  -fx-background-color: #0b0f19;
+  -fx-border-color: #1e293b transparent transparent transparent;
+  -fx-border-width: 1px 0 0 0;
+}
+
+.theme-light.dialog-pane .button-bar,
+.theme-light .dialog-pane .button-bar {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #e2e8f0 transparent transparent transparent;
+  -fx-border-width: 1px 0 0 0;
 }
 
 .dialog-pane .button {
   -fx-font-weight: bold;
-  -fx-padding: 8px 18px;
+  -fx-padding: 8px 20px;
   -fx-background-radius: 8px;
   -fx-border-radius: 8px;
   -fx-border-width: 1px;
   -fx-cursor: hand;
+  -fx-font-size: 13px;
 }
 
+.theme-dark.dialog-pane .button,
 .theme-dark .dialog-pane .button {
   -fx-background-color: #1e293b;
-  -fx-text-fill: #e2e8f0;
+  -fx-text-fill: #cbd5e1;
   -fx-border-color: #334155;
 }
 
+.theme-dark.dialog-pane .button:hover,
+.theme-dark .dialog-pane .button:hover {
+  -fx-background-color: #334155;
+  -fx-text-fill: #ffffff;
+}
+
+.theme-dark.dialog-pane .button:default,
 .theme-dark .dialog-pane .button:default {
   -fx-background-color: #6366f1;
   -fx-text-fill: #ffffff;
   -fx-border-color: #6366f1;
 }
 
+.theme-dark.dialog-pane .button:default:hover,
+.theme-dark .dialog-pane .button:default:hover {
+  -fx-background-color: #4f46e5;
+  -fx-border-color: #4f46e5;
+}
+
+.theme-light.dialog-pane .button,
 .theme-light .dialog-pane .button {
-  -fx-background-color: #ffffff;
+  -fx-background-color: #f1f5f9;
   -fx-text-fill: #475569;
   -fx-border-color: #cbd5e1;
 }
 
+.theme-light.dialog-pane .button:hover,
+.theme-light .dialog-pane .button:hover {
+  -fx-background-color: #e2e8f0;
+  -fx-text-fill: #0f172a;
+}
+
+.theme-light.dialog-pane .button:default,
 .theme-light .dialog-pane .button:default {
   -fx-background-color: #6366f1;
   -fx-text-fill: #ffffff;
   -fx-border-color: #6366f1;
+}
+
+.theme-light.dialog-pane .button:default:hover,
+.theme-light .dialog-pane .button:default:hover {
+  -fx-background-color: #4f46e5;
+  -fx-border-color: #4f46e5;
+}
+
+/* RadioButton & Mode Box */
+.wishlist-mode-box {
+  -fx-background-color: rgba(255, 255, 255, 0.04);
+  -fx-background-radius: 10px;
+  -fx-border-color: rgba(255, 255, 255, 0.08);
+  -fx-border-radius: 10px;
+  -fx-padding: 10px 14px;
+}
+
+.theme-light .wishlist-mode-box {
+  -fx-background-color: #f8fafc;
+  -fx-border-color: #e2e8f0;
+}
+
+.theme-dark .radio-button,
+.theme-dark.dialog-pane .radio-button {
+  -fx-text-fill: #cbd5e1;
+  -fx-font-weight: bold;
+}
+
+.theme-light .radio-button,
+.theme-light.dialog-pane .radio-button {
+  -fx-text-fill: #334155;
+  -fx-font-weight: bold;
+}
+
+.contribution-remaining {
+  -fx-text-fill: #10b981;
+  -fx-font-weight: bold;
+  -fx-font-size: 13px;
+}
+
+.dialog-warning {
+  -fx-text-fill: #ef4444;
+  -fx-font-size: 12px;
+  -fx-font-weight: bold;
 }
 
 .toast {

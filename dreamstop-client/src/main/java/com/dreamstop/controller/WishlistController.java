@@ -293,9 +293,7 @@ public class WishlistController implements Initializable {
 
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        pane.getStylesheets().add(getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
-        pane.getStyleClass().add("wishlist-dialog-pane");
-        com.dreamstop.util.ThemeManager.applyTheme(pane);
+        com.dreamstop.util.ThemeManager.styleDialog(dialog);
         dialog.setResizable(true);
         pane.setMinWidth(500);
         pane.setMinHeight(500);
@@ -525,15 +523,7 @@ public class WishlistController implements Initializable {
 
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        // Use the main stylesheet
-        pane.getStylesheets().add(
-                getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
-
-        // Dialog styling
-        pane.getStyleClass().add("wishlist-dialog-pane");
-        com.dreamstop.util.ThemeManager.applyTheme(pane);
-
+        com.dreamstop.util.ThemeManager.styleDialog(dialog);
         dialog.setResizable(true);
 
         pane.setMinWidth(440);
@@ -681,6 +671,7 @@ public class WishlistController implements Initializable {
         alert.setHeaderText("Remove \"" + item.getItem().getName() + "\"?");
         alert.setContentText(
                 "Are you sure you want to remove this item from your wishlist? This action cannot be undone.");
+        com.dreamstop.util.ThemeManager.styleDialog(alert);
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {

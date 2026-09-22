@@ -3,6 +3,9 @@ package com.dreamstop.util;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
+import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -99,9 +102,41 @@ public final class ThemeManager {
 
     public static void applyTheme(Parent root) {
         if (root == null) return;
-        Platform.runLater(() -> {
+        Runnable action = () -> {
             root.getStyleClass().removeAll(Theme.DARK.getStyleClass(), Theme.LIGHT.getStyleClass());
             root.getStyleClass().add(currentTheme.getStyleClass());
+        };
+        if (Platform.isFxApplicationThread()) {
+            action.run();
+        } else {
+            Platform.runLater(action);
+        }
+    }
+
+    /**
+     * Styles any Dialog/Alert to strictly follow the active theme (Dark Glassmorphism or Clean Light).
+     */
+    public static void styleDialog(Dialog<?> dialog) {
+        if (dialog == null) return;
+        DialogPane pane = dialog.getDialogPane();
+        if (pane == null) return;
+
+        String css = ThemeManager.class.getResource("/com/dreamstop/css/styles.css").toExternalForm();
+        if (!pane.getStylesheets().contains(css)) {
+            pane.getStylesheets().add(css);
+        }
+
+        if (!pane.getStyleClass().contains("modern-dialog-pane")) {
+            pane.getStyleClass().add("modern-dialog-pane");
+        }
+        applyTheme(pane);
+
+        dialog.setOnShown(e -> {
+            try {
+                Stage stage = (Stage) pane.getScene().getWindow();
+                stage.getIcons().setAll(AppConfig.getAppWindowIcon());
+            } catch (Exception ignored) {
+            }
         });
     }
 

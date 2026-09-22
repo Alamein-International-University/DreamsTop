@@ -192,7 +192,7 @@ public class FriendsController implements Initializable {
 
     private void handleRemoveFriend(User friend) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        com.dreamstop.util.ThemeManager.applyTheme(alert.getDialogPane());
+        com.dreamstop.util.ThemeManager.styleDialog(alert);
         alert.setTitle("Remove Friend");
         alert.setHeaderText("Remove " + friend.getFullName() + " from your friends?");
         alert.setContentText(

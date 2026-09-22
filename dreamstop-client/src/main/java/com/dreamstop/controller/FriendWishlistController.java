@@ -262,9 +262,7 @@ public class FriendWishlistController implements Initializable {
 
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        pane.getStylesheets().add(getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
-        pane.getStyleClass().add("wishlist-dialog-pane");
-        com.dreamstop.util.ThemeManager.applyTheme(pane);
+        com.dreamstop.util.ThemeManager.styleDialog(dialog);
         dialog.setResizable(true);
         pane.setMinWidth(460);
         pane.setMinHeight(360);
