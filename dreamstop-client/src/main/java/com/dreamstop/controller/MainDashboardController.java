@@ -77,11 +77,13 @@ public class MainDashboardController implements Initializable {
             lblBrandSubtitle.setText(com.dreamstop.util.AppConfig.APP_TAGLINE);
         }
 
-        // Vector SVG Icons for Navigation & Signout
-        updateNavIcons(btnNavWishlist);
+        // Navigation button labels
+        btnNavWishlist.setText("My Wishlist");
+        btnNavFriends.setText("Friends & Social");
+        btnNavSettings.setText("Settings & Profile");
         if (btnSignOut != null) {
-            btnSignOut.setGraphic(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.SIGN_OUT, 15, "#CBD5E1"));
-            btnSignOut.setText("");
+            btnSignOut.setText("Sign Out");
+            btnSignOut.setGraphic(null);
         }
 
         // Register toast notification host
@@ -179,17 +181,6 @@ public class MainDashboardController implements Initializable {
                 btn.getStyleClass().setAll("nav-button");
             }
         }
-        updateNavIcons(active);
-    }
-
-    private void updateNavIcons(Button active) {
-        String wishColor = (active == btnNavWishlist) ? "#FFFFFF" : "#94A3B8";
-        String friendColor = (active == btnNavFriends) ? "#FFFFFF" : "#94A3B8";
-        String settingsColor = (active == btnNavSettings) ? "#FFFFFF" : "#94A3B8";
-
-        com.dreamstop.util.IconUtil.styleButton(btnNavWishlist, com.dreamstop.util.IconUtil.IconType.GIFT, "My Wishlist", 16, wishColor);
-        com.dreamstop.util.IconUtil.styleButton(btnNavFriends, com.dreamstop.util.IconUtil.IconType.USERS, "Friends & Social", 16, friendColor);
-        com.dreamstop.util.IconUtil.styleButton(btnNavSettings, com.dreamstop.util.IconUtil.IconType.SETTINGS, "Settings & Profile", 16, settingsColor);
     }
 
     public void loadView(String fxmlFileName) {

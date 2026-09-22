@@ -23,7 +23,7 @@
             <!-- Page Header -->
             <VBox spacing="4.0">
                 <children>
-                    <Label fx:id="lblSettingsTitle" styleClass="view-title" text="Settings &amp; Profile" />
+                    <Label styleClass="view-title" text="Settings &amp; Profile" />
                     <Label styleClass="view-subtitle" text="Personalize your theme, customize your profile details, and manage your wallet balance" />
                 </children>
             </VBox>
@@ -33,7 +33,7 @@
                 <children>
                     <VBox spacing="3.0">
                         <children>
-                            <Label fx:id="lblThemeHeading" styleClass="settings-heading" text="Application Theme" />
+                            <Label styleClass="settings-heading" text="Application Theme" />
                             <Label styleClass="settings-subtext" text="Choose your visual experience. Changes apply immediately across all screens." />
                         </children>
                     </VBox>
@@ -42,33 +42,23 @@
                         <children>
                             <VBox fx:id="boxThemeDark" HBox.hgrow="ALWAYS" onMouseClicked="#handleSelectDarkTheme" styleClass="theme-choice-box">
                                 <children>
-                                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <VBox spacing="2.0">
                                         <children>
-                                            <StackPane fx:id="iconDarkTheme" prefHeight="28.0" prefWidth="28.0" />
-                                            <VBox spacing="2.0">
-                                                <children>
-                                                    <Label styleClass="theme-choice-title" text="Dark Glassmorphism (Default)" />
-                                                    <Label styleClass="settings-subtext" text="Deep slate canvas, frosted cards, vibrant glowing accents" />
-                                                </children>
-                                            </VBox>
+                                            <Label styleClass="theme-choice-title" text="Dark Glassmorphism (Default)" />
+                                            <Label styleClass="settings-subtext" text="Deep slate canvas, frosted cards, vibrant glowing accents" />
                                         </children>
-                                    </HBox>
+                                    </VBox>
                                 </children>
                             </VBox>
 
                             <VBox fx:id="boxThemeLight" HBox.hgrow="ALWAYS" onMouseClicked="#handleSelectLightTheme" styleClass="theme-choice-box">
                                 <children>
-                                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <VBox spacing="2.0">
                                         <children>
-                                            <StackPane fx:id="iconLightTheme" prefHeight="28.0" prefWidth="28.0" />
-                                            <VBox spacing="2.0">
-                                                <children>
-                                                    <Label styleClass="theme-choice-title" text="Clean Light Mode" />
-                                                    <Label styleClass="settings-subtext" text="Crisp high-contrast typography, clean paper cards, daytime clarity" />
-                                                </children>
-                                            </VBox>
+                                            <Label styleClass="theme-choice-title" text="Clean Light Mode" />
+                                            <Label styleClass="settings-subtext" text="Crisp high-contrast typography, clean paper cards, daytime clarity" />
                                         </children>
-                                    </HBox>
+                                    </VBox>
                                 </children>
                             </VBox>
                         </children>
@@ -81,7 +71,7 @@
                 <children>
                     <VBox spacing="3.0">
                         <children>
-                            <Label fx:id="lblProfileHeading" styleClass="settings-heading" text="Profile Details" />
+                            <Label styleClass="settings-heading" text="Profile Details" />
                             <Label styleClass="settings-subtext" text="Update your public profile details shown to your friends and team members." />
                         </children>
                     </VBox>
@@ -161,7 +151,7 @@
                 <children>
                     <VBox spacing="3.0">
                         <children>
-                            <Label fx:id="lblWalletHeading" styleClass="settings-heading" text="Wallet &amp; Financial Balance" />
+                            <Label styleClass="settings-heading" text="Wallet &amp; Financial Balance" />
                             <Label styleClass="settings-subtext" text="Recharge your wallet to contribute to your friends' dream wishes and receive contributions." />
                         </children>
                     </VBox>
@@ -175,7 +165,6 @@
                                     <Label fx:id="lblWalletBalance" styleClass="wallet-banner-balance" text="0.00 EGP" />
                                 </children>
                             </VBox>
-                            <StackPane fx:id="walletBannerIconBox" prefHeight="42.0" prefWidth="42.0" />
                         </children>
                     </HBox>
 

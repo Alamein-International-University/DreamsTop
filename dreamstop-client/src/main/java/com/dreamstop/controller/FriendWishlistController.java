@@ -140,8 +140,10 @@ public class FriendWishlistController implements Initializable {
 
         StackPane iconTile = new StackPane();
         iconTile.getStyleClass().add("card-icon-tile");
-        Node catIcon = com.dreamstop.util.IconUtil.getCategoryIcon(item.getItem().getCategory(), 22, "#818CF8");
-        iconTile.getChildren().add(catIcon);
+        String emoji = item.getItem().getIconEmoji() != null ? item.getItem().getIconEmoji() : "🎁";
+        Label iconLabel = new Label(emoji);
+        iconLabel.setStyle("-fx-font-size: 20px;");
+        iconTile.getChildren().add(iconLabel);
 
         VBox titleBox = new VBox(4);
         FlowPane nameAndBadges = new FlowPane();
@@ -173,7 +175,7 @@ public class FriendWishlistController implements Initializable {
             btnContribute.setText("Fully Funded");
             btnContribute.getStyleClass().add("btn-secondary");
         } else {
-            com.dreamstop.util.IconUtil.styleButton(btnContribute, com.dreamstop.util.IconUtil.IconType.GIFT, "Contribute", 13, "#FFFFFF");
+            btnContribute.setText("Contribute");
             btnContribute.getStyleClass().add("btn-primary");
         }
         btnContribute.getStyleClass().add("contribute-button");

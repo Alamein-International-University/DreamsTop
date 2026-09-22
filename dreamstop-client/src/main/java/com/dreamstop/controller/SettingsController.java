@@ -25,22 +25,9 @@ import java.util.*;
 public class SettingsController implements Initializable {
 
     @FXML
-    private Label lblSettingsTitle;
-    @FXML
-    private Label lblThemeHeading;
-    @FXML
-    private Label lblProfileHeading;
-    @FXML
-    private Label lblWalletHeading;
-
-    @FXML
     private VBox boxThemeDark;
     @FXML
     private VBox boxThemeLight;
-    @FXML
-    private StackPane iconDarkTheme;
-    @FXML
-    private StackPane iconLightTheme;
 
     @FXML
     private StackPane avatarPreviewPane;
@@ -62,8 +49,6 @@ public class SettingsController implements Initializable {
 
     @FXML
     private Label lblWalletBalance;
-    @FXML
-    private StackPane walletBannerIconBox;
     @FXML
     private TextField txtCustomRecharge;
 
@@ -87,31 +72,7 @@ public class SettingsController implements Initializable {
         currencyFormat.setMinimumFractionDigits(2);
         currencyFormat.setMaximumFractionDigits(2);
 
-        // Vector SVG Icons for Section Headers
-        if (lblSettingsTitle != null) {
-            com.dreamstop.util.IconUtil.styleLabel(lblSettingsTitle, com.dreamstop.util.IconUtil.IconType.SETTINGS, "Settings & Profile", 22, "#818CF8");
-        }
-        if (lblThemeHeading != null) {
-            com.dreamstop.util.IconUtil.styleLabel(lblThemeHeading, com.dreamstop.util.IconUtil.IconType.PALETTE, "Application Theme", 18, "#818CF8");
-        }
-        if (lblProfileHeading != null) {
-            com.dreamstop.util.IconUtil.styleLabel(lblProfileHeading, com.dreamstop.util.IconUtil.IconType.USER, "Profile Details", 18, "#818CF8");
-        }
-        if (lblWalletHeading != null) {
-            com.dreamstop.util.IconUtil.styleLabel(lblWalletHeading, com.dreamstop.util.IconUtil.IconType.WALLET, "Wallet & Financial Balance", 18, "#818CF8");
-        }
-        if (iconDarkTheme != null) {
-            iconDarkTheme.getChildren().setAll(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.MOON, 22, "#FACC15"));
-        }
-        if (iconLightTheme != null) {
-            iconLightTheme.getChildren().setAll(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.SUN, 22, "#F59E0B"));
-        }
-        if (btnSaveProfile != null) {
-            com.dreamstop.util.IconUtil.styleButton(btnSaveProfile, com.dreamstop.util.IconUtil.IconType.SAVE, "Save Profile Changes", 15, "#FFFFFF");
-        }
-        if (walletBannerIconBox != null) {
-            walletBannerIconBox.getChildren().setAll(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.DIAMOND, 38, "rgba(255, 255, 255, 0.9)"));
-        }
+
 
         // 1. Initialize Theme Selector UI
         updateThemeCards(ThemeManager.getCurrentTheme());
@@ -184,7 +145,9 @@ public class SettingsController implements Initializable {
                 chip.setStyle(baseStyle 
                         + "-fx-border-color: #ffffff; -fx-border-width: 3px; -fx-border-radius: 50%; "
                         + "-fx-effect: dropshadow(three-pass-box, rgba(255, 255, 255, 0.75), 8, 0, 0, 0);");
-                chip.getChildren().setAll(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.CHECK, 13, "#FFFFFF"));
+                Label check = new Label("✓");
+                check.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;");
+                chip.getChildren().setAll(check);
             } else {
                 chip.setStyle(baseStyle 
                         + "-fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1px; -fx-border-radius: 50%;");

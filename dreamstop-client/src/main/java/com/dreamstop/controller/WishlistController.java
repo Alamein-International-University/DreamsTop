@@ -59,7 +59,7 @@ public class WishlistController implements Initializable {
         if (!btnAddItem.getStyleClass().contains("page-header-action")) {
             btnAddItem.getStyleClass().add("page-header-action");
         }
-        com.dreamstop.util.IconUtil.styleButton(btnAddItem, com.dreamstop.util.IconUtil.IconType.PLUS, "Add Item to Wishlist", 14, "#FFFFFF");
+        btnAddItem.setText("+ Add Item");
 
         statsCardsRow.widthProperty().addListener((obs, oldWidth, newWidth) -> updateStatistics());
 
@@ -176,8 +176,10 @@ public class WishlistController implements Initializable {
 
         StackPane iconTile = new StackPane();
         iconTile.getStyleClass().add("card-icon-tile");
-        Node catIcon = com.dreamstop.util.IconUtil.getCategoryIcon(item.getItem().getCategory(), 22, "#818CF8");
-        iconTile.getChildren().add(catIcon);
+        String emoji = item.getItem().getIconEmoji() != null ? item.getItem().getIconEmoji() : "🎁";
+        Label iconLabel = new Label(emoji);
+        iconLabel.setStyle("-fx-font-size: 20px;");
+        iconTile.getChildren().add(iconLabel);
 
         VBox titleBox = new VBox(4);
         FlowPane nameAndBadges = new FlowPane();
@@ -205,12 +207,10 @@ public class WishlistController implements Initializable {
 
         Button btnEdit = new Button("Edit");
         btnEdit.getStyleClass().add("btn-card-edit");
-        com.dreamstop.util.IconUtil.styleButton(btnEdit, com.dreamstop.util.IconUtil.IconType.EDIT, "Edit", 12, "#CBD5E1");
         btnEdit.setOnAction(e -> handleEditItem(item));
 
         Button btnDelete = new Button("Delete");
         btnDelete.getStyleClass().add("btn-card-delete");
-        com.dreamstop.util.IconUtil.styleButton(btnDelete, com.dreamstop.util.IconUtil.IconType.TRASH, "Delete", 12, "#F87171");
         btnDelete.setOnAction(e -> handleDeleteItem(item));
 
         topRow.getChildren().addAll(iconTile, titleBox, btnEdit, btnDelete);
