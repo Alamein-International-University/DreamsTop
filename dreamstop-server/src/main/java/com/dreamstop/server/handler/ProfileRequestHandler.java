@@ -68,14 +68,15 @@ public class ProfileRequestHandler {
             try {
                 List<UserDTO> friends = friendshipDAO.getFriends(userId);
                 for (UserDTO friend : friends) {
-                    client.getSessionManager().push(
-                            friend.getId(),
-                            new ServerNotification(
-                                    NotificationType.PROFILE_UPDATED,
-                                    "Profile Updated",
-                                    (updatedUser != null ? updatedUser.getFullName() : updateReq.getFullName().trim()) + " updated their profile."
-                            )
+                    ServerNotification notif = new ServerNotification(
+                            NotificationType.PROFILE_UPDATED,
+                            "Profile Updated",
+                            (updatedUser != null ? updatedUser.getFullName() : updateReq.getFullName().trim()) + " updated their profile."
                     );
+                    if (updatedUser != null) {
+                        notif.setExtraDataJson(com.dreamstop.common.protocol.JsonUtils.toJson(updatedUser));
+                    }
+                    client.getSessionManager().push(friend.getId(), notif);
                 }
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Failed to push profile update notification to friends", e);

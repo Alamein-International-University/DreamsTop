@@ -40,7 +40,8 @@ public class WishlistService {
             NotificationType type = notification.getType();
             if (type == NotificationType.CONTRIBUTION_RECEIVED
                     || type == NotificationType.ITEM_COMPLETED_RECEIVER
-                    || type == NotificationType.ITEM_COMPLETED_BUYER) {
+                    || type == NotificationType.ITEM_COMPLETED_BUYER
+                    || type == NotificationType.WISHLIST_UPDATED) {
                 refreshMyWishlist();
             }
         });
@@ -211,6 +212,35 @@ public class WishlistService {
 
         List<WishlistItem> list = MockDataFactory.getWishlistsByUser().getOrDefault(friend.getId(), Collections.emptyList());
         return FXCollections.observableArrayList(list);
+    }
+
+    public java.util.concurrent.CompletableFuture<List<WishlistItem>> loadFriendWishlistAsync(User friend) {
+        if (friend == null) {
+            return java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+        }
+
+        NetworkClient network = NetworkClient.getInstance();
+        if (network.isConnected() && network.getSessionToken() != null) {
+            try {
+                int friendId = ModelMapper.parseNumericId(friend.getId());
+                JsonObject payload = new JsonObject();
+                payload.addProperty("friendId", friendId);
+                Request req = Request.of(RequestType.GET_FRIEND_WISHLIST, network.getSessionToken(), payload);
+                return network.sendRequestAsync(req).thenApply(res -> {
+                    if (res != null && res.isSuccess() && res.getDataJson() != null) {
+                        Type listType = new TypeToken<List<WishlistItemDTO>>() {}.getType();
+                        List<WishlistItemDTO> dtos = JsonUtils.fromJson(res.getDataJson(), listType);
+                        if (dtos != null) {
+                            return dtos.stream().map(ModelMapper::toWishlistItem).collect(Collectors.toList());
+                        }
+                    }
+                    return Collections.<WishlistItem>emptyList();
+                });
+            } catch (Exception ignored) {}
+        }
+
+        List<WishlistItem> list = MockDataFactory.getWishlistsByUser().getOrDefault(friend.getId(), Collections.emptyList());
+        return java.util.concurrent.CompletableFuture.completedFuture(list);
     }
 
     public ContributionResult contributeToFriendItem(WishlistItem item, double amount) {

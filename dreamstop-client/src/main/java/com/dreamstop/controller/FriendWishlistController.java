@@ -1,16 +1,22 @@
 package com.dreamstop.controller;
 
+import com.dreamstop.common.dto.UserDTO;
 import com.dreamstop.common.model.NotificationType;
+import com.dreamstop.common.protocol.JsonUtils;
 import com.dreamstop.common.protocol.ServerNotification;
 import com.dreamstop.model.User;
 import com.dreamstop.model.WishlistItem;
 import com.dreamstop.network.NetworkClient;
 import com.dreamstop.service.ContributionResult;
+import com.dreamstop.service.FriendService;
 import com.dreamstop.service.WishlistService;
+import com.dreamstop.util.ModelMapper;
 import com.dreamstop.util.NotificationUtil;
 import com.dreamstop.util.UiStyleUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,6 +33,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 public class FriendWishlistController implements Initializable {
 
@@ -48,34 +55,100 @@ public class FriendWishlistController implements Initializable {
     private VBox friendItemsContainer;
 
     private User currentFriend;
+    private final ObservableList<WishlistItem> friendWishlistItems = FXCollections.observableArrayList();
     private final WishlistService wishlistService = WishlistService.getInstance();
     private final NumberFormat currencyFormat = NumberFormat.getNumberInstance(Locale.US);
+    private Consumer<ServerNotification> notificationListener;
+    private ListChangeListener<User> friendsListListener;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         currencyFormat.setMaximumFractionDigits(0);
 
-        NetworkClient.getInstance().addNotificationListener(notification -> {
-            if (notification == null) return;
+        // Live sync with FriendService (updates profile info as soon as friends list refreshes)
+        friendsListListener = change -> {
+            Platform.runLater(() -> {
+                syncFriendProfileFromStore();
+                updateFriendHeader();
+            });
+        };
+        FriendService.getInstance().getFriends().addListener(friendsListListener);
+
+        // Live sync with server push notifications
+        notificationListener = notification -> {
+            if (notification == null || currentFriend == null) return;
             NotificationType type = notification.getType();
-            if (type == NotificationType.CONTRIBUTION_RECEIVED
-                    || type == NotificationType.ITEM_COMPLETED_RECEIVER
-                    || type == NotificationType.ITEM_COMPLETED_BUYER
-                    || type == NotificationType.PROFILE_UPDATED) {
+            int friendId = ModelMapper.parseNumericId(currentFriend.getId());
+
+            if (type == NotificationType.PROFILE_UPDATED) {
+                // If notification has extraDataJson with UserDTO, extract immediately
+                if (notification.getExtraDataJson() != null && !notification.getExtraDataJson().isBlank()) {
+                    try {
+                        UserDTO dto = JsonUtils.fromJson(notification.getExtraDataJson(), UserDTO.class);
+                        if (dto != null && dto.getId() == friendId) {
+                            Platform.runLater(() -> {
+                                currentFriend.setFullName(dto.getFullName());
+                                currentFriend.setAvatarColor(dto.getAvatarColor());
+                                currentFriend.setBio(dto.getBio());
+                                updateFriendHeader();
+                            });
+                        }
+                    } catch (Exception ignored) {}
+                }
                 Platform.runLater(() -> {
-                    if (currentFriend != null) {
-                        updateFriendHeader();
-                        renderFriendItems();
-                    }
+                    syncFriendProfileFromStore();
+                    updateFriendHeader();
                 });
+            } else if (type == NotificationType.WISHLIST_UPDATED
+                    || type == NotificationType.CONTRIBUTION_RECEIVED
+                    || type == NotificationType.ITEM_COMPLETED_RECEIVER
+                    || type == NotificationType.ITEM_COMPLETED_BUYER) {
+
+                boolean match = true;
+                if (notification.getExtraDataJson() != null && !notification.getExtraDataJson().isBlank()) {
+                    try {
+                        int ownerId = Integer.parseInt(notification.getExtraDataJson().trim());
+                        match = (ownerId == friendId);
+                    } catch (NumberFormatException ignored) {}
+                }
+
+                if (match) {
+                    reloadFriendWishlist();
+                }
             }
-        });
+        };
+        NetworkClient.getInstance().addNotificationListener(notificationListener);
     }
 
     public void setFriend(User friend) {
         this.currentFriend = friend;
+        syncFriendProfileFromStore();
         updateFriendHeader();
-        renderFriendItems();
+        reloadFriendWishlist();
+    }
+
+    private void syncFriendProfileFromStore() {
+        if (currentFriend == null) return;
+        int targetId = ModelMapper.parseNumericId(currentFriend.getId());
+        for (User u : FriendService.getInstance().getFriends()) {
+            if (ModelMapper.parseNumericId(u.getId()) == targetId) {
+                currentFriend.setFullName(u.getFullName());
+                currentFriend.setAvatarColor(u.getAvatarColor());
+                currentFriend.setBio(u.getBio());
+                break;
+            }
+        }
+    }
+
+    public void reloadFriendWishlist() {
+        if (currentFriend == null) return;
+        wishlistService.loadFriendWishlistAsync(currentFriend).thenAccept(items -> {
+            Platform.runLater(() -> {
+                friendWishlistItems.setAll(items);
+                updateFriendHeader();
+                renderFriendItems();
+            });
+        });
     }
 
     private void updateFriendHeader() {
@@ -88,12 +161,11 @@ public class FriendWishlistController implements Initializable {
         lblFriendInitials.setText(currentFriend.getInitials());
         UiStyleUtil.applyAvatar(friendAvatarPane, currentFriend.getAvatarColor(), "avatar-circle-large");
 
-        ObservableList<WishlistItem> items = wishlistService.getFriendWishlist(currentFriend);
-        double totalTarget = items.stream().mapToDouble(WishlistItem::getTargetAmount).sum();
-        double totalFunded = items.stream().mapToDouble(WishlistItem::getCurrentAmount).sum();
+        double totalTarget = friendWishlistItems.stream().mapToDouble(WishlistItem::getTargetAmount).sum();
+        double totalFunded = friendWishlistItems.stream().mapToDouble(WishlistItem::getCurrentAmount).sum();
         double pct = totalTarget > 0 ? (totalFunded / totalTarget) * 100.0 : 0;
 
-        lblFriendItemsCount.setText(items.size() + (items.size() == 1 ? " Item" : " Items") + " on Wishlist");
+        lblFriendItemsCount.setText(friendWishlistItems.size() + (friendWishlistItems.size() == 1 ? " Item" : " Items") + " on Wishlist");
         lblFriendFundingSummary.setText(currencyFormat.format(totalFunded) + " / " + currencyFormat.format(totalTarget)
                 + " EGP Funded (" + String.format("%.0f", pct) + "%)");
     }
@@ -104,9 +176,7 @@ public class FriendWishlistController implements Initializable {
         if (currentFriend == null)
             return;
 
-        ObservableList<WishlistItem> items = wishlistService.getFriendWishlist(currentFriend);
-
-        if (items.isEmpty()) {
+        if (friendWishlistItems.isEmpty()) {
             VBox emptyBox = new VBox(12);
             emptyBox.setAlignment(Pos.CENTER);
             emptyBox.setPadding(new Insets(50, 20, 50, 20));
@@ -125,7 +195,7 @@ public class FriendWishlistController implements Initializable {
             return;
         }
 
-        for (WishlistItem item : items) {
+        for (WishlistItem item : friendWishlistItems) {
             friendItemsContainer.getChildren().add(createFriendWishlistItemCard(item));
         }
     }
@@ -378,6 +448,7 @@ public class FriendWishlistController implements Initializable {
 
             updateFriendHeader();
             renderFriendItems();
+            reloadFriendWishlist();
 
             if (contribution.wasRefunded()) {
                 // Goal reached but user sent too much — show refund notice
@@ -401,6 +472,12 @@ public class FriendWishlistController implements Initializable {
 
     @FXML
     public void handleBack(ActionEvent event) {
+        if (notificationListener != null) {
+            NetworkClient.getInstance().removeNotificationListener(notificationListener);
+        }
+        if (friendsListListener != null) {
+            FriendService.getInstance().getFriends().removeListener(friendsListListener);
+        }
         if (MainDashboardController.getInstance() != null) {
             MainDashboardController.getInstance().handleNavFriends(event);
         }

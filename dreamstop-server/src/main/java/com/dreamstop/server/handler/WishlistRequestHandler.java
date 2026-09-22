@@ -1,9 +1,12 @@
 package com.dreamstop.server.handler;
 
 import com.dreamstop.common.dto.ItemDTO;
+import com.dreamstop.common.dto.UserDTO;
 import com.dreamstop.common.dto.WishlistItemDTO;
+import com.dreamstop.common.model.NotificationType;
 import com.dreamstop.common.protocol.Request;
 import com.dreamstop.common.protocol.Response;
+import com.dreamstop.common.protocol.ServerNotification;
 import com.dreamstop.server.dao.DAOFactory;
 import com.dreamstop.server.dao.FriendshipDAO;
 import com.dreamstop.server.dao.ItemDAO;
@@ -90,6 +93,24 @@ public class WishlistRequestHandler {
             }
 
             WishlistItemDTO addedItem = wishlistDAO.addItem(userId, params.itemId, targetAmount, params.notes, params.priority);
+
+            // Broadcast to online friends so viewing friends see new items live
+            try {
+                List<UserDTO> friends = friendshipDAO.getFriends(userId);
+                for (UserDTO friend : friends) {
+                    ServerNotification notif = new ServerNotification(
+                            NotificationType.WISHLIST_UPDATED,
+                            "Wishlist Updated",
+                            "A friend added an item to their wishlist.",
+                            addedItem != null ? addedItem.getId() : null
+                    );
+                    notif.setExtraDataJson(String.valueOf(userId));
+                    client.getSessionManager().push(friend.getId(), notif);
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Failed to broadcast wishlist addition to friends", e);
+            }
+
             return Response.success(addedItem, "Item added to wishlist successfully");
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Failed to add item to wishlist for user " + userId, e);
@@ -116,6 +137,22 @@ public class WishlistRequestHandler {
 
             boolean removed = wishlistDAO.removeItem(wishlistItemId);
             if (removed) {
+                // Broadcast to online friends so viewing friends see removal live
+                try {
+                    List<UserDTO> friends = friendshipDAO.getFriends(userId);
+                    for (UserDTO friend : friends) {
+                        ServerNotification notif = new ServerNotification(
+                                NotificationType.WISHLIST_UPDATED,
+                                "Wishlist Updated",
+                                "A friend removed an item from their wishlist."
+                        );
+                        notif.setExtraDataJson(String.valueOf(userId));
+                        client.getSessionManager().push(friend.getId(), notif);
+                    }
+                } catch (Exception e) {
+                    LOGGER.log(Level.WARNING, "Failed to broadcast wishlist removal to friends", e);
+                }
+
                 return Response.success("Item removed from wishlist");
             } else {
                 return Response.error("Wishlist item not found");
