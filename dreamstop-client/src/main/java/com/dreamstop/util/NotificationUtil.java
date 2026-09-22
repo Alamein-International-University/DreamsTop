@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class NotificationUtil {
@@ -47,13 +46,18 @@ public class NotificationUtil {
         toast.setPrefHeight(42);
         toast.setMinHeight(42);
         toast.setMaxHeight(42);
+
         toast.getStyleClass().add("toast");
-        toast.setBackground(new javafx.scene.layout.Background(new javafx.scene.layout.BackgroundFill(
-                Color.web(bgColor), new javafx.scene.layout.CornerRadii(20), javafx.geometry.Insets.EMPTY)));
+
+        // Dynamic background color
+        toast.setStyle("-fx-background-color: " + bgColor + ";");
+
         toast.setOpacity(0);
 
         StackPane.setAlignment(toast, Pos.TOP_CENTER);
-        StackPane.setMargin(toast, new javafx.geometry.Insets(20, 0, 0, 0));
+        StackPane.setMargin(
+                toast,
+                new javafx.geometry.Insets(20, 0, 0, 0));
 
         globalToastContainer.getChildren().add(toast);
 
@@ -68,7 +72,9 @@ public class NotificationUtil {
         fadeOut.setToValue(0.0);
 
         SequentialTransition seq = new SequentialTransition(fadeIn, stay, fadeOut);
+
         seq.setOnFinished(e -> globalToastContainer.getChildren().remove(toast));
+
         seq.play();
     }
 }

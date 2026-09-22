@@ -512,55 +512,158 @@ public class WishlistController implements Initializable {
 
     private void handleEditItem(WishlistItem item) {
         Dialog<Boolean> dialog = new Dialog<>();
+
         dialog.setTitle("Edit Wishlist Item");
         dialog.setHeaderText("Edit details for \"" + item.getItem().getName() + "\"");
 
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        pane.getStylesheets().add(getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
+
+        // Use the main stylesheet
+        pane.getStylesheets().add(
+                getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
+
+        // Dialog styling
+        pane.getStyleClass().add("wishlist-dialog-pane");
+
+        dialog.setResizable(true);
+
+        pane.setMinWidth(440);
+        pane.setPrefWidth(520);
+        pane.setMinHeight(350);
+
+        dialog.setOnShown(shownEvent -> {
+            Stage window = (Stage) dialog.getDialogPane().getScene().getWindow();
+            window.setMinWidth(480);
+            window.setMinHeight(400);
+        });
+
+        // ============================
+        // Form
+        // ============================
 
         VBox form = new VBox(14);
         form.getStyleClass().add("wishlist-dialog-form");
-        form.setPrefWidth(440);
         form.setPadding(new Insets(16));
+        form.setMaxWidth(Double.MAX_VALUE);
 
+        // Target Price
         Label lblPrice = new Label("Target Price (EGP):");
         lblPrice.getStyleClass().add("dialog-field-label");
-        TextField txtPrice = new TextField(String.valueOf((int) item.getTargetAmount()));
+
+        TextField txtPrice = new TextField(
+                String.valueOf((int) item.getTargetAmount()));
+        txtPrice.setPromptText("e.g. 3500");
+        txtPrice.setMaxWidth(Double.MAX_VALUE);
         txtPrice.getStyleClass().add("text-field-modern");
 
+        // Priority
         Label lblPriority = new Label("Priority:");
         lblPriority.getStyleClass().add("dialog-field-label");
+
         ComboBox<String> cbPriority = new ComboBox<>();
+        cbPriority.getStyleClass().add("combo-box-modern");
         cbPriority.getItems().addAll("HIGH", "MEDIUM", "LOW");
         cbPriority.setValue(item.getPriority());
         cbPriority.setMaxWidth(Double.MAX_VALUE);
 
+        // Notes
         Label lblNotes = new Label("Notes / Preferences:");
         lblNotes.getStyleClass().add("dialog-field-label");
-        TextField txtNotes = new TextField(item.getNotes() != null ? item.getNotes() : "");
+
+        TextField txtNotes = new TextField(
+                item.getNotes() != null ? item.getNotes() : "");
+        txtNotes.setPromptText("e.g. Preferred color, size, model variation...");
+        txtNotes.setMaxWidth(Double.MAX_VALUE);
         txtNotes.getStyleClass().add("text-field-modern");
 
-        form.getChildren().addAll(lblPrice, txtPrice, lblPriority, cbPriority, lblNotes, txtNotes);
-        pane.setContent(form);
+        form.getChildren().addAll(
+                lblPrice,
+                txtPrice,
+                lblPriority,
+                cbPriority,
+                lblNotes,
+                txtNotes);
+
+        // ============================
+        // Scroll container
+        // ============================
+
+        ScrollPane formScroll = new ScrollPane(form);
+        formScroll.setFitToWidth(true);
+        formScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        formScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        formScroll.setPannable(true);
+        formScroll.getStyleClass().add("dialog-form-scroll");
+
+        pane.setContent(formScroll);
+
+        // ============================
+        // Validation
+        // ============================
+
+        Button okButton = (Button) pane.lookupButton(ButtonType.OK);
+
+        okButton.addEventFilter(ActionEvent.ACTION, ae -> {
+            String priceStr = txtPrice.getText() != null
+                    ? txtPrice.getText().trim()
+                    : "";
+
+            if (priceStr.isEmpty()) {
+                ae.consume();
+                NotificationUtil.showWarning("Please enter a target amount!");
+                txtPrice.requestFocus();
+                return;
+            }
+
+            try {
+                double price = Double.parseDouble(priceStr);
+
+                if (price <= 0) {
+                    ae.consume();
+                    NotificationUtil.showWarning(
+                            "Amount must be greater than 0 EGP!");
+                    txtPrice.requestFocus();
+                }
+
+            } catch (NumberFormatException ex) {
+                ae.consume();
+                NotificationUtil.showWarning(
+                        "Please enter a valid numeric amount!");
+                txtPrice.requestFocus();
+            }
+        });
+
+        // ============================
+        // Result
+        // ============================
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
                 double targetPrice;
+
                 try {
-                    targetPrice = Double.parseDouble(txtPrice.getText().trim());
+                    targetPrice = Double.parseDouble(
+                            txtPrice.getText().trim());
                 } catch (NumberFormatException e) {
                     targetPrice = item.getTargetAmount();
                 }
-                return wishlistService.updateWishlistItem(item, txtNotes.getText().trim(), targetPrice,
+
+                return wishlistService.updateWishlistItem(
+                        item,
+                        txtNotes.getText().trim(),
+                        targetPrice,
                         cbPriority.getValue());
             }
+
             return false;
         });
 
         Optional<Boolean> result = dialog.showAndWait();
+
         if (result.isPresent() && result.get()) {
-            NotificationUtil.showSuccess("Wishlist item updated successfully!");
+            NotificationUtil.showSuccess(
+                    "Wishlist item updated successfully!");
         }
     }
 
