@@ -30,10 +30,7 @@ public final class DAOFactory {
         this.wishlistDAO = new WishlistDAOImpl();
         this.friendshipDAO = new FriendshipDAOImpl();
         this.notificationDAO = new NotificationDAOImpl();
-        this.contributionDAO = new ContributionDAOImpl(
-                com.dreamstop.server.database.DatabaseManager.getInstance(),
-                this.notificationDAO
-        );
+        this.contributionDAO = new ContributionDAOImpl(this.notificationDAO);
     }
 
     public static DAOFactory getInstance() {

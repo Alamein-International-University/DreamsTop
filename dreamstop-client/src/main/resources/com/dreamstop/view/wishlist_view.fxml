@@ -27,7 +27,7 @@
                 </children>
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnAddItem" onAction="#handleOpenAddDialog" styleClass="btn-primary page-header-action" text="✚  Add Item to Wishlist" />
+            <Button fx:id="btnAddItem" onAction="#handleOpenAddDialog" styleClass="btn-primary page-header-action" text="Add Item to Wishlist" />
         </children>
     </HBox>
 
@@ -55,7 +55,7 @@
             <VBox HBox.hgrow="ALWAYS" styleClass="stat-card">
                 <children>
                     <Label styleClass="stat-label" text="COMPLETED GIFTS" />
-                    <Label fx:id="lblStatCompleted" styleClass="stat-value" text="0 🎉" />
+                    <Label fx:id="lblStatCompleted" styleClass="stat-value" text="0" />
                 </children>
             </VBox>
         </children>
@@ -64,7 +64,7 @@
     <!-- Search / Filter Bar -->
     <HBox alignment="CENTER_LEFT" spacing="12.0">
         <children>
-            <TextField fx:id="txtSearchWishlist" prefWidth="340.0" promptText="🔍  Search my wishlist items..." styleClass="text-field-modern" />
+            <TextField fx:id="txtSearchWishlist" prefWidth="340.0" promptText="Search my wishlist items..." styleClass="text-field-modern" />
             <Region HBox.hgrow="ALWAYS" />
             <Label fx:id="lblItemsCountSubtitle" styleClass="items-count-label" text="Showing all items" />
         </children>

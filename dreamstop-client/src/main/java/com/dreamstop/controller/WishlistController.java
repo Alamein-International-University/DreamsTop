@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -58,6 +59,7 @@ public class WishlistController implements Initializable {
         if (!btnAddItem.getStyleClass().contains("page-header-action")) {
             btnAddItem.getStyleClass().add("page-header-action");
         }
+        btnAddItem.setText("+ Add Item");
 
         statsCardsRow.widthProperty().addListener((obs, oldWidth, newWidth) -> updateStatistics());
 
@@ -88,7 +90,7 @@ public class WishlistController implements Initializable {
         lblStatTotalItems.setText(formatStatNumber(totalItems, compact));
         lblStatTotalValue.setText(formatStatNumber(totalVal, compact) + " EGP");
         lblStatTotalFunded.setText(formatStatNumber(fundedVal, compact) + " EGP (" + String.format("%.0f", pct) + "%)");
-        lblStatCompleted.setText(formatStatNumber(completed, compact) + " 🎉");
+        lblStatCompleted.setText(formatStatNumber(completed, compact));
     }
 
     private String formatStatNumber(double value, boolean compact) {
@@ -169,13 +171,17 @@ public class WishlistController implements Initializable {
         card.getStyleClass().add("card");
 
         // Top Row: Emoji, Name, Category badge, Priority badge, Actions
-        HBox topRow = new HBox(12);
+        HBox topRow = new HBox(14);
         topRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label iconLabel = new Label(item.getItem().getIconEmoji());
-        iconLabel.getStyleClass().add("card-icon");
+        StackPane iconTile = new StackPane();
+        iconTile.getStyleClass().add("card-icon-tile");
+        String emoji = item.getItem().getIconEmoji() != null ? item.getItem().getIconEmoji() : "🎁";
+        Label iconLabel = new Label(emoji);
+        iconLabel.setStyle("-fx-font-size: 20px;");
+        iconTile.getChildren().add(iconLabel);
 
-        VBox titleBox = new VBox(3);
+        VBox titleBox = new VBox(4);
         FlowPane nameAndBadges = new FlowPane();
         nameAndBadges.setHgap(8);
         nameAndBadges.setVgap(4);
@@ -199,20 +205,20 @@ public class WishlistController implements Initializable {
         titleBox.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(titleBox, Priority.ALWAYS);
 
-        Button btnEdit = new Button("✏️ Edit");
-        btnEdit.getStyleClass().add("btn-secondary");
+        Button btnEdit = new Button("Edit");
+        btnEdit.getStyleClass().add("btn-card-edit");
         btnEdit.setOnAction(e -> handleEditItem(item));
 
-        Button btnDelete = new Button("🗑️ Delete");
-        btnDelete.getStyleClass().add("btn-danger");
+        Button btnDelete = new Button("Delete");
+        btnDelete.getStyleClass().add("btn-card-delete");
         btnDelete.setOnAction(e -> handleDeleteItem(item));
 
-        topRow.getChildren().addAll(iconLabel, titleBox, btnEdit, btnDelete);
+        topRow.getChildren().addAll(iconTile, titleBox, btnEdit, btnDelete);
 
         // Notes box if available
         if (item.getNotes() != null && !item.getNotes().trim().isEmpty()) {
-            Label notesLabel = new Label("💡 Note: " + item.getNotes());
-            notesLabel.getStyleClass().add("notes-label");
+            Label notesLabel = new Label("Note: " + item.getNotes());
+            notesLabel.getStyleClass().add("notes-callout");
             card.getChildren().addAll(topRow, notesLabel);
         } else {
             card.getChildren().add(topRow);
@@ -245,7 +251,7 @@ public class WishlistController implements Initializable {
         pctText.setAlignment(Pos.CENTER_RIGHT);
 
         if (item.isCompleted()) {
-            Label compBadge = new Label("COMPLETED 🎉");
+            Label compBadge = new Label("COMPLETED");
             compBadge.getStyleClass().add("badge-completed");
             progressLabels.getChildren().addAll(fundedText, progressSpacer, compBadge, pctText);
         } else {
@@ -287,8 +293,7 @@ public class WishlistController implements Initializable {
 
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        pane.getStylesheets().add(getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
-        pane.getStyleClass().add("wishlist-dialog-pane");
+        com.dreamstop.util.ThemeManager.styleDialog(dialog);
         dialog.setResizable(true);
         pane.setMinWidth(500);
         pane.setMinHeight(500);
@@ -518,14 +523,7 @@ public class WishlistController implements Initializable {
 
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        // Use the main stylesheet
-        pane.getStylesheets().add(
-                getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
-
-        // Dialog styling
-        pane.getStyleClass().add("wishlist-dialog-pane");
-
+        com.dreamstop.util.ThemeManager.styleDialog(dialog);
         dialog.setResizable(true);
 
         pane.setMinWidth(440);
@@ -673,6 +671,7 @@ public class WishlistController implements Initializable {
         alert.setHeaderText("Remove \"" + item.getItem().getName() + "\"?");
         alert.setContentText(
                 "Are you sure you want to remove this item from your wishlist? This action cannot be undone.");
+        com.dreamstop.util.ThemeManager.styleDialog(alert);
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {

@@ -19,10 +19,12 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/com/dreamstop/view/login_view.fxml"));
         scene = new Scene(root, 1100, 720);
-        stage.setTitle("DreamsTop (i-Wish) 🎁");
+        stage.setTitle(com.dreamstop.util.AppConfig.APP_WINDOW_TITLE);
+        stage.getIcons().add(com.dreamstop.util.AppConfig.getAppWindowIcon());
         stage.setMinWidth(1050);
         stage.setMinHeight(640);
         stage.setScene(scene);
+        com.dreamstop.util.ThemeManager.registerScene(scene);
 
         stage.setOnCloseRequest(e -> {
             new Thread(() -> {
@@ -44,8 +46,14 @@ public class App extends Application {
         System.exit(0);
     }
 
+    public static Scene getScene() {
+        return scene;
+    }
+
     public static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
+        Parent newRoot = loadFXML(fxml);
+        scene.setRoot(newRoot);
+        com.dreamstop.util.ThemeManager.applyTheme(newRoot);
     }
 
     private static Parent loadFXML(String fxml) throws IOException {

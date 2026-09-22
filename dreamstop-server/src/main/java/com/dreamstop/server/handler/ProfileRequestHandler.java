@@ -70,20 +70,17 @@ public class ProfileRequestHandler {
     }
 
     private BigDecimal extractAmount(Request request) {
+        if (request == null) return null;
         try {
             BigDecimal direct = request.getPayloadAs(BigDecimal.class);
             if (direct != null) {
                 return direct;
             }
-        } catch (Exception ignored) {}
-
-        try {
             JsonObject obj = request.getPayloadAs(JsonObject.class);
             if (obj != null && obj.has("amount")) {
                 return obj.get("amount").getAsBigDecimal();
             }
         } catch (Exception ignored) {}
-
         return null;
     }
 }

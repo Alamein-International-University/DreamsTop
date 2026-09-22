@@ -18,9 +18,9 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/*****
- * Handles one client connection in its own thread using line-delimited JSON.
- * Responsible for reading JSON requests, dispatching them, and sending JSON responses.
+/**
+ * Handles communication with a single connected client over a TCP socket.
+ * Reads line-delimited JSON requests, dispatches them, and returns JSON responses.
  */
 public final class ClientHandler implements Runnable {
 
@@ -66,15 +66,13 @@ public final class ClientHandler implements Runnable {
                     continue;
                 }
 
+                Response response = dispatcher.dispatch(request, this);
+                sendResponse(response);
+
+                // If user logged out, cleanly finish this connection loop
                 if (request.getType() == RequestType.LOGOUT) {
-                    if (request.getToken() != null) {
-                        sessionManager.logout(request.getToken());
-                    }
-                    sendResponse(Response.success("Logged out successfully"));
                     break;
                 }
-
-                sendResponse(dispatcher.dispatch(request, this));
             }
         } catch (SocketException e) {
             LOGGER.info(() -> "Client disconnected: " + describeClient());
@@ -106,12 +104,11 @@ public final class ClientHandler implements Runnable {
         }
     }
 
-    // Returns the userId associated with the request token, or null if invalid
     public Integer resolveUserId(Request request) {
+        if (request == null) return null;
         return sessionManager.resolve(request.getToken());
     }
 
-    // Called after successful login. Returns a new session token
     public String bindUser(int userId) {
         this.userId = userId;
         return sessionManager.login(userId, this);

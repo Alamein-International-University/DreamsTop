@@ -27,12 +27,7 @@
                     <!-- Brand Header -->
                     <VBox alignment="CENTER" spacing="6.0">
                         <children>
-                            <StackPane prefHeight="54.0" prefWidth="54.0" maxWidth="54.0"
-                                       style="-fx-background-color: #6366F1; -fx-background-radius: 16px;">
-                                <children>
-                                    <Label text="🎁" style="-fx-font-size: 28px;" />
-                                </children>
-                            </StackPane>
+                            <StackPane fx:id="loginLogoBox" prefHeight="54.0" prefWidth="54.0" maxWidth="54.0" />
                             <Label text="DreamsTop" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;" />
                             <Label text="i-Wish Gaming &amp; Social Platform" style="-fx-text-fill: #94A3B8; -fx-font-size: 13px;" />
                         </children>

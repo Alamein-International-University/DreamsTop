@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" styleClass="transparent-scroll" stylesheets="@../css/styles.css"
+    xmlns="http://javafx.com/javafx/13"
+    xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dreamstop.controller.SettingsController">
+    <content>
+        <VBox spacing="22.0" styleClass="page-surface">
+            <padding>
+                <Insets bottom="28.0" left="28.0" right="28.0" top="24.0" />
+            </padding>
+
+            <!-- Page Header -->
+            <VBox spacing="4.0">
+                <children>
+                    <Label styleClass="view-title" text="Settings &amp; Profile" />
+                    <Label styleClass="view-subtitle" text="Personalize your theme, customize your profile details, and manage your wallet balance" />
+                </children>
+            </VBox>
+
+            <!-- Section 1: Appearance & Theme Mode -->
+            <VBox styleClass="settings-section-card" spacing="14.0">
+                <children>
+                    <VBox spacing="3.0">
+                        <children>
+                            <Label styleClass="settings-heading" text="Application Theme" />
+                            <Label styleClass="settings-subtext" text="Choose your visual experience. Changes apply immediately across all screens." />
+                        </children>
+                    </VBox>
+
+                    <HBox spacing="16.0">
+                        <children>
+                            <VBox fx:id="boxThemeDark" HBox.hgrow="ALWAYS" onMouseClicked="#handleSelectDarkTheme" styleClass="theme-choice-box">
+                                <children>
+                                    <VBox spacing="2.0">
+                                        <children>
+                                            <Label styleClass="theme-choice-title" text="Dark Glassmorphism (Default)" />
+                                            <Label styleClass="settings-subtext" text="Deep slate canvas, frosted cards, vibrant glowing accents" />
+                                        </children>
+                                    </VBox>
+                                </children>
+                            </VBox>
+
+                            <VBox fx:id="boxThemeLight" HBox.hgrow="ALWAYS" onMouseClicked="#handleSelectLightTheme" styleClass="theme-choice-box">
+                                <children>
+                                    <VBox spacing="2.0">
+                                        <children>
+                                            <Label styleClass="theme-choice-title" text="Clean Light Mode" />
+                                            <Label styleClass="settings-subtext" text="Crisp high-contrast typography, clean paper cards, daytime clarity" />
+                                        </children>
+                                    </VBox>
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+
+            <!-- Section 2: User Profile Details -->
+            <VBox styleClass="settings-section-card" spacing="16.0">
+                <children>
+                    <VBox spacing="3.0">
+                        <children>
+                            <Label styleClass="settings-heading" text="Profile Details" />
+                            <Label styleClass="settings-subtext" text="Update your public profile details shown to your friends and team members." />
+                        </children>
+                    </VBox>
+
+                    <!-- Avatar Preview & Color Selection -->
+                    <HBox alignment="CENTER_LEFT" spacing="24.0">
+                        <children>
+                            <VBox alignment="CENTER" spacing="6.0">
+                                <children>
+                                    <StackPane fx:id="avatarPreviewPane" styleClass="avatar-circle-large">
+                                        <children>
+                                            <Label fx:id="lblAvatarPreviewText" styleClass="avatar-text avatar-text-large" text="YG" />
+                                        </children>
+                                    </StackPane>
+                                    <Label styleClass="settings-subtext" text="Live Preview" />
+                                </children>
+                            </VBox>
+
+                            <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                                <children>
+                                    <Label styleClass="stat-label" text="AVATAR ACCENT COLOR" />
+                                    <HBox fx:id="colorChipsContainer" alignment="CENTER_LEFT" spacing="12.0" />
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+
+                    <!-- Form Inputs -->
+                    <VBox spacing="14.0">
+                        <children>
+                            <HBox spacing="16.0">
+                                <children>
+                                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                        <children>
+                                            <Label styleClass="stat-label" text="FULL NAME" />
+                                            <TextField fx:id="txtFullName" promptText="Your full name" styleClass="text-field-modern" />
+                                        </children>
+                                    </VBox>
+                                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                        <children>
+                                            <Label styleClass="stat-label" text="USERNAME (LOCKED)" />
+                                            <TextField fx:id="txtUsername" disable="true" editable="false" promptText="\@username" styleClass="text-field-modern" />
+                                        </children>
+                                    </VBox>
+                                </children>
+                            </HBox>
+
+                            <HBox spacing="16.0">
+                                <children>
+                                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                        <children>
+                                            <Label styleClass="stat-label" text="BIO / ROLE DESCRIPTION" />
+                                            <TextField fx:id="txtBio" promptText="Your role or personal bio" styleClass="text-field-modern" />
+                                        </children>
+                                    </VBox>
+                                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                        <children>
+                                            <Label styleClass="stat-label" text="EMAIL (LOCKED)" />
+                                            <TextField fx:id="txtEmail" disable="true" editable="false" promptText="user@dreamstop.com" styleClass="text-field-modern" />
+                                        </children>
+                                    </VBox>
+                                </children>
+                            </HBox>
+
+                            <HBox alignment="CENTER_RIGHT">
+                                <children>
+                                    <Button fx:id="btnSaveProfile" onAction="#handleSaveProfile" styleClass="btn-primary" text="Save Profile Changes" />
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+                </children>
+            </VBox>
+
+            <!-- Section 3: Wallet Balance & Recharge -->
+            <VBox styleClass="settings-section-card" spacing="16.0">
+                <children>
+                    <VBox spacing="3.0">
+                        <children>
+                            <Label styleClass="settings-heading" text="Wallet &amp; Financial Balance" />
+                            <Label styleClass="settings-subtext" text="Recharge your wallet to contribute to your friends' dream wishes and receive contributions." />
+                        </children>
+                    </VBox>
+
+                    <!-- Wallet Balance Banner -->
+                    <HBox alignment="CENTER_LEFT" styleClass="wallet-banner">
+                        <children>
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <children>
+                                    <Label styleClass="wallet-banner-label" text="CURRENT AVAILABLE BALANCE" />
+                                    <Label fx:id="lblWalletBalance" styleClass="wallet-banner-balance" text="0.00 EGP" />
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
+
+                    <!-- Quick Recharge Buttons -->
+                    <VBox spacing="8.0">
+                        <children>
+                            <Label styleClass="stat-label" text="QUICK RECHARGE" />
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <children>
+                                    <Button onAction="#handleQuickRecharge500" styleClass="btn-quick-recharge" text="+ 500 EGP" />
+                                    <Button onAction="#handleQuickRecharge1000" styleClass="btn-quick-recharge" text="+ 1,000 EGP" />
+                                    <Button onAction="#handleQuickRecharge2500" styleClass="btn-quick-recharge" text="+ 2,500 EGP" />
+                                    <Button onAction="#handleQuickRecharge5000" styleClass="btn-quick-recharge" text="+ 5,000 EGP" />
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+
+                    <!-- Custom Recharge Amount -->
+                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <children>
+                            <TextField fx:id="txtCustomRecharge" prefWidth="220.0" promptText="Custom Amount (EGP)" styleClass="text-field-modern" />
+                            <Button onAction="#handleCustomRecharge" styleClass="btn-success" text="Recharge Custom Amount" />
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>

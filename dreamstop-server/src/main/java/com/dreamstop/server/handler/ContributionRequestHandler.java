@@ -1,7 +1,6 @@
 package com.dreamstop.server.handler;
 
 import com.dreamstop.common.dto.ContributeRequestDTO;
-import com.dreamstop.common.dto.ContributionDTO;
 import com.dreamstop.common.model.NotificationType;
 import com.dreamstop.common.protocol.Request;
 import com.dreamstop.common.protocol.Response;
@@ -19,6 +18,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Handles incoming contribution requests and notifies recipients in real-time.
+ */
 public class ContributionRequestHandler {
 
     private static final Logger LOGGER = Logger.getLogger(ContributionRequestHandler.class.getName());
@@ -27,10 +29,7 @@ public class ContributionRequestHandler {
     private final WishlistDAO wishlistDAO;
 
     public ContributionRequestHandler() {
-        this(
-                DAOFactory.getInstance().getContributionDAO(),
-                DAOFactory.getInstance().getWishlistDAO()
-        );
+        this(DAOFactory.getInstance().getContributionDAO(), DAOFactory.getInstance().getWishlistDAO());
     }
 
     public ContributionRequestHandler(ContributionDAO contributionDAO, WishlistDAO wishlistDAO) {
@@ -44,12 +43,13 @@ public class ContributionRequestHandler {
             return Response.unauthorized("You must be logged in to contribute");
         }
 
-        int wishlistItemId = extractWishlistItemId(request);
-        BigDecimal amount = extractAmount(request);
-
-        if (wishlistItemId <= 0 || amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+        ContributeRequestDTO contributeReq = extractContributeRequest(request);
+        if (contributeReq == null || contributeReq.getWishlistItemId() <= 0 || contributeReq.getAmount() == null || contributeReq.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             return Response.badRequest("Valid wishlist item ID and positive amount are required");
         }
+
+        int wishlistItemId = contributeReq.getWishlistItemId();
+        BigDecimal amount = contributeReq.getAmount();
 
         try {
             int ownerId = wishlistDAO.getOwnerUserId(wishlistItemId);
@@ -73,6 +73,10 @@ public class ContributionRequestHandler {
 
     private void dispatchRealtimeNotifications(ClientHandler client, int wishlistItemId, int ownerId, int contributorId, ContributionResult result) {
         try {
+            if (client == null || client.getSessionManager() == null) {
+                return;
+            }
+
             client.getSessionManager().push(
                     ownerId,
                     new ServerNotification(
@@ -112,50 +116,24 @@ public class ContributionRequestHandler {
         }
     }
 
-    private int extractWishlistItemId(Request request) {
-        try {
-            ContributeRequestDTO dto = request.getPayloadAs(ContributeRequestDTO.class);
-            if (dto != null && dto.getWishlistItemId() > 0) {
-                return dto.getWishlistItemId();
-            }
-        } catch (Exception ignored) {}
+    private ContributeRequestDTO extractContributeRequest(Request request) {
+        if (request == null) {
+            return null;
+        }
 
         try {
-            ContributionDTO dto = request.getPayloadAs(ContributionDTO.class);
-            if (dto != null && dto.getWishlistItemId() > 0) {
-                return dto.getWishlistItemId();
+            ContributeRequestDTO dto = request.getPayloadAs(ContributeRequestDTO.class);
+            if (dto != null && dto.getWishlistItemId() > 0 && dto.getAmount() != null) {
+                return dto;
             }
         } catch (Exception ignored) {}
 
         try {
             JsonObject json = request.getPayloadAs(JsonObject.class);
-            if (json != null && json.has("wishlistItemId")) {
-                return json.get("wishlistItemId").getAsInt();
-            }
-        } catch (Exception ignored) {}
-
-        return 0;
-    }
-
-    private BigDecimal extractAmount(Request request) {
-        try {
-            ContributeRequestDTO dto = request.getPayloadAs(ContributeRequestDTO.class);
-            if (dto != null && dto.getAmount() != null) {
-                return dto.getAmount();
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            ContributionDTO dto = request.getPayloadAs(ContributionDTO.class);
-            if (dto != null && dto.getAmount() != null) {
-                return dto.getAmount();
-            }
-        } catch (Exception ignored) {}
-
-        try {
-            JsonObject json = request.getPayloadAs(JsonObject.class);
-            if (json != null && json.has("amount")) {
-                return json.get("amount").getAsBigDecimal();
+            if (json != null && json.has("wishlistItemId") && json.has("amount")) {
+                int itemId = json.get("wishlistItemId").getAsInt();
+                BigDecimal amount = json.get("amount").getAsBigDecimal();
+                return new ContributeRequestDTO(itemId, amount);
             }
         } catch (Exception ignored) {}
 

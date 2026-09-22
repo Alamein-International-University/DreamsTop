@@ -20,6 +20,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Handles friend requests, friendship management, and user search.
+ */
 public class FriendRequestHandler {
 
     private static final Logger LOGGER = Logger.getLogger(FriendRequestHandler.class.getName());
@@ -62,12 +65,12 @@ public class FriendRequestHandler {
         int excludeUserId = userId != null ? userId : 0;
 
         String query = extractQuery(request);
-        if (query == null || query.trim().isEmpty()) {
+        if (query == null || query.isBlank()) {
             return Response.success(Collections.emptyList(), "Search query is empty");
         }
 
         try {
-            List<UserDTO> users = userDAO.searchUsers(query.trim(), excludeUserId);
+            List<UserDTO> users = userDAO.searchUsers(query, excludeUserId);
             return Response.success(users, "Users found");
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Failed to search users with query: " + query, e);
@@ -81,7 +84,7 @@ public class FriendRequestHandler {
             return Response.unauthorized("Unauthorized request");
         }
 
-        int targetUserId = extractTargetUserId(request);
+        int targetUserId = extractId(request, "targetUserId", "friendId", "userId");
         if (targetUserId <= 0 || targetUserId == userId) {
             return Response.badRequest("Invalid target user ID for friend request");
         }
@@ -109,7 +112,7 @@ public class FriendRequestHandler {
             return Response.success(friendship, "Friend request sent successfully");
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Failed to send friend request from " + userId + " to " + targetUserId, e);
-            return Response.error("Database error sending friend request");
+            return Response.error("Database error sending friend request: " + e.getMessage());
         }
     }
 
@@ -119,7 +122,7 @@ public class FriendRequestHandler {
             return Response.unauthorized("Unauthorized request");
         }
 
-        int requestIdOrSenderId = extractId(request);
+        int requestIdOrSenderId = extractId(request, "requestId", "friendId", "userId", "id");
         if (requestIdOrSenderId <= 0) {
             return Response.badRequest("Valid request ID or sender user ID is required");
         }
@@ -171,7 +174,7 @@ public class FriendRequestHandler {
             return Response.unauthorized("Unauthorized request");
         }
 
-        int requestId = extractId(request);
+        int requestId = extractId(request, "requestId", "id");
         if (requestId <= 0) {
             return Response.badRequest("Valid request ID is required");
         }
@@ -195,7 +198,7 @@ public class FriendRequestHandler {
             return Response.unauthorized("Unauthorized request");
         }
 
-        int friendUserId = extractId(request);
+        int friendUserId = extractId(request, "friendId", "userId", "id");
         if (friendUserId <= 0) {
             return Response.badRequest("Valid friend user ID is required");
         }
@@ -242,22 +245,24 @@ public class FriendRequestHandler {
     }
 
     private String extractQuery(Request request) {
+        if (request == null) return null;
         try {
             String str = request.getPayloadAs(String.class);
-            if (str != null && !str.isEmpty()) return str;
+            if (str != null && !str.isBlank()) return str.trim();
         } catch (Exception ignored) {}
 
         try {
             JsonObject json = request.getPayloadAs(JsonObject.class);
             if (json != null && json.has("query")) {
-                return json.get("query").getAsString();
+                return json.get("query").getAsString().trim();
             }
         } catch (Exception ignored) {}
 
         return null;
     }
 
-    private int extractTargetUserId(Request request) {
+    private int extractId(Request request, String... propertyNames) {
+        if (request == null) return 0;
         try {
             Integer id = request.getPayloadAs(Integer.class);
             if (id != null) return id;
@@ -265,29 +270,12 @@ public class FriendRequestHandler {
 
         try {
             JsonObject json = request.getPayloadAs(JsonObject.class);
-            if (json != null) {
-                if (json.has("targetUserId")) return json.get("targetUserId").getAsInt();
-                if (json.has("friendId")) return json.get("friendId").getAsInt();
-                if (json.has("userId")) return json.get("userId").getAsInt();
-            }
-        } catch (Exception ignored) {}
-
-        return 0;
-    }
-
-    private int extractId(Request request) {
-        try {
-            Integer id = request.getPayloadAs(Integer.class);
-            if (id != null) return id;
-        } catch (Exception ignored) {}
-
-        try {
-            JsonObject json = request.getPayloadAs(JsonObject.class);
-            if (json != null) {
-                if (json.has("requestId")) return json.get("requestId").getAsInt();
-                if (json.has("friendId")) return json.get("friendId").getAsInt();
-                if (json.has("userId")) return json.get("userId").getAsInt();
-                if (json.has("id")) return json.get("id").getAsInt();
+            if (json != null && propertyNames != null) {
+                for (String prop : propertyNames) {
+                    if (json.has(prop)) {
+                        return json.get(prop).getAsInt();
+                    }
+                }
             }
         } catch (Exception ignored) {}
 

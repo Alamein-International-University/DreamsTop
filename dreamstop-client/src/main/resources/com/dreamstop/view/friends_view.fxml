@@ -30,7 +30,7 @@
     <TabPane fx:id="friendsTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <tabs>
             <!-- TAB 1: My Friends (Task 5 & Task 2 Remove) -->
-            <Tab fx:id="tabFriends" text="👥  My Friends">
+            <Tab fx:id="tabFriends" text="My Friends">
                 <content>
                     <VBox spacing="14.0">
                         <padding>
@@ -38,7 +38,7 @@
                         </padding>
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
-                                <TextField fx:id="txtSearchFriends" prefWidth="320.0" promptText="🔍  Filter friends by name..." styleClass="text-field-modern" />
+                                <TextField fx:id="txtSearchFriends" prefWidth="320.0" promptText="Filter friends by name..." styleClass="text-field-modern" />
                                 <Region HBox.hgrow="ALWAYS" />
                                 <Label fx:id="lblFriendsCount" styleClass="count-label" text="0 friends" />
                             </children>
@@ -57,7 +57,7 @@
             </Tab>
 
             <!-- TAB 2: Friend Requests (Task 3: Accept / Decline) -->
-            <Tab fx:id="tabRequests" text="📬  Friend Requests">
+            <Tab fx:id="tabRequests" text="Friend Requests">
                 <content>
                     <VBox spacing="18.0">
                         <padding>
@@ -89,7 +89,7 @@
             </Tab>
 
             <!-- TAB 3: Find New Friends (Task 2: Add Friend) -->
-            <Tab fx:id="tabFindFriends" text="🔍  Find New Friends">
+            <Tab fx:id="tabFindFriends" text="Find New Friends">
                 <content>
                     <VBox spacing="14.0">
                         <padding>
@@ -97,7 +97,7 @@
                         </padding>
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
-                                <TextField fx:id="txtSearchNewUsers" prefWidth="380.0" promptText="🔍  Search users by name, username or email..." styleClass="text-field-modern" />
+                                <TextField fx:id="txtSearchNewUsers" prefWidth="380.0" promptText="Search users by name, username or email..." styleClass="text-field-modern" />
                             </children>
                         </HBox>
                         <ScrollPane fitToWidth="true" styleClass="transparent-scroll" VBox.vgrow="ALWAYS">

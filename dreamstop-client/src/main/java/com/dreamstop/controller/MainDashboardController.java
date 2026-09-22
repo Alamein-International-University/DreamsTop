@@ -15,6 +15,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
@@ -31,9 +32,18 @@ public class MainDashboardController implements Initializable {
     private StackPane toastOverlay;
 
     @FXML
+    private StackPane brandLogoContainer;
+    @FXML
+    private Label lblBrandTitle;
+    @FXML
+    private Label lblBrandSubtitle;
+
+    @FXML
     private Button btnNavWishlist;
     @FXML
     private Button btnNavFriends;
+    @FXML
+    private Button btnNavSettings;
     @FXML
     private Label lblRequestsBadge;
 
@@ -45,6 +55,8 @@ public class MainDashboardController implements Initializable {
     private Label lblUserName;
     @FXML
     private Label lblUserHandle;
+    @FXML
+    private Button btnSignOut;
 
     public static MainDashboardController getInstance() {
         return instance;
@@ -54,15 +66,31 @@ public class MainDashboardController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         instance = this;
 
+        // Branding setup from AppConfig
+        if (brandLogoContainer != null) {
+            brandLogoContainer.getChildren().setAll(com.dreamstop.util.AppConfig.createBrandLogo(34));
+        }
+        if (lblBrandTitle != null) {
+            lblBrandTitle.setText(com.dreamstop.util.AppConfig.APP_NAME);
+        }
+        if (lblBrandSubtitle != null) {
+            lblBrandSubtitle.setText(com.dreamstop.util.AppConfig.APP_TAGLINE);
+        }
+
+        // Navigation button labels
+        btnNavWishlist.setText("My Wishlist");
+        btnNavFriends.setText("Friends & Social");
+        btnNavSettings.setText("Settings & Profile");
+        if (btnSignOut != null) {
+            btnSignOut.setText("Sign Out");
+            btnSignOut.setGraphic(null);
+        }
+
         // Register toast notification host
         NotificationUtil.registerToastContainer(toastOverlay);
 
         // Populate User Info
-        User me = MockDataFactory.getCurrentUser();
-        lblUserName.setText(me.getFullName());
-        lblUserHandle.setText("@" + me.getUsername());
-        lblUserInitials.setText(me.getInitials());
-        UiStyleUtil.applyAvatar(userAvatarPane, me.getAvatarColor(), "avatar-circle-profile");
+        refreshUserProfileDisplay();
 
         // Refresh server state for the current user
         FriendService friendService = FriendService.getInstance();
@@ -79,6 +107,17 @@ public class MainDashboardController implements Initializable {
         handleNavWishlist(null);
     }
 
+    public void refreshUserProfileDisplay() {
+        User me = MockDataFactory.getCurrentUser();
+        if (me != null) {
+            lblUserName.setText(me.getFullName());
+            lblUserName.setTooltip(new Tooltip(me.getFullName()));
+            lblUserHandle.setText("@" + me.getUsername());
+            lblUserInitials.setText(me.getInitials());
+            UiStyleUtil.applyAvatar(userAvatarPane, me.getAvatarColor(), "avatar-circle-profile");
+        }
+    }
+
     private void updateBadge(int count) {
         if (count > 0) {
             lblRequestsBadge.setVisible(true);
@@ -92,16 +131,22 @@ public class MainDashboardController implements Initializable {
 
     @FXML
     public void handleNavWishlist(ActionEvent event) {
-        setActiveNav(btnNavWishlist, btnNavFriends);
+        setActiveNav(btnNavWishlist, btnNavFriends, btnNavSettings);
         com.dreamstop.service.WishlistService.getInstance().refreshMyWishlist();
         loadView("wishlist_view.fxml");
     }
 
     @FXML
     public void handleNavFriends(ActionEvent event) {
-        setActiveNav(btnNavFriends, btnNavWishlist);
+        setActiveNav(btnNavFriends, btnNavWishlist, btnNavSettings);
         FriendService.getInstance().refreshState();
         loadView("friends_view.fxml");
+    }
+
+    @FXML
+    public void handleNavSettings(ActionEvent event) {
+        setActiveNav(btnNavSettings, btnNavWishlist, btnNavFriends);
+        loadView("settings_view.fxml");
     }
 
     @FXML
@@ -120,17 +165,22 @@ public class MainDashboardController implements Initializable {
             controller.setFriend(friend);
 
             contentArea.getChildren().setAll(view);
-            btnNavWishlist.getStyleClass().setAll("nav-button");
-            btnNavFriends.getStyleClass().setAll("nav-button-active");
+            setActiveNav(btnNavFriends, btnNavWishlist, btnNavSettings);
         } catch (IOException e) {
             e.printStackTrace();
             NotificationUtil.showError("Failed to load friend's wishlist view: " + e.getMessage());
         }
     }
 
-    private void setActiveNav(Button active, Button inactive) {
-        active.getStyleClass().setAll("nav-button-active");
-        inactive.getStyleClass().setAll("nav-button");
+    private void setActiveNav(Button active, Button... inactives) {
+        if (active != null) {
+            active.getStyleClass().setAll("nav-button-active");
+        }
+        for (Button btn : inactives) {
+            if (btn != null) {
+                btn.getStyleClass().setAll("nav-button");
+            }
+        }
     }
 
     public void loadView(String fxmlFileName) {

@@ -19,22 +19,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Concise, clean JDBC implementation of {@link ContributionDAO} managing ACID transactions,
- * excess refund logic, completion status, and buyer/receiver notifications.
- *
- * @author Omar ElSharkawy (@omarehab544)
+ * Standard JDBC implementation of {@link ContributionDAO}.
+ * Manages ACID transactions, balance checks, excess refunds, and notifications.
  */
 public class ContributionDAOImpl implements ContributionDAO {
 
-    private final DatabaseManager db;
     private final NotificationDAO notificationDAO;
 
     public ContributionDAOImpl() {
-        this(DatabaseManager.getInstance(), new NotificationDAOImpl());
+        this(new NotificationDAOImpl());
+    }
+
+    public ContributionDAOImpl(NotificationDAO notificationDAO) {
+        this.notificationDAO = notificationDAO;
     }
 
     public ContributionDAOImpl(DatabaseManager db, NotificationDAO notificationDAO) {
-        this.db = db;
         this.notificationDAO = notificationDAO;
     }
 
@@ -44,120 +44,191 @@ public class ContributionDAOImpl implements ContributionDAO {
             return ContributionResult.failure("Contribution amount must be positive.");
         }
 
+        Connection conn = null;
         try {
-            return db.runInTransaction(conn -> {
-                // 1. Check contributor balance
-                String userSql = "SELECT username, balance FROM users WHERE id = ? FOR UPDATE";
-                String username;
-                BigDecimal balance;
-                try (PreparedStatement s = DatabaseManager.prepare(conn, userSql, contributorId);
-                     ResultSet rs = s.executeQuery()) {
-                    if (!rs.next()) return ContributionResult.failure("Contributor not found.");
+            conn = DatabaseManager.getInstance().getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. Check contributor balance
+            String userSql = "SELECT username, balance FROM users WHERE id = ? FOR UPDATE";
+            String username;
+            BigDecimal balance;
+            try (PreparedStatement stmt = conn.prepareStatement(userSql)) {
+                stmt.setInt(1, contributorId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (!rs.next()) {
+                        conn.rollback();
+                        return ContributionResult.failure("Contributor not found.");
+                    }
                     username = rs.getString("username");
                     balance = rs.getBigDecimal("balance");
                 }
+            }
 
-                if (balance.compareTo(amount) < 0) {
-                    return ContributionResult.failure("Insufficient wallet balance (" + balance + " EGP).");
-                }
+            if (balance.compareTo(amount) < 0) {
+                conn.rollback();
+                return ContributionResult.failure("Insufficient wallet balance (" + balance + " EGP).");
+            }
 
-                // 2. Check wishlist item
-                String itemSql = "SELECT w.user_id, w.target_amount, w.current_paid_amount, w.is_completed, i.name " +
-                                 "FROM wishlist_items w JOIN items i ON w.item_id = i.id WHERE w.id = ? FOR UPDATE";
-                int ownerId;
-                BigDecimal target, current;
-                boolean completed;
-                String itemName;
-                try (PreparedStatement s = DatabaseManager.prepare(conn, itemSql, wishlistItemId);
-                     ResultSet rs = s.executeQuery()) {
-                    if (!rs.next()) return ContributionResult.failure("Wishlist item not found.");
+            // 2. Check wishlist item
+            String itemSql = "SELECT w.user_id, w.target_amount, w.current_paid_amount, w.is_completed, i.name " +
+                             "FROM wishlist_items w JOIN items i ON w.item_id = i.id WHERE w.id = ? FOR UPDATE";
+            int ownerId;
+            BigDecimal targetAmount;
+            BigDecimal currentPaid;
+            boolean isCompleted;
+            String itemName;
+            try (PreparedStatement stmt = conn.prepareStatement(itemSql)) {
+                stmt.setInt(1, wishlistItemId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (!rs.next()) {
+                        conn.rollback();
+                        return ContributionResult.failure("Wishlist item not found.");
+                    }
                     ownerId = rs.getInt("user_id");
-                    target = rs.getBigDecimal("target_amount");
-                    current = rs.getBigDecimal("current_paid_amount");
-                    completed = rs.getBoolean("is_completed");
+                    targetAmount = rs.getBigDecimal("target_amount");
+                    currentPaid = rs.getBigDecimal("current_paid_amount");
+                    isCompleted = rs.getBoolean("is_completed");
                     itemName = rs.getString("name");
                 }
+            }
 
-                if (completed || current.compareTo(target) >= 0) {
-                    return ContributionResult.failure("Item is already 100% funded!");
-                }
+            if (isCompleted || currentPaid.compareTo(targetAmount) >= 0) {
+                conn.rollback();
+                return ContributionResult.failure("Item is already 100% funded!");
+            }
 
-                // 3. Excess refund calculation
-                BigDecimal needed = target.subtract(current);
-                BigDecimal accepted = amount.compareTo(needed) > 0 ? needed : amount;
-                BigDecimal refund = amount.subtract(accepted);
+            // 3. Excess refund calculation
+            BigDecimal remainingNeeded = targetAmount.subtract(currentPaid);
+            BigDecimal acceptedAmount = amount.compareTo(remainingNeeded) > 0 ? remainingNeeded : amount;
+            BigDecimal refundedAmount = amount.subtract(acceptedAmount);
 
-                // 4. Deduct balance & update wishlist item
-                try (PreparedStatement s = DatabaseManager.prepare(conn, "UPDATE users SET balance = balance - ? WHERE id = ?", accepted, contributorId)) {
-                    s.executeUpdate();
-                }
+            // 4. Deduct contributor balance
+            String deductSql = "UPDATE users SET balance = balance - ? WHERE id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(deductSql)) {
+                stmt.setBigDecimal(1, acceptedAmount);
+                stmt.setInt(2, contributorId);
+                stmt.executeUpdate();
+            }
 
-                boolean itemDone = current.add(accepted).compareTo(target) >= 0;
-                try (PreparedStatement s = DatabaseManager.prepare(conn,
-                        "UPDATE wishlist_items SET current_paid_amount = current_paid_amount + ?, is_completed = ? WHERE id = ?",
-                        accepted, itemDone, wishlistItemId)) {
-                    s.executeUpdate();
-                }
+            // 5. Update wishlist item paid amount & completion status
+            boolean itemCompleted = currentPaid.add(acceptedAmount).compareTo(targetAmount) >= 0;
+            String updateItemSql = "UPDATE wishlist_items SET current_paid_amount = current_paid_amount + ?, is_completed = ? WHERE id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(updateItemSql)) {
+                stmt.setBigDecimal(1, acceptedAmount);
+                stmt.setBoolean(2, itemCompleted);
+                stmt.setInt(3, wishlistItemId);
+                stmt.executeUpdate();
+            }
 
-                // 5. Insert contribution
-                int contribId = 0;
-                try (PreparedStatement s = conn.prepareStatement("INSERT INTO contributions (contributor_id, wishlist_item_id, amount) VALUES (?, ?, ?)",
-                        Statement.RETURN_GENERATED_KEYS)) {
-                    DatabaseManager.setParams(s, contributorId, wishlistItemId, accepted);
-                    s.executeUpdate();
-                    try (ResultSet k = s.getGeneratedKeys()) { if (k.next()) contribId = k.getInt(1); }
-                }
-
-                // 6. Send notifications
-                notificationDAO.create(ownerId, NotificationType.CONTRIBUTION_RECEIVED, "Contribution Received",
-                        username + " contributed " + accepted + " EGP to \"" + itemName + "\"!", wishlistItemId, conn);
-
-                if (itemDone) {
-                    notificationDAO.create(ownerId, NotificationType.ITEM_COMPLETED_RECEIVER, "Gift Goal Reached!",
-                            "Your wishlist item \"" + itemName + "\" has been 100% funded!", wishlistItemId, conn);
-
-                    for (int buyerId : getUniqueContributorIdsTransactional(wishlistItemId, conn)) {
-                        notificationDAO.create(buyerId, NotificationType.ITEM_COMPLETED_BUYER, "Gift Completed",
-                                "The wishlist item \"" + itemName + "\" you contributed to is fully funded!", wishlistItemId, conn);
+            // 6. Insert contribution record
+            int contributionId = 0;
+            String insertSql = "INSERT INTO contributions (contributor_id, wishlist_item_id, amount) VALUES (?, ?, ?)";
+            try (PreparedStatement stmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setInt(1, contributorId);
+                stmt.setInt(2, wishlistItemId);
+                stmt.setBigDecimal(3, acceptedAmount);
+                stmt.executeUpdate();
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        contributionId = keys.getInt(1);
                     }
                 }
+            }
 
-                return ContributionResult.success(contribId, accepted, refund, itemDone);
-            });
+            // 7. Create in-app notifications
+            notificationDAO.create(ownerId, NotificationType.CONTRIBUTION_RECEIVED, "Contribution Received",
+                    username + " contributed " + acceptedAmount + " EGP to \"" + itemName + "\"!", wishlistItemId, conn);
+
+            if (itemCompleted) {
+                notificationDAO.create(ownerId, NotificationType.ITEM_COMPLETED_RECEIVER, "Gift Goal Reached!",
+                        "Your wishlist item \"" + itemName + "\" has been 100% funded!", wishlistItemId, conn);
+
+                List<Integer> buyerIds = getUniqueContributorIds(wishlistItemId, conn);
+                for (int buyerId : buyerIds) {
+                    notificationDAO.create(buyerId, NotificationType.ITEM_COMPLETED_BUYER, "Gift Completed",
+                            "The wishlist item \"" + itemName + "\" you contributed to is fully funded!", wishlistItemId, conn);
+                }
+            }
+
+            // Commit transaction
+            conn.commit();
+            return ContributionResult.success(contributionId, acceptedAmount, refundedAmount, itemCompleted);
+
         } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    // ignore rollback exception
+                }
+            }
             throw e;
-        } catch (Exception e) {
-            throw new SQLException("Transaction failed: " + e.getMessage(), e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException ex) {
+                    // ignore close exception
+                }
+            }
         }
     }
 
     @Override
     public List<ContributionDTO> getContributionsByWishlistItem(int wishlistItemId) throws SQLException {
+        List<ContributionDTO> list = new ArrayList<>();
         String sql = "SELECT c.id, c.contributor_id, c.wishlist_item_id, c.amount, c.created_at, u.username " +
                      "FROM contributions c JOIN users u ON c.contributor_id = u.id WHERE c.wishlist_item_id = ? ORDER BY c.created_at DESC";
-        return db.queryList(sql, this::mapContribution, wishlistItemId);
+
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, wishlistItemId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapContribution(rs));
+                }
+            }
+        }
+        return list;
     }
 
     @Override
     public List<ContributionDTO> getContributionsByContributor(int contributorId) throws SQLException {
+        List<ContributionDTO> list = new ArrayList<>();
         String sql = "SELECT c.id, c.contributor_id, c.wishlist_item_id, c.amount, c.created_at, u.username " +
                      "FROM contributions c JOIN users u ON c.contributor_id = u.id WHERE c.contributor_id = ? ORDER BY c.created_at DESC";
-        return db.queryList(sql, this::mapContribution, contributorId);
+
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, contributorId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapContribution(rs));
+                }
+            }
+        }
+        return list;
     }
 
     @Override
     public List<Integer> getUniqueContributorIds(int wishlistItemId) throws SQLException {
-        try (Connection conn = db.getConnection()) {
-            return getUniqueContributorIdsTransactional(wishlistItemId, conn);
+        try (Connection conn = DatabaseManager.getInstance().getConnection()) {
+            return getUniqueContributorIds(wishlistItemId, conn);
         }
     }
 
-    private List<Integer> getUniqueContributorIdsTransactional(int wishlistItemId, Connection conn) throws SQLException {
+    private List<Integer> getUniqueContributorIds(int wishlistItemId, Connection conn) throws SQLException {
         List<Integer> ids = new ArrayList<>();
         String sql = "SELECT DISTINCT contributor_id FROM contributions WHERE wishlist_item_id = ?";
-        try (PreparedStatement s = DatabaseManager.prepare(conn, sql, wishlistItemId);
-             ResultSet rs = s.executeQuery()) {
-            while (rs.next()) ids.add(rs.getInt("contributor_id"));
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, wishlistItemId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("contributor_id"));
+                }
+            }
         }
         return ids;
     }
@@ -165,8 +236,11 @@ public class ContributionDAOImpl implements ContributionDAO {
     private ContributionDTO mapContribution(ResultSet rs) throws SQLException {
         Timestamp ts = rs.getTimestamp("created_at");
         return new ContributionDTO(
-                rs.getInt("id"), rs.getInt("contributor_id"), rs.getString("username"),
-                rs.getInt("wishlist_item_id"), rs.getBigDecimal("amount"),
+                rs.getInt("id"),
+                rs.getInt("contributor_id"),
+                rs.getString("username"),
+                rs.getInt("wishlist_item_id"),
+                rs.getBigDecimal("amount"),
                 ts != null ? ts.toLocalDateTime() : LocalDateTime.now()
         );
     }
