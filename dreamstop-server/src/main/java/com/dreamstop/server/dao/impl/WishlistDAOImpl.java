@@ -152,7 +152,10 @@ public class WishlistDAOImpl implements WishlistDAO {
                 rs.getInt("id"),
                 rs.getInt("user_id"),
                 item,
+                rs.getBigDecimal("target_amount"),
                 rs.getBigDecimal("current_paid_amount"),
+                rs.getString("notes"),
+                rs.getString("priority"),
                 rs.getBoolean("is_completed")
         );
     }

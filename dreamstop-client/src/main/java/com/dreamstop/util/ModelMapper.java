@@ -60,17 +60,21 @@ public final class ModelMapper {
             return null;
         }
         Item itemModel = toItem(dto.getItem());
-        double target = itemModel != null ? itemModel.getPrice() : 0.0;
+        double target = dto.getTargetAmount() != null && dto.getTargetAmount().compareTo(java.math.BigDecimal.ZERO) > 0
+                ? dto.getTargetAmount().doubleValue()
+                : (itemModel != null ? itemModel.getPrice() : 0.0);
         double current = dto.getCurrentPaidAmount() != null ? dto.getCurrentPaidAmount().doubleValue() : 0.0;
+        String notes = dto.getNotes() != null ? dto.getNotes() : "";
+        String priority = dto.getPriority() != null && !dto.getPriority().isBlank() ? dto.getPriority() : "MEDIUM";
 
         return new WishlistItem(
                 String.valueOf(dto.getId()),
                 String.valueOf(dto.getUserId()),
                 itemModel,
-                "",
+                notes,
                 target,
                 current,
-                "HIGH");
+                priority);
     }
 
     public static FriendRequest toFriendRequest(FriendshipDTO dto) {

@@ -116,7 +116,7 @@ public class WishlistService {
 
                 Request req = Request.of(RequestType.ADD_TO_WISHLIST, network.getSessionToken(), payload);
                 network.sendRequestAsync(req).thenAccept(res -> {
-                    if (res.isSuccess()) {
+                    if (res != null && res.isSuccess()) {
                         Platform.runLater(this::refreshMyWishlist);
                     }
                 });
@@ -150,7 +150,45 @@ public class WishlistService {
                 iconEmoji != null && !iconEmoji.isBlank() ? iconEmoji : "🎁"
         );
         catalog.add(customItem);
-        return addItemToMyWishlist(customItem, notes, targetAmount, priority);
+
+        User me = MockDataFactory.getCurrentUser();
+        double price = targetAmount > 0 ? targetAmount : 100.0;
+
+        NetworkClient network = NetworkClient.getInstance();
+        if (network.isConnected() && network.getSessionToken() != null) {
+            try {
+                JsonObject payload = new JsonObject();
+                payload.addProperty("itemId", 0);
+                payload.addProperty("name", name);
+                payload.addProperty("description", description != null && !description.isBlank() ? description : name);
+                payload.addProperty("category", category != null && !category.isBlank() ? category : "Custom");
+                payload.addProperty("targetAmount", price);
+                payload.addProperty("notes", notes != null ? notes : "");
+                payload.addProperty("priority", priority != null ? priority : "MEDIUM");
+
+                Request req = Request.of(RequestType.ADD_TO_WISHLIST, network.getSessionToken(), payload);
+                network.sendRequestAsync(req).thenAccept(res -> {
+                    if (res != null && res.isSuccess()) {
+                        Platform.runLater(this::refreshMyWishlist);
+                    }
+                });
+            } catch (Exception ignored) {}
+        }
+
+        WishlistItem newItem = new WishlistItem(
+                "wl-" + UUID.randomUUID().toString().substring(0, 8),
+                me.getId(),
+                customItem,
+                notes,
+                price,
+                0.0,
+                priority
+        );
+
+        List<WishlistItem> userList = MockDataFactory.getWishlistsByUser().computeIfAbsent(me.getId(), k -> new ArrayList<>());
+        userList.add(newItem);
+        myWishlist.add(newItem);
+        return newItem;
     }
 
     public boolean updateWishlistItem(WishlistItem item, String notes, double targetPrice, String priority) {
@@ -165,9 +203,28 @@ public class WishlistService {
         int idx = myWishlist.indexOf(item);
         if (idx >= 0) {
             myWishlist.set(idx, item);
-            return true;
         }
-        return false;
+
+        NetworkClient network = NetworkClient.getInstance();
+        if (network.isConnected() && network.getSessionToken() != null) {
+            try {
+                int wishlistItemId = ModelMapper.parseNumericId(item.getId());
+                JsonObject payload = new JsonObject();
+                payload.addProperty("wishlistItemId", wishlistItemId);
+                payload.addProperty("targetAmount", item.getTargetAmount());
+                payload.addProperty("notes", notes != null ? notes : "");
+                payload.addProperty("priority", priority != null ? priority : "MEDIUM");
+
+                Request req = Request.of(RequestType.UPDATE_WISHLIST_ITEM, network.getSessionToken(), payload);
+                network.sendRequestAsync(req).thenAccept(res -> {
+                    if (res != null && res.isSuccess()) {
+                        Platform.runLater(this::refreshMyWishlist);
+                    }
+                });
+            } catch (Exception ignored) {}
+        }
+
+        return true;
     }
 
     public boolean deleteWishlistItem(WishlistItem item) {

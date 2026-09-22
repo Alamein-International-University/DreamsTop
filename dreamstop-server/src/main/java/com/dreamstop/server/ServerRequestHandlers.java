@@ -46,6 +46,7 @@ public final class ServerRequestHandlers {
         dispatcher.register(RequestType.GET_CATALOG_ITEMS, wishlistHandler::handleGetCatalogItems);
         dispatcher.register(RequestType.GET_MY_WISHLIST, wishlistHandler::handleGetMyWishlist);
         dispatcher.register(RequestType.ADD_TO_WISHLIST, wishlistHandler::handleAddToWishlist);
+        dispatcher.register(RequestType.UPDATE_WISHLIST_ITEM, wishlistHandler::handleUpdateWishlistItem);
         dispatcher.register(RequestType.REMOVE_FROM_WISHLIST, wishlistHandler::handleRemoveFromWishlist);
         dispatcher.register(RequestType.GET_FRIEND_WISHLIST, wishlistHandler::handleGetFriendWishlist);
 

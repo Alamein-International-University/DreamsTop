@@ -5,8 +5,10 @@ import com.dreamstop.common.dto.ContributeRequestDTO;
 import com.dreamstop.common.dto.LoginRequestDTO;
 import com.dreamstop.common.dto.RegisterRequestDTO;
 import com.dreamstop.common.dto.UserDTO;
+import com.dreamstop.common.dto.WishlistItemDTO;
 import com.dreamstop.common.model.RequestType;
 import com.dreamstop.common.model.ResponseStatus;
+import com.dreamstop.common.protocol.JsonUtils;
 import com.dreamstop.common.protocol.Request;
 import com.dreamstop.common.protocol.Response;
 import com.dreamstop.server.database.DatabaseConfig;
@@ -125,6 +127,18 @@ public class HandlersIntegrationTest {
         Response addRes = wishlistHandler.handleAddToWishlist(addReq, clientHandler);
 
         assertEquals(ResponseStatus.SUCCESS, addRes.getStatus());
+        WishlistItemDTO added = JsonUtils.fromJson(addRes.getDataJson(), WishlistItemDTO.class);
+        assertNotNull(added);
+
+        JsonObject updateItemPayload = new JsonObject();
+        updateItemPayload.addProperty("wishlistItemId", added.getId());
+        updateItemPayload.addProperty("targetAmount", 95000.00);
+        updateItemPayload.addProperty("notes", "Upgraded GPU");
+        updateItemPayload.addProperty("priority", "HIGH");
+
+        Request updateReq = Request.of(RequestType.UPDATE_WISHLIST_ITEM, token, updateItemPayload);
+        Response updateRes = wishlistHandler.handleUpdateWishlistItem(updateReq, clientHandler);
+        assertEquals(ResponseStatus.SUCCESS, updateRes.getStatus());
 
         Request getReq = Request.of(RequestType.GET_MY_WISHLIST, token, null);
         Response getRes = wishlistHandler.handleGetMyWishlist(getReq, clientHandler);
