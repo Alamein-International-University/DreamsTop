@@ -97,6 +97,7 @@ Communication occurs over persistent raw TCP sockets using **line-delimited UTF-
 | `GET_CATALOG_ITEMS` | `null` | `List<ItemDTO>` | Retrieves global store catalog items. |
 | `GET_MY_WISHLIST` | `null` | `List<WishlistItemDTO>` | Retrieves authenticated user's wishlist. |
 | `ADD_TO_WISHLIST` | `JsonObject` | `WishlistItemDTO` | Adds a catalog item or custom entry to wishlist. |
+| `UPDATE_WISHLIST_ITEM` | `UpdateWishlistItemRequestDTO` / `JsonObject` | `WishlistItemDTO` | Updates target price, priority, or notes of owned item; broadcasts `WISHLIST_UPDATED` to friends. |
 | `REMOVE_FROM_WISHLIST` | `JsonObject` | `String` | Removes an item owned by the user from wishlist. |
 | `GET_FRIENDS` | `null` | `List<UserDTO>` | Retrieves list of accepted friends. |
 | `GET_FRIEND_REQUESTS`| `null` | `List<FriendshipDTO>` | Retrieves pending incoming friend requests. |
@@ -107,6 +108,10 @@ Communication occurs over persistent raw TCP sockets using **line-delimited UTF-
 | `GET_FRIEND_WISHLIST`| `JsonObject` | `List<WishlistItemDTO>` | Retrieves wishlist of an accepted friend. |
 | `CONTRIBUTE` | `ContributeRequestDTO` | `ContributionResult` | Executes atomic contribution transaction. |
 | `SEARCH_USERS` | `String` | `List<UserDTO>` | Searches discoverable users by username/email. |
+| `UPDATE_PROFILE` | `JsonObject` | `UserDTO` | Updates user full name, bio, and avatar color; broadcasts `PROFILE_UPDATED` to online friends. |
+| `RECHARGE_BALANCE` | `JsonObject` | `BigDecimal` | Recharges user financial balance atomically. |
+| `LOGOUT` | `null` | `Boolean` | Invalidates active user session token on server. |
+| `PING` | `null` | `String` | Verifies server connectivity and heartbeat. |
 
 ---
 
