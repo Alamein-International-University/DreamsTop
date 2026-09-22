@@ -23,7 +23,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -65,7 +64,8 @@ public class FriendWishlistController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         currencyFormat.setMaximumFractionDigits(0);
 
-        // Live sync with FriendService (updates profile info as soon as friends list refreshes)
+        // Live sync with FriendService (updates profile info as soon as friends list
+        // refreshes)
         friendsListListener = change -> {
             Platform.runLater(() -> {
                 syncFriendProfileFromStore();
@@ -76,7 +76,8 @@ public class FriendWishlistController implements Initializable {
 
         // Live sync with server push notifications
         notificationListener = notification -> {
-            if (notification == null || currentFriend == null) return;
+            if (notification == null || currentFriend == null)
+                return;
             NotificationType type = notification.getType();
             int friendId = ModelMapper.parseNumericId(currentFriend.getId());
 
@@ -93,7 +94,8 @@ public class FriendWishlistController implements Initializable {
                                 updateFriendHeader();
                             });
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
                 Platform.runLater(() -> {
                     syncFriendProfileFromStore();
@@ -109,7 +111,8 @@ public class FriendWishlistController implements Initializable {
                     try {
                         int ownerId = Integer.parseInt(notification.getExtraDataJson().trim());
                         match = (ownerId == friendId);
-                    } catch (NumberFormatException ignored) {}
+                    } catch (NumberFormatException ignored) {
+                    }
                 }
 
                 if (match) {
@@ -128,7 +131,8 @@ public class FriendWishlistController implements Initializable {
     }
 
     private void syncFriendProfileFromStore() {
-        if (currentFriend == null) return;
+        if (currentFriend == null)
+            return;
         int targetId = ModelMapper.parseNumericId(currentFriend.getId());
         for (User u : FriendService.getInstance().getFriends()) {
             if (ModelMapper.parseNumericId(u.getId()) == targetId) {
@@ -141,7 +145,8 @@ public class FriendWishlistController implements Initializable {
     }
 
     public void reloadFriendWishlist() {
-        if (currentFriend == null) return;
+        if (currentFriend == null)
+            return;
         wishlistService.loadFriendWishlistAsync(currentFriend).thenAccept(items -> {
             Platform.runLater(() -> {
                 friendWishlistItems.setAll(items);
@@ -165,7 +170,8 @@ public class FriendWishlistController implements Initializable {
         double totalFunded = friendWishlistItems.stream().mapToDouble(WishlistItem::getCurrentAmount).sum();
         double pct = totalTarget > 0 ? (totalFunded / totalTarget) * 100.0 : 0;
 
-        lblFriendItemsCount.setText(friendWishlistItems.size() + (friendWishlistItems.size() == 1 ? " Item" : " Items") + " on Wishlist");
+        lblFriendItemsCount.setText(
+                friendWishlistItems.size() + (friendWishlistItems.size() == 1 ? " Item" : " Items") + " on Wishlist");
         lblFriendFundingSummary.setText(currencyFormat.format(totalFunded) + " / " + currencyFormat.format(totalTarget)
                 + " EGP Funded (" + String.format("%.0f", pct) + "%)");
     }
