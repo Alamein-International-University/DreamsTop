@@ -17,6 +17,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -137,10 +138,12 @@ public class FriendWishlistController implements Initializable {
         topRow.setAlignment(Pos.CENTER_LEFT);
         topRow.setMaxWidth(Double.MAX_VALUE);
 
-        Label iconLabel = new Label(item.getItem().getIconEmoji());
-        iconLabel.getStyleClass().add("card-icon");
+        StackPane iconTile = new StackPane();
+        iconTile.getStyleClass().add("card-icon-tile");
+        Node catIcon = com.dreamstop.util.IconUtil.getCategoryIcon(item.getItem().getCategory(), 22, "#818CF8");
+        iconTile.getChildren().add(catIcon);
 
-        VBox titleBox = new VBox(3);
+        VBox titleBox = new VBox(4);
         FlowPane nameAndBadges = new FlowPane();
         nameAndBadges.setHgap(8);
         nameAndBadges.setVgap(4);
@@ -165,8 +168,14 @@ public class FriendWishlistController implements Initializable {
         titleBox.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(titleBox, Priority.ALWAYS);
 
-        Button btnContribute = new Button(item.isCompleted() ? "Completed 🎉" : "🎁 Contribute");
-        btnContribute.getStyleClass().add(item.isCompleted() ? "btn-secondary" : "btn-primary");
+        Button btnContribute = new Button();
+        if (item.isCompleted()) {
+            btnContribute.setText("Fully Funded");
+            btnContribute.getStyleClass().add("btn-secondary");
+        } else {
+            com.dreamstop.util.IconUtil.styleButton(btnContribute, com.dreamstop.util.IconUtil.IconType.GIFT, "Contribute", 13, "#FFFFFF");
+            btnContribute.getStyleClass().add("btn-primary");
+        }
         btnContribute.getStyleClass().add("contribute-button");
         btnContribute.setMinWidth(160);
         btnContribute.setPrefWidth(160);
@@ -174,12 +183,12 @@ public class FriendWishlistController implements Initializable {
         btnContribute.setDisable(item.isCompleted());
         btnContribute.setOnAction(e -> handleContribute(item));
 
-        topRow.getChildren().addAll(iconLabel, titleBox, btnContribute);
+        topRow.getChildren().addAll(iconTile, titleBox, btnContribute);
 
         // Notes box if available
         if (item.getNotes() != null && !item.getNotes().trim().isEmpty()) {
-            Label notesLabel = new Label("💡 " + currentFriend.getFullName() + "'s Note: " + item.getNotes());
-            notesLabel.getStyleClass().add("notes-label");
+            Label notesLabel = new Label(currentFriend.getFullName() + "'s Note: " + item.getNotes());
+            notesLabel.getStyleClass().add("notes-callout");
             notesLabel.setWrapText(true);
             notesLabel.setMaxWidth(Double.MAX_VALUE);
             card.getChildren().addAll(topRow, notesLabel);
@@ -214,7 +223,7 @@ public class FriendWishlistController implements Initializable {
         pctText.setAlignment(Pos.CENTER_RIGHT);
 
         if (item.isCompleted()) {
-            Label compBadge = new Label("FULLY FUNDED 🎉");
+            Label compBadge = new Label("FULLY FUNDED");
             compBadge.getStyleClass().add("badge-completed");
             progressLabels.getChildren().addAll(fundedText, progressSpacer, compBadge, pctText);
         } else {
@@ -255,6 +264,7 @@ public class FriendWishlistController implements Initializable {
         pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         pane.getStylesheets().add(getClass().getResource("/com/dreamstop/css/styles.css").toExternalForm());
         pane.getStyleClass().add("wishlist-dialog-pane");
+        com.dreamstop.util.ThemeManager.applyTheme(pane);
         dialog.setResizable(true);
         pane.setMinWidth(460);
         pane.setMinHeight(360);

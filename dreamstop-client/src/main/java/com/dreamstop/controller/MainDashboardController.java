@@ -31,9 +31,18 @@ public class MainDashboardController implements Initializable {
     private StackPane toastOverlay;
 
     @FXML
+    private StackPane brandLogoContainer;
+    @FXML
+    private Label lblBrandTitle;
+    @FXML
+    private Label lblBrandSubtitle;
+
+    @FXML
     private Button btnNavWishlist;
     @FXML
     private Button btnNavFriends;
+    @FXML
+    private Button btnNavSettings;
     @FXML
     private Label lblRequestsBadge;
 
@@ -45,6 +54,8 @@ public class MainDashboardController implements Initializable {
     private Label lblUserName;
     @FXML
     private Label lblUserHandle;
+    @FXML
+    private Button btnSignOut;
 
     public static MainDashboardController getInstance() {
         return instance;
@@ -54,15 +65,29 @@ public class MainDashboardController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         instance = this;
 
+        // Branding setup from AppConfig
+        if (brandLogoContainer != null) {
+            brandLogoContainer.getChildren().setAll(com.dreamstop.util.AppConfig.createBrandLogo(34));
+        }
+        if (lblBrandTitle != null) {
+            lblBrandTitle.setText(com.dreamstop.util.AppConfig.APP_NAME);
+        }
+        if (lblBrandSubtitle != null) {
+            lblBrandSubtitle.setText(com.dreamstop.util.AppConfig.APP_TAGLINE);
+        }
+
+        // Vector SVG Icons for Navigation & Signout
+        updateNavIcons(btnNavWishlist);
+        if (btnSignOut != null) {
+            btnSignOut.setGraphic(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.SIGN_OUT, 15, "#CBD5E1"));
+            btnSignOut.setText("");
+        }
+
         // Register toast notification host
         NotificationUtil.registerToastContainer(toastOverlay);
 
         // Populate User Info
-        User me = MockDataFactory.getCurrentUser();
-        lblUserName.setText(me.getFullName());
-        lblUserHandle.setText("@" + me.getUsername());
-        lblUserInitials.setText(me.getInitials());
-        UiStyleUtil.applyAvatar(userAvatarPane, me.getAvatarColor(), "avatar-circle-profile");
+        refreshUserProfileDisplay();
 
         // Refresh server state for the current user
         FriendService friendService = FriendService.getInstance();
@@ -79,6 +104,16 @@ public class MainDashboardController implements Initializable {
         handleNavWishlist(null);
     }
 
+    public void refreshUserProfileDisplay() {
+        User me = MockDataFactory.getCurrentUser();
+        if (me != null) {
+            lblUserName.setText(me.getFullName());
+            lblUserHandle.setText("@" + me.getUsername());
+            lblUserInitials.setText(me.getInitials());
+            UiStyleUtil.applyAvatar(userAvatarPane, me.getAvatarColor(), "avatar-circle-profile");
+        }
+    }
+
     private void updateBadge(int count) {
         if (count > 0) {
             lblRequestsBadge.setVisible(true);
@@ -92,16 +127,22 @@ public class MainDashboardController implements Initializable {
 
     @FXML
     public void handleNavWishlist(ActionEvent event) {
-        setActiveNav(btnNavWishlist, btnNavFriends);
+        setActiveNav(btnNavWishlist, btnNavFriends, btnNavSettings);
         com.dreamstop.service.WishlistService.getInstance().refreshMyWishlist();
         loadView("wishlist_view.fxml");
     }
 
     @FXML
     public void handleNavFriends(ActionEvent event) {
-        setActiveNav(btnNavFriends, btnNavWishlist);
+        setActiveNav(btnNavFriends, btnNavWishlist, btnNavSettings);
         FriendService.getInstance().refreshState();
         loadView("friends_view.fxml");
+    }
+
+    @FXML
+    public void handleNavSettings(ActionEvent event) {
+        setActiveNav(btnNavSettings, btnNavWishlist, btnNavFriends);
+        loadView("settings_view.fxml");
     }
 
     @FXML
@@ -120,17 +161,33 @@ public class MainDashboardController implements Initializable {
             controller.setFriend(friend);
 
             contentArea.getChildren().setAll(view);
-            btnNavWishlist.getStyleClass().setAll("nav-button");
-            btnNavFriends.getStyleClass().setAll("nav-button-active");
+            setActiveNav(btnNavFriends, btnNavWishlist, btnNavSettings);
         } catch (IOException e) {
             e.printStackTrace();
             NotificationUtil.showError("Failed to load friend's wishlist view: " + e.getMessage());
         }
     }
 
-    private void setActiveNav(Button active, Button inactive) {
-        active.getStyleClass().setAll("nav-button-active");
-        inactive.getStyleClass().setAll("nav-button");
+    private void setActiveNav(Button active, Button... inactives) {
+        if (active != null) {
+            active.getStyleClass().setAll("nav-button-active");
+        }
+        for (Button btn : inactives) {
+            if (btn != null) {
+                btn.getStyleClass().setAll("nav-button");
+            }
+        }
+        updateNavIcons(active);
+    }
+
+    private void updateNavIcons(Button active) {
+        String wishColor = (active == btnNavWishlist) ? "#FFFFFF" : "#94A3B8";
+        String friendColor = (active == btnNavFriends) ? "#FFFFFF" : "#94A3B8";
+        String settingsColor = (active == btnNavSettings) ? "#FFFFFF" : "#94A3B8";
+
+        com.dreamstop.util.IconUtil.styleButton(btnNavWishlist, com.dreamstop.util.IconUtil.IconType.GIFT, "My Wishlist", 16, wishColor);
+        com.dreamstop.util.IconUtil.styleButton(btnNavFriends, com.dreamstop.util.IconUtil.IconType.USERS, "Friends & Social", 16, friendColor);
+        com.dreamstop.util.IconUtil.styleButton(btnNavSettings, com.dreamstop.util.IconUtil.IconType.SETTINGS, "Settings & Profile", 16, settingsColor);
     }
 
     public void loadView(String fxmlFileName) {

@@ -53,6 +53,8 @@ public class LoginController implements Initializable {
     private Button btnPrimaryAction;
 
     @FXML
+    private StackPane loginLogoBox;
+    @FXML
     private Label lblStatusDot;
     @FXML
     private Label lblServerStatus;
@@ -61,6 +63,10 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (loginLogoBox != null) {
+            loginLogoBox.getChildren().setAll(com.dreamstop.util.AppConfig.createBrandLogo(54));
+        }
+
         NotificationUtil.registerToastContainer(toastOverlay);
 
         // Attempt background socket connection to server

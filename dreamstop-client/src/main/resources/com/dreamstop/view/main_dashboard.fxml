@@ -23,26 +23,30 @@
                         <!-- App Brand Header -->
                         <VBox spacing="4.0">
                             <children>
-                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>
-                                        <Label text="🎁" styleClass="brand-emoji" />
-                                        <Label text="DreamsTop" styleClass="brand-title" />
+                                        <StackPane fx:id="brandLogoContainer" />
+                                        <VBox spacing="1.0">
+                                            <children>
+                                                <Label fx:id="lblBrandTitle" text="DreamsTop" styleClass="brand-title" />
+                                                <Label fx:id="lblBrandSubtitle" text="i-Wish Desktop Platform" styleClass="brand-subtitle" />
+                                            </children>
+                                        </VBox>
                                     </children>
                                 </HBox>
-                                <Label text="i-Wish Desktop Platform" styleClass="brand-subtitle" />
                             </children>
                             <padding>
-                                <Insets bottom="12.0" left="4.0" right="4.0" top="4.0" />
+                                <Insets bottom="12.0" left="2.0" right="4.0" top="4.0" />
                             </padding>
                         </VBox>
 
                         <!-- Nav Buttons -->
                         <VBox spacing="8.0">
                             <children>
-                                <Button fx:id="btnNavWishlist" maxWidth="Infinity" onAction="#handleNavWishlist" styleClass="nav-button-active" text="🎁  My Wishlist" />
+                                <Button fx:id="btnNavWishlist" maxWidth="Infinity" onAction="#handleNavWishlist" styleClass="nav-button-active" text="My Wishlist" />
                                 <StackPane maxWidth="Infinity">
                                     <children>
-                                        <Button fx:id="btnNavFriends" maxWidth="Infinity" onAction="#handleNavFriends" styleClass="nav-button nav-button-with-badge" text="👥  Friends &amp; Social" />
+                                        <Button fx:id="btnNavFriends" maxWidth="Infinity" onAction="#handleNavFriends" styleClass="nav-button nav-button-with-badge" text="Friends &amp; Social" />
                                         <Label fx:id="lblRequestsBadge" mouseTransparent="true" styleClass="badge-count" text="2" StackPane.alignment="CENTER_RIGHT">
                                             <StackPane.margin>
                                                 <Insets right="12.0" />
@@ -50,6 +54,7 @@
                                         </Label>
                                     </children>
                                 </StackPane>
+                                <Button fx:id="btnNavSettings" maxWidth="Infinity" onAction="#handleNavSettings" styleClass="nav-button" text="Settings &amp; Profile" />
                             </children>
                         </VBox>
 
@@ -66,14 +71,13 @@
                                                 <Label fx:id="lblUserInitials" styleClass="avatar-text" text="YG" />
                                             </children>
                                         </StackPane>
-                                        <VBox spacing="2.0">
+                                        <VBox spacing="2.0" HBox.hgrow="ALWAYS">
                                             <children>
                                                 <Label fx:id="lblUserName" styleClass="profile-name" text="Yousef Gamal" />
                                                 <Label fx:id="lblUserHandle" styleClass="profile-handle" text="\@yousefgamal" />
                                             </children>
                                         </VBox>
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="btnSignOut" onAction="#handleSignOut" styleClass="btn-signout" text="↪">
+                                        <Button fx:id="btnSignOut" onAction="#handleSignOut" styleClass="btn-signout" text="⎋">
                                             <tooltip>
                                                 <Tooltip text="Sign out" />
                                             </tooltip>

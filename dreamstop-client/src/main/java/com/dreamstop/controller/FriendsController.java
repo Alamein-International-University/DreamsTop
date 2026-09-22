@@ -151,7 +151,9 @@ public class FriendsController implements Initializable {
 
         // Wishlist items count
         List<WishlistItem> friendItems = MockDataFactory.getWishlistsByUser().getOrDefault(friend.getId(), List.of());
-        Label wishlistBadge = new Label("🎁 " + friendItems.size() + " items");
+        Label wishlistBadge = new Label(friendItems.size() + " items");
+        wishlistBadge.setGraphic(com.dreamstop.util.IconUtil.getIcon(com.dreamstop.util.IconUtil.IconType.GIFT, 12, "#818CF8"));
+        wishlistBadge.setGraphicTextGap(5);
         wishlistBadge.getStyleClass().add("badge");
 
         nameLine.getChildren().addAll(nameLabel, handleLabel, wishlistBadge);
@@ -168,12 +170,14 @@ public class FriendsController implements Initializable {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         // Action Buttons: View Wishlist (Task 6) & Remove Friend (Task 2)
-        Button btnViewWishlist = new Button("🎁 View Wishlist");
+        Button btnViewWishlist = new Button("View Wishlist");
         btnViewWishlist.getStyleClass().add("btn-primary");
+        com.dreamstop.util.IconUtil.styleButton(btnViewWishlist, com.dreamstop.util.IconUtil.IconType.GIFT, "View Wishlist", 12, "#FFFFFF");
         btnViewWishlist.setOnAction(e -> handleViewFriendWishlist(friend));
 
-        Button btnRemove = new Button("✕ Remove");
-        btnRemove.getStyleClass().add("btn-danger");
+        Button btnRemove = new Button("Remove");
+        btnRemove.getStyleClass().add("btn-card-delete");
+        com.dreamstop.util.IconUtil.styleButton(btnRemove, com.dreamstop.util.IconUtil.IconType.CLOSE, "Remove", 11, "#F87171");
         btnRemove.setOnAction(e -> handleRemoveFriend(friend));
 
         card.getChildren().addAll(avatarPane, infoBox, spacer, btnViewWishlist, btnRemove);
@@ -188,6 +192,7 @@ public class FriendsController implements Initializable {
 
     private void handleRemoveFriend(User friend) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        com.dreamstop.util.ThemeManager.applyTheme(alert.getDialogPane());
         alert.setTitle("Remove Friend");
         alert.setHeaderText("Remove " + friend.getFullName() + " from your friends?");
         alert.setContentText(
@@ -259,15 +264,17 @@ public class FriendsController implements Initializable {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Button btnAccept = new Button("✓ Accept");
+        Button btnAccept = new Button("Accept");
         btnAccept.getStyleClass().add("btn-success");
+        com.dreamstop.util.IconUtil.styleButton(btnAccept, com.dreamstop.util.IconUtil.IconType.CHECK, "Accept", 12, "#FFFFFF");
         btnAccept.setOnAction(e -> {
             friendService.acceptFriendRequest(req);
             NotificationUtil.showSuccess("You and " + sender.getFullName() + " are now friends!");
         });
 
-        Button btnDecline = new Button("✕ Decline");
-        btnDecline.getStyleClass().add("btn-danger");
+        Button btnDecline = new Button("Decline");
+        btnDecline.getStyleClass().add("btn-card-delete");
+        com.dreamstop.util.IconUtil.styleButton(btnDecline, com.dreamstop.util.IconUtil.IconType.CLOSE, "Decline", 11, "#F87171");
         btnDecline.setOnAction(e -> {
             friendService.declineFriendRequest(req);
             NotificationUtil.showInfo("Declined friend request from @" + sender.getUsername());
@@ -379,14 +386,21 @@ public class FriendsController implements Initializable {
 
         boolean alreadyPending = friendService.hasPendingRequestWith(user);
 
-        Button btnAdd = new Button(alreadyPending ? "Pending ✓" : "+ Add Friend");
-        btnAdd.getStyleClass().add(alreadyPending ? "btn-secondary" : "btn-primary");
+        Button btnAdd = new Button();
+        if (alreadyPending) {
+            btnAdd.setText("Pending");
+            btnAdd.getStyleClass().add("btn-secondary");
+        } else {
+            com.dreamstop.util.IconUtil.styleButton(btnAdd, com.dreamstop.util.IconUtil.IconType.PLUS, "Add Friend", 12, "#FFFFFF");
+            btnAdd.getStyleClass().add("btn-primary");
+        }
         btnAdd.setDisable(alreadyPending);
 
         btnAdd.setOnAction(e -> {
             boolean sent = friendService.sendFriendRequest(user);
             if (sent) {
-                btnAdd.setText("Pending ✓");
+                btnAdd.setText("Pending");
+                btnAdd.setGraphic(null);
                 btnAdd.getStyleClass().setAll("btn-secondary");
                 btnAdd.setDisable(true);
                 NotificationUtil.showSuccess("Friend request sent to " + user.getFullName() + "!");
