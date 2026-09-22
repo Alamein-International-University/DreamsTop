@@ -28,9 +28,11 @@ public class ServerGuiApp extends Application {
         stage.setScene(scene);
 
         stage.setOnCloseRequest(event -> {
-            if (daemon != null && daemon.isRunning()) {
-                daemon.stop();
-            }
+            new Thread(() -> {
+                if (daemon != null && daemon.isRunning()) {
+                    daemon.stop();
+                }
+            }, "server-exit").start();
             javafx.application.Platform.exit();
             System.exit(0);
         });
@@ -40,9 +42,11 @@ public class ServerGuiApp extends Application {
 
     @Override
     public void stop() throws Exception {
-        if (daemon != null && daemon.isRunning()) {
-            daemon.stop();
-        }
+        new Thread(() -> {
+            if (daemon != null && daemon.isRunning()) {
+                daemon.stop();
+            }
+        }, "server-exit").start();
         super.stop();
         System.exit(0);
     }

@@ -129,16 +129,16 @@ public final class ClientHandler implements Runnable {
     private void close() {
         running = false;
         try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException ignored) {}
+        try {
             if (in != null) in.close();
         } catch (IOException ignored) {}
         try {
             if (out != null) out.close();
         } catch (Exception ignored) {}
-        try {
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-        } catch (IOException ignored) {}
 
         if (sessionManager != null) {
             sessionManager.unregisterHandler(this);

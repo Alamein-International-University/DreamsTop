@@ -25,7 +25,9 @@ public class App extends Application {
         stage.setScene(scene);
 
         stage.setOnCloseRequest(e -> {
-            com.dreamstop.network.NetworkClient.getInstance().disconnect();
+            new Thread(() -> {
+                com.dreamstop.network.NetworkClient.getInstance().disconnect();
+            }, "client-exit").start();
             javafx.application.Platform.exit();
             System.exit(0);
         });
@@ -35,7 +37,9 @@ public class App extends Application {
 
     @Override
     public void stop() throws Exception {
-        com.dreamstop.network.NetworkClient.getInstance().disconnect();
+        new Thread(() -> {
+            com.dreamstop.network.NetworkClient.getInstance().disconnect();
+        }, "client-exit").start();
         super.stop();
         System.exit(0);
     }

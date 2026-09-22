@@ -81,11 +81,12 @@ public final class NetworkClient {
         this.sessionToken = null;
         this.currentUser = null;
 
-        if (listenerThread != null) {
+        closeResources();
+
+        if (listenerThread != null && listenerThread != Thread.currentThread()) {
             listenerThread.interrupt();
         }
 
-        closeResources();
         LOGGER.info("Disconnected from DreamsTop server.");
     }
 
@@ -148,20 +149,22 @@ public final class NetworkClient {
     }
 
     private void listenIncomingMessages() {
-        while (running && isConnected()) {
-            try {
+        try {
+            while (running && isConnected()) {
                 String line = in.readLine();
                 if (line == null) {
+                    LOGGER.info("Server closed connection (EOF).");
                     break;
                 }
                 processIncomingLine(line.trim());
-            } catch (IOException e) {
-                if (running) {
-                    LOGGER.info("Connection closed by server.");
-                    disconnect();
-                }
-                break;
             }
+        } catch (IOException e) {
+            if (running) {
+                LOGGER.info("Connection closed by server.");
+            }
+        } finally {
+            this.running = false;
+            closeResources();
         }
     }
 
@@ -224,6 +227,11 @@ public final class NetworkClient {
 
     private void closeResources() {
         try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException ignored) {}
+        try {
             if (in != null) {
                 in.close();
             }
@@ -233,10 +241,5 @@ public final class NetworkClient {
                 out.close();
             }
         } catch (Exception ignored) {}
-        try {
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-        } catch (IOException ignored) {}
     }
 }
