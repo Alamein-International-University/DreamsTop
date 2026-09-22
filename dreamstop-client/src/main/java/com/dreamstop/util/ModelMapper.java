@@ -27,8 +27,7 @@ public final class ModelMapper {
                 dto.getUsername(),
                 dto.getEmail(),
                 "#6366F1",
-                "Connected Player"
-        );
+                "Connected Player");
     }
 
     public static Item toItem(ItemDTO dto) {
@@ -53,8 +52,7 @@ public final class ModelMapper {
                 dto.getDescription() != null ? dto.getDescription() : "",
                 dto.getCategory() != null ? dto.getCategory() : "Store",
                 dto.getPrice() != null ? dto.getPrice().doubleValue() : 0.0,
-                emoji
-        );
+                emoji);
     }
 
     public static WishlistItem toWishlistItem(WishlistItemDTO dto) {
@@ -72,8 +70,7 @@ public final class ModelMapper {
                 "",
                 target,
                 current,
-                "HIGH"
-        );
+                "HIGH");
     }
 
     public static FriendRequest toFriendRequest(FriendshipDTO dto) {
@@ -94,15 +91,15 @@ public final class ModelMapper {
                 sender,
                 receiver,
                 status,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
     }
 
     public static int parseNumericId(String idStr) {
         if (idStr == null) {
             return 0;
         }
-        if (idStr.startsWith("itm-") || idStr.startsWith("wl-") || idStr.startsWith("usr-") || idStr.startsWith("req-")) {
+        if (idStr.startsWith("itm-") || idStr.startsWith("wl-") || idStr.startsWith("usr-")
+                || idStr.startsWith("req-")) {
             idStr = idStr.substring(4);
         }
         try {
