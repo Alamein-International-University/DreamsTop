@@ -27,14 +27,14 @@ public class FriendshipDAOImpl implements FriendshipDAO {
 
     private static final String SELECT_FRIENDSHIP =
             "SELECT f.id, f.status, " +
-            "       req.id AS req_id, req.username AS req_name, req.email AS req_email, req.balance AS req_bal, " +
-            "       addr.id AS addr_id, addr.username AS addr_name, addr.email AS addr_email, addr.balance AS addr_bal " +
+            "       req.id AS req_id, req.username AS req_name, req.email AS req_email, req.balance AS req_bal, req.full_name AS req_full_name, req.avatar_color AS req_color, req.bio AS req_bio, " +
+            "       addr.id AS addr_id, addr.username AS addr_name, addr.email AS addr_email, addr.balance AS addr_bal, addr.full_name AS addr_full_name, addr.avatar_color AS addr_color, addr.bio AS addr_bio " +
             "FROM friendships f JOIN users req ON f.requester_id = req.id JOIN users addr ON f.addressee_id = addr.id ";
 
     @Override
     public List<UserDTO> getFriends(int userId) throws SQLException {
         List<UserDTO> friends = new ArrayList<>();
-        String sql = "SELECT u.id, u.username, u.email, u.balance FROM users u WHERE u.id IN (" +
+        String sql = "SELECT u.id, u.username, u.email, u.balance, u.full_name, u.avatar_color, u.bio FROM users u WHERE u.id IN (" +
                      "SELECT CASE WHEN f.requester_id = ? THEN f.addressee_id ELSE f.requester_id END " +
                      "FROM friendships f WHERE (f.requester_id = ? OR f.addressee_id = ?) AND f.status = 'ACCEPTED') ORDER BY u.username ASC";
 
@@ -49,7 +49,10 @@ public class FriendshipDAOImpl implements FriendshipDAO {
                             rs.getInt("id"),
                             rs.getString("username"),
                             rs.getString("email"),
-                            rs.getBigDecimal("balance")
+                            rs.getBigDecimal("balance"),
+                            rs.getString("full_name"),
+                            rs.getString("avatar_color"),
+                            rs.getString("bio")
                     ));
                 }
             }
@@ -229,13 +232,19 @@ public class FriendshipDAOImpl implements FriendshipDAO {
                 rs.getInt("req_id"),
                 rs.getString("req_name"),
                 rs.getString("req_email"),
-                rs.getBigDecimal("req_bal")
+                rs.getBigDecimal("req_bal"),
+                rs.getString("req_full_name"),
+                rs.getString("req_color"),
+                rs.getString("req_bio")
         );
         UserDTO addr = new UserDTO(
                 rs.getInt("addr_id"),
                 rs.getString("addr_name"),
                 rs.getString("addr_email"),
-                rs.getBigDecimal("addr_bal")
+                rs.getBigDecimal("addr_bal"),
+                rs.getString("addr_full_name"),
+                rs.getString("addr_color"),
+                rs.getString("addr_bio")
         );
         return new FriendshipDTO(
                 rs.getInt("id"),

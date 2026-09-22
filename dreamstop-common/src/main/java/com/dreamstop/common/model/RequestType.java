@@ -8,6 +8,7 @@ public enum RequestType {
 
     // Profile & Balance
     GET_PROFILE,
+    UPDATE_PROFILE,
     RECHARGE_BALANCE,
 
     // Friends

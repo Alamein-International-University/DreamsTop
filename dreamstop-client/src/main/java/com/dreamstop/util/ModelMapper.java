@@ -24,10 +24,10 @@ public final class ModelMapper {
         return new User(
                 String.valueOf(dto.getId()),
                 dto.getUsername(),
-                dto.getUsername(),
+                dto.getFullName() != null && !dto.getFullName().isBlank() ? dto.getFullName() : dto.getUsername(),
                 dto.getEmail(),
-                "#6366F1",
-                "Connected Player");
+                dto.getAvatarColor() != null ? dto.getAvatarColor() : "#6366F1",
+                dto.getBio() != null ? dto.getBio() : "");
     }
 
     public static Item toItem(ItemDTO dto) {

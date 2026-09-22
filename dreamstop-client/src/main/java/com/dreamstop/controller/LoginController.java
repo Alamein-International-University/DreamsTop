@@ -69,13 +69,18 @@ public class LoginController implements Initializable {
 
         NotificationUtil.registerToastContainer(toastOverlay);
 
+        String disconnectReason = NetworkClient.getAndClearLastDisconnectReason();
+        if (disconnectReason != null) {
+            showError(disconnectReason);
+        }
+
         // Attempt background socket connection to server
         Thread initThread = new Thread(this::checkAndConnectServer, "network-client-init");
         initThread.setDaemon(true);
         initThread.start();
     }
 
-    private void checkAndConnectServer() {
+    private boolean ensureConnected() {
         NetworkClient network = NetworkClient.getInstance();
         if (!network.isConnected()) {
             try {
@@ -83,16 +88,25 @@ public class LoginController implements Initializable {
             } catch (Exception ignored) {
             }
         }
+        boolean connected = network.isConnected();
+        Platform.runLater(() -> updateServerStatusUi(connected));
+        return connected;
+    }
 
-        Platform.runLater(() -> {
-            if (network.isConnected()) {
-                lblStatusDot.setStyle("-fx-text-fill: #10B981; -fx-font-size: 10px;");
-                lblServerStatus.setText("Connected to Server (127.0.0.1:5005)");
-            } else {
-                lblStatusDot.setStyle("-fx-text-fill: #64748B; -fx-font-size: 10px;");
-                lblServerStatus.setText("Server Offline (Operating in Demo Fallback)");
-            }
-        });
+    private void checkAndConnectServer() {
+        ensureConnected();
+    }
+
+    private void updateServerStatusUi(boolean connected) {
+        if (connected) {
+            lblStatusDot.setStyle("-fx-text-fill: #10B981; -fx-font-size: 10px;");
+            lblServerStatus.setText("Connected to Server (127.0.0.1:5005)");
+            lblServerStatus.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px;");
+        } else {
+            lblStatusDot.setStyle("-fx-text-fill: #EF4444; -fx-font-size: 10px;");
+            lblServerStatus.setText("Server Offline (Cannot connect to 127.0.0.1:5005)");
+            lblServerStatus.setStyle("-fx-text-fill: #EF4444; -fx-font-size: 11px;");
+        }
     }
 
     @FXML
@@ -149,78 +163,77 @@ public class LoginController implements Initializable {
         btnPrimaryAction.setDisable(true);
         btnPrimaryAction.setText("Signing in...");
 
-        NetworkClient network = NetworkClient.getInstance();
-        if (network.isConnected()) {
-            Request loginReq = Request.of(RequestType.LOGIN, new LoginRequestDTO(username, password));
-            network.sendRequestAsync(loginReq).thenAccept(response -> Platform.runLater(() -> {
-                btnPrimaryAction.setDisable(false);
-                btnPrimaryAction.setText("Sign In to DreamsTop");
+        if (!ensureConnected()) {
+            btnPrimaryAction.setDisable(false);
+            btnPrimaryAction.setText("Sign In to DreamsTop");
+            showError("Server is offline. Please start the server and try again.");
+            return;
+        }
 
-                if (response.isSuccess()) {
-                    AuthResultDTO authResult = response.getDataAs(AuthResultDTO.class);
-                    if (authResult != null) {
-                        network.setSessionToken(authResult.getToken());
-                        network.setCurrentUser(authResult.getUser());
-                        syncLocalUser(authResult.getUser());
-                        navigateToDashboard();
-                    }
-                } else {
-                    showError(response.getMessage() != null ? response.getMessage() : "Invalid credentials");
-                }
-            }));
-        } else {
-            // Offline fallback authentication against MockDataFactory
+        NetworkClient network = NetworkClient.getInstance();
+        Request loginReq = Request.of(RequestType.LOGIN, new LoginRequestDTO(username, password));
+        network.sendRequestAsync(loginReq).thenAccept(response -> Platform.runLater(() -> {
             btnPrimaryAction.setDisable(false);
             btnPrimaryAction.setText("Sign In to DreamsTop");
 
-            Optional<User> localMatch = MockDataFactory.getAllUsers().stream()
-                    .filter(u -> u.getUsername().equalsIgnoreCase(username) || u.getEmail().equalsIgnoreCase(username))
-                    .findFirst();
-
-            if (localMatch.isPresent()) {
-                MockDataFactory.setCurrentUser(localMatch.get());
-                navigateToDashboard();
+            if (response.isSuccess()) {
+                AuthResultDTO authResult = response.getDataAs(AuthResultDTO.class);
+                if (authResult != null) {
+                    network.setSessionToken(authResult.getToken());
+                    network.setCurrentUser(authResult.getUser());
+                    syncLocalUser(authResult.getUser());
+                    navigateToDashboard();
+                }
             } else {
-                User demoUser = new User("usr-" + username, username, username, username + "@dreamstop.com", "#6366F1",
-                        "Player");
-                MockDataFactory.setCurrentUser(demoUser);
-                navigateToDashboard();
+                showError(response.getMessage() != null ? response.getMessage() : "Invalid credentials");
             }
-        }
+        })).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                btnPrimaryAction.setDisable(false);
+                btnPrimaryAction.setText("Sign In to DreamsTop");
+                showError("Connection error: " + ex.getMessage());
+            });
+            return null;
+        });
     }
 
     private void performRegister(String username, String email, String password) {
         btnPrimaryAction.setDisable(true);
         btnPrimaryAction.setText("Creating account...");
 
-        NetworkClient network = NetworkClient.getInstance();
-        if (network.isConnected()) {
-            RegisterRequestDTO regDto = new RegisterRequestDTO(username, email, password, new BigDecimal("1000.00"));
-            Request regReq = Request.of(RequestType.REGISTER, regDto);
-            network.sendRequestAsync(regReq).thenAccept(response -> Platform.runLater(() -> {
-                btnPrimaryAction.setDisable(false);
-                btnPrimaryAction.setText("Create DreamsTop Account");
+        if (!ensureConnected()) {
+            btnPrimaryAction.setDisable(false);
+            btnPrimaryAction.setText("Create DreamsTop Account");
+            showError("Server is offline. Please start the server and try again.");
+            return;
+        }
 
-                if (response.isSuccess()) {
-                    AuthResultDTO authResult = response.getDataAs(AuthResultDTO.class);
-                    if (authResult != null) {
-                        network.setSessionToken(authResult.getToken());
-                        network.setCurrentUser(authResult.getUser());
-                        syncLocalUser(authResult.getUser());
-                        navigateToDashboard();
-                    }
-                } else {
-                    showError(response.getMessage() != null ? response.getMessage() : "Registration failed");
-                }
-            }));
-        } else {
+        NetworkClient network = NetworkClient.getInstance();
+        RegisterRequestDTO regDto = new RegisterRequestDTO(username, email, password, new BigDecimal("1000.00"));
+        Request regReq = Request.of(RequestType.REGISTER, regDto);
+        network.sendRequestAsync(regReq).thenAccept(response -> Platform.runLater(() -> {
             btnPrimaryAction.setDisable(false);
             btnPrimaryAction.setText("Create DreamsTop Account");
 
-            User newUser = new User("usr-" + username, username, username, email, "#6366F1", "New Player");
-            MockDataFactory.setCurrentUser(newUser);
-            navigateToDashboard();
-        }
+            if (response.isSuccess()) {
+                AuthResultDTO authResult = response.getDataAs(AuthResultDTO.class);
+                if (authResult != null) {
+                    network.setSessionToken(authResult.getToken());
+                    network.setCurrentUser(authResult.getUser());
+                    syncLocalUser(authResult.getUser());
+                    navigateToDashboard();
+                }
+            } else {
+                showError(response.getMessage() != null ? response.getMessage() : "Registration failed");
+            }
+        })).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                btnPrimaryAction.setDisable(false);
+                btnPrimaryAction.setText("Create DreamsTop Account");
+                showError("Connection error: " + ex.getMessage());
+            });
+            return null;
+        });
     }
 
     @FXML
@@ -244,21 +257,16 @@ public class LoginController implements Initializable {
         handlePrimaryAction();
     }
 
-    @FXML
-    public void handleEnterOfflineMode() {
-        navigateToDashboard();
-    }
-
     private void syncLocalUser(UserDTO dto) {
         if (dto == null)
             return;
         User user = new User(
                 String.valueOf(dto.getId()),
                 dto.getUsername(),
-                dto.getUsername(),
+                dto.getFullName() != null && !dto.getFullName().isBlank() ? dto.getFullName() : dto.getUsername(),
                 dto.getEmail(),
-                "#6366F1",
-                "Connected Player");
+                dto.getAvatarColor() != null ? dto.getAvatarColor() : "#6366F1",
+                dto.getBio() != null ? dto.getBio() : "");
         MockDataFactory.setCurrentUser(user);
     }
 

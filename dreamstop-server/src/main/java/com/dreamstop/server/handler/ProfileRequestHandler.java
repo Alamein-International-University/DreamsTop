@@ -1,15 +1,20 @@
 package com.dreamstop.server.handler;
 
+import com.dreamstop.common.dto.UpdateProfileRequestDTO;
 import com.dreamstop.common.dto.UserDTO;
+import com.dreamstop.common.model.NotificationType;
 import com.dreamstop.common.protocol.Request;
 import com.dreamstop.common.protocol.Response;
+import com.dreamstop.common.protocol.ServerNotification;
 import com.dreamstop.server.dao.DAOFactory;
+import com.dreamstop.server.dao.FriendshipDAO;
 import com.dreamstop.server.dao.UserDAO;
 import com.dreamstop.server.network.ClientHandler;
 import com.google.gson.JsonObject;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,13 +23,69 @@ public class ProfileRequestHandler {
 
     private static final Logger LOGGER = Logger.getLogger(ProfileRequestHandler.class.getName());
     private final UserDAO userDAO;
+    private final FriendshipDAO friendshipDAO;
 
     public ProfileRequestHandler() {
-        this(DAOFactory.getInstance().getUserDAO());
+        this(DAOFactory.getInstance().getUserDAO(), DAOFactory.getInstance().getFriendshipDAO());
     }
 
     public ProfileRequestHandler(UserDAO userDAO) {
+        this(userDAO, DAOFactory.getInstance().getFriendshipDAO());
+    }
+
+    public ProfileRequestHandler(UserDAO userDAO, FriendshipDAO friendshipDAO) {
         this.userDAO = userDAO;
+        this.friendshipDAO = friendshipDAO;
+    }
+
+    public Response handleUpdateProfile(Request request, ClientHandler client) {
+        Integer userId = client.resolveUserId(request);
+        if (userId == null) {
+            return Response.unauthorized("Unauthorized request");
+        }
+
+        UpdateProfileRequestDTO updateReq = request.getPayloadAs(UpdateProfileRequestDTO.class);
+        if (updateReq == null || updateReq.getFullName() == null || updateReq.getFullName().trim().isEmpty()) {
+            return Response.badRequest("Full name is required");
+        }
+
+        try {
+            boolean updated = userDAO.updateProfile(
+                    userId,
+                    updateReq.getFullName().trim(),
+                    updateReq.getAvatarColor(),
+                    updateReq.getBio()
+            );
+
+            if (!updated) {
+                return Response.error("Failed to update profile");
+            }
+
+            Optional<UserDTO> updatedUserOpt = userDAO.findById(userId);
+            UserDTO updatedUser = updatedUserOpt.orElse(null);
+
+            // Broadcast to online friends
+            try {
+                List<UserDTO> friends = friendshipDAO.getFriends(userId);
+                for (UserDTO friend : friends) {
+                    client.getSessionManager().push(
+                            friend.getId(),
+                            new ServerNotification(
+                                    NotificationType.PROFILE_UPDATED,
+                                    "Profile Updated",
+                                    (updatedUser != null ? updatedUser.getFullName() : updateReq.getFullName().trim()) + " updated their profile."
+                            )
+                    );
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Failed to push profile update notification to friends", e);
+            }
+
+            return Response.success(updatedUser, "Profile updated successfully");
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Failed to update profile for user " + userId, e);
+            return Response.error("Database error updating profile");
+        }
     }
 
     public Response handleGetProfile(Request request, ClientHandler client) {

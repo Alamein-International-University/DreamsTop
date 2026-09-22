@@ -1,5 +1,9 @@
 package com.dreamstop.controller;
 
+import com.dreamstop.common.dto.UpdateProfileRequestDTO;
+import com.dreamstop.common.dto.UserDTO;
+import com.dreamstop.common.model.RequestType;
+import com.dreamstop.common.protocol.Request;
 import com.dreamstop.model.User;
 import com.dreamstop.network.NetworkClient;
 import com.dreamstop.service.MockDataFactory;
@@ -187,19 +191,39 @@ public class SettingsController implements Initializable {
             return;
         }
 
-        User me = MockDataFactory.getCurrentUser();
-        if (me != null) {
-            me.setFullName(newName);
-            me.setBio(txtBio.getText() != null ? txtBio.getText().trim() : "");
-            me.setAvatarColor(selectedAvatarColor);
+        String bio = txtBio.getText() != null ? txtBio.getText().trim() : "";
+        String avatarColor = selectedAvatarColor;
 
-            // Propagate changes to MainDashboardController's active sidebar widget
-            MainDashboardController dashboard = MainDashboardController.getInstance();
-            if (dashboard != null) {
-                dashboard.refreshUserProfileDisplay();
-            }
-
-            NotificationUtil.showSuccess("Profile updated successfully!");
+        NetworkClient network = NetworkClient.getInstance();
+        if (network.isConnected() && network.getSessionToken() != null) {
+            UpdateProfileRequestDTO updateDto = new UpdateProfileRequestDTO(newName, avatarColor, bio);
+            Request req = Request.of(RequestType.UPDATE_PROFILE, network.getSessionToken(), updateDto);
+            network.sendRequestAsync(req).thenAccept(resp -> Platform.runLater(() -> {
+                if (resp.isSuccess()) {
+                    User me = MockDataFactory.getCurrentUser();
+                    if (me != null) {
+                        me.setFullName(newName);
+                        me.setBio(bio);
+                        me.setAvatarColor(avatarColor);
+                    }
+                    UserDTO updatedDto = resp.getDataAs(UserDTO.class);
+                    if (updatedDto != null) {
+                        network.setCurrentUser(updatedDto);
+                    }
+                    MainDashboardController dashboard = MainDashboardController.getInstance();
+                    if (dashboard != null) {
+                        dashboard.refreshUserProfileDisplay();
+                    }
+                    NotificationUtil.showSuccess("Profile updated successfully!");
+                } else {
+                    NotificationUtil.showError(resp.getMessage() != null ? resp.getMessage() : "Failed to update profile.");
+                }
+            })).exceptionally(ex -> {
+                Platform.runLater(() -> NotificationUtil.showError("Connection error: " + ex.getMessage()));
+                return null;
+            });
+        } else {
+            NotificationUtil.showError("Server is offline. Cannot save profile.");
         }
     }
 

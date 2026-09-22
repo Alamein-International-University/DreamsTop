@@ -30,6 +30,7 @@ public final class ServerRequestHandlers {
 
         // Profile
         dispatcher.register(RequestType.GET_PROFILE, profileHandler::handleGetProfile);
+        dispatcher.register(RequestType.UPDATE_PROFILE, profileHandler::handleUpdateProfile);
         dispatcher.register(RequestType.RECHARGE_BALANCE, profileHandler::handleRechargeBalance);
 
         // Friends

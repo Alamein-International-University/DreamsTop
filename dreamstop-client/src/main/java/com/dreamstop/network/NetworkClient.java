@@ -47,6 +47,28 @@ public final class NetworkClient {
 
     private final BlockingQueue<Response> responseQueue = new LinkedBlockingQueue<>();
     private final List<Consumer<ServerNotification>> notificationListeners = new CopyOnWriteArrayList<>();
+    private final List<Runnable> disconnectListeners = new CopyOnWriteArrayList<>();
+    private static volatile String lastDisconnectReason = null;
+
+    public static String getAndClearLastDisconnectReason() {
+        String reason = lastDisconnectReason;
+        lastDisconnectReason = null;
+        return reason;
+    }
+
+    public static void setLastDisconnectReason(String reason) {
+        lastDisconnectReason = reason;
+    }
+
+    public void addDisconnectListener(Runnable listener) {
+        if (listener != null) {
+            disconnectListeners.add(listener);
+        }
+    }
+
+    public void removeDisconnectListener(Runnable listener) {
+        disconnectListeners.remove(listener);
+    }
 
     private NetworkClient() {
     }
@@ -163,8 +185,43 @@ public final class NetworkClient {
                 LOGGER.info("Connection closed by server.");
             }
         } finally {
+            boolean wasLoggedIn = (sessionToken != null || currentUser != null);
             this.running = false;
+            this.sessionToken = null;
+            this.currentUser = null;
             closeResources();
+            if (wasLoggedIn) {
+                lastDisconnectReason = "Server connection lost. You have been signed out.";
+            }
+            notifyServerDisconnected(wasLoggedIn);
+        }
+    }
+
+    private void notifyServerDisconnected(boolean wasLoggedIn) {
+        try {
+            Platform.runLater(() -> {
+                if (wasLoggedIn) {
+                    try {
+                        com.dreamstop.App.setRoot("login_view");
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, "Failed to navigate to login_view on disconnect", e);
+                    }
+                }
+                for (Runnable listener : disconnectListeners) {
+                    try {
+                        listener.run();
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, "Error in disconnect listener", e);
+                    }
+                }
+            });
+        } catch (IllegalStateException e) {
+            // Headless / non-JavaFX environment
+            for (Runnable listener : disconnectListeners) {
+                try {
+                    listener.run();
+                } catch (Exception ignored) {}
+            }
         }
     }
 
