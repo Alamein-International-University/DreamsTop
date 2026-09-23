@@ -4,6 +4,10 @@ import com.dreamstop.common.model.NotificationType;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object representing an in-app persistent notification stored in
+ * the database.
+ */
 public class NotificationDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -21,7 +25,8 @@ public class NotificationDTO implements Serializable {
         this.createdAt = LocalDateTime.now();
     }
 
-    public NotificationDTO(int id, int recipientUserId, NotificationType type, String title, String message, Integer relatedItemId) {
+    public NotificationDTO(int id, int recipientUserId, NotificationType type, String title, String message,
+            Integer relatedItemId) {
         this.id = id;
         this.recipientUserId = recipientUserId;
         this.type = type;
@@ -94,5 +99,31 @@ public class NotificationDTO implements Serializable {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        NotificationDTO that = (NotificationDTO) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "NotificationDTO{" +
+                "id=" + id +
+                ", recipientUserId=" + recipientUserId +
+                ", type=" + type +
+                ", title='" + title + '\'' +
+                ", read=" + read +
+                '}';
     }
 }

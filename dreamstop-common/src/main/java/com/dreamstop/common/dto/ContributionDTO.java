@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object representing a financial contribution made by a user
+ * towards a friend's wishlist item.
+ */
 public class ContributionDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -17,7 +21,8 @@ public class ContributionDTO implements Serializable {
     public ContributionDTO() {
     }
 
-    public ContributionDTO(int id, int contributorId, String contributorUsername, int wishlistItemId, BigDecimal amount, LocalDateTime contributionDate) {
+    public ContributionDTO(int id, int contributorId, String contributorUsername, int wishlistItemId, BigDecimal amount,
+            LocalDateTime contributionDate) {
         this.id = id;
         this.contributorId = contributorId;
         this.contributorUsername = contributorUsername;
@@ -72,5 +77,31 @@ public class ContributionDTO implements Serializable {
 
     public void setContributionDate(LocalDateTime contributionDate) {
         this.contributionDate = contributionDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ContributionDTO that = (ContributionDTO) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "ContributionDTO{" +
+                "id=" + id +
+                ", contributorUsername='" + contributorUsername + '\'' +
+                ", wishlistItemId=" + wishlistItemId +
+                ", amount=" + amount +
+                ", contributionDate=" + contributionDate +
+                '}';
     }
 }

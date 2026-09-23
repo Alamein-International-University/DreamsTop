@@ -3,6 +3,11 @@ package com.dreamstop.common.protocol;
 import com.dreamstop.common.model.ResponseStatus;
 import java.io.Serializable;
 
+/**
+ * Represents a response sent from the server back to the client.
+ * Contains the response status (SUCCESS, ERROR, etc.), a status message, and
+ * optional data in JSON.
+ */
 public class Response implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -44,6 +49,10 @@ public class Response implements Serializable {
         return new Response(ResponseStatus.BAD_REQUEST, message, null);
     }
 
+    public static Response conflict(String message) {
+        return new Response(ResponseStatus.CONFLICT, message, null);
+    }
+
     public boolean isSuccess() {
         return ResponseStatus.SUCCESS.equals(this.status);
     }
@@ -72,10 +81,20 @@ public class Response implements Serializable {
         this.dataJson = dataJson;
     }
 
+    // Deserializes the response data JSON into the target object class
     public <T> T getDataAs(Class<T> targetClass) {
         if (dataJson == null || dataJson.trim().isEmpty()) {
             return null;
         }
         return JsonUtils.fromJson(dataJson, targetClass);
+    }
+
+    @Override
+    public String toString() {
+        return "Response{" +
+                "status=" + status +
+                ", message='" + message + '\'' +
+                ", hasData=" + (dataJson != null && !dataJson.isBlank()) +
+                '}';
     }
 }

@@ -5,7 +5,7 @@
 [![Maven](https://img.shields.io/badge/Maven-3.8+-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)](https://maven.apache.org/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![H2 Database](https://img.shields.io/badge/H2-In--Memory_Fallback-007ACC?style=for-the-badge)](https://www.h2database.com/)
-[![Tests](https://img.shields.io/badge/Tests-26%20Passing-success?style=for-the-badge&logo=junit5&logoColor=white)](#-automated-testing)
+[![Tests](https://img.shields.io/badge/Tests-35%20Passing-success?style=for-the-badge&logo=junit5&logoColor=white)](#-automated-testing)
 [![Changelog](https://img.shields.io/badge/Changelog-v0.1.0-blueviolet?style=for-the-badge)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](LICENSE)
 
@@ -193,7 +193,7 @@ The database comes pre-seeded with 6 accounts (Default password for all accounts
 
 ## 🧪 Automated Testing
 
-DreamsTop includes a comprehensive unit and integration test suite with **26 automated tests** covering network protocols, DAOs, handlers, wishlist persistence, and concurrency:
+DreamsTop includes a comprehensive unit and integration test suite with **35 automated tests** covering network protocols, DAOs, handlers, wishlist persistence, and concurrency:
 
 ```powershell
 mvn clean test
@@ -202,7 +202,7 @@ mvn clean test
 ```text
 [INFO] Reactor Summary for dreamstop-parent 0.1:
 [INFO] dreamstop-parent ................................... SUCCESS
-[INFO] dreamstop-common ................................... SUCCESS
+[INFO] dreamstop-common ................................... SUCCESS (9 tests)
 [INFO] dreamstop-client ................................... SUCCESS (8 tests)
 [INFO] dreamstop-server ................................... SUCCESS (18 tests)
 [INFO] BUILD SUCCESS

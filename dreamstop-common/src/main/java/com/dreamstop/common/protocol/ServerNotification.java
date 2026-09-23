@@ -4,6 +4,11 @@ import com.dreamstop.common.model.NotificationType;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Represents a real-time push notification pushed from server to connected
+ * clients.
+ * For example: friend requests, new contributions, or completed wishlist items.
+ */
 public class ServerNotification implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -35,17 +40,16 @@ public class ServerNotification implements Serializable {
                 NotificationType.ITEM_COMPLETED_BUYER,
                 "Gift Fully Funded! 🎁",
                 "The item \"" + itemTitle + "\" you contributed to has been fully funded!",
-                wishlistItemId
-        );
+                wishlistItemId);
     }
 
-    public static ServerNotification itemCompletedForReceiver(String itemTitle, String friendNames, Integer wishlistItemId) {
+    public static ServerNotification itemCompletedForReceiver(String itemTitle, String friendNames,
+            Integer wishlistItemId) {
         return new ServerNotification(
                 NotificationType.ITEM_COMPLETED_RECEIVER,
                 "Your Wish Came True! ✨",
                 "Your wishlist item \"" + itemTitle + "\" has been fully funded by: " + friendNames,
-                wishlistItemId
-        );
+                wishlistItemId);
     }
 
     public static ServerNotification contributionReceived(String friendName, String itemTitle, Integer wishlistItemId) {
@@ -53,8 +57,22 @@ public class ServerNotification implements Serializable {
                 NotificationType.CONTRIBUTION_RECEIVED,
                 "New Contribution! 💰",
                 friendName + " contributed towards your item: " + itemTitle,
-                wishlistItemId
-        );
+                wishlistItemId);
+    }
+
+    public static ServerNotification wishlistUpdated(String title, String message, Integer wishlistItemId) {
+        return new ServerNotification(
+                NotificationType.WISHLIST_UPDATED,
+                title,
+                message,
+                wishlistItemId);
+    }
+
+    public static ServerNotification profileUpdated(String title, String message) {
+        return new ServerNotification(
+                NotificationType.PROFILE_UPDATED,
+                title,
+                message);
     }
 
     public NotificationType getType() {
@@ -103,5 +121,16 @@ public class ServerNotification implements Serializable {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "ServerNotification{" +
+                "type=" + type +
+                ", title='" + title + '\'' +
+                ", message='" + message + '\'' +
+                ", relatedWishlistItemId=" + relatedWishlistItemId +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }

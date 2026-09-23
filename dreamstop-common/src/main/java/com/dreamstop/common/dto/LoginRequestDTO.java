@@ -2,6 +2,9 @@ package com.dreamstop.common.dto;
 
 import java.io.Serializable;
 
+/**
+ * Data Transfer Object containing login credentials sent by the client.
+ */
 public class LoginRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -30,5 +33,13 @@ public class LoginRequestDTO implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "LoginRequestDTO{" +
+                "usernameOrEmail='" + usernameOrEmail + '\'' +
+                ", password=***" +
+                '}';
     }
 }

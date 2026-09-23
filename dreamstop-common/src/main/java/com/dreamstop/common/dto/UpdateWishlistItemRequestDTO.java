@@ -3,6 +3,10 @@ package com.dreamstop.common.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * Data Transfer Object containing wishlist item fields to update (target amount
+ * or priority).
+ */
 public class UpdateWishlistItemRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -51,5 +55,14 @@ public class UpdateWishlistItemRequestDTO implements Serializable {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateWishlistItemRequestDTO{" +
+                "wishlistItemId=" + wishlistItemId +
+                ", targetAmount=" + targetAmount +
+                ", priority='" + priority + '\'' +
+                '}';
     }
 }

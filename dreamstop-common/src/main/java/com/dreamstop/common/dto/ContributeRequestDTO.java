@@ -3,6 +3,10 @@ package com.dreamstop.common.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * Data Transfer Object containing request parameters to contribute money
+ * towards an item.
+ */
 public class ContributeRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -31,5 +35,13 @@ public class ContributeRequestDTO implements Serializable {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return "ContributeRequestDTO{" +
+                "wishlistItemId=" + wishlistItemId +
+                ", amount=" + amount +
+                '}';
     }
 }

@@ -3,6 +3,11 @@ package com.dreamstop.common.protocol;
 import com.dreamstop.common.model.RequestType;
 import java.io.Serializable;
 
+/**
+ * Represents a request sent from the client to the server.
+ * Contains the action type, an optional authentication token, and the JSON
+ * payload.
+ */
 public class Request implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -60,10 +65,21 @@ public class Request implements Serializable {
         this.payloadJson = payloadJson;
     }
 
+    // Deserializes the JSON payload into the specified class type (e.g.
+    // LoginRequestDTO)
     public <T> T getPayloadAs(Class<T> targetClass) {
         if (payloadJson == null || payloadJson.trim().isEmpty()) {
             return null;
         }
         return JsonUtils.fromJson(payloadJson, targetClass);
+    }
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                "type=" + type +
+                ", hasToken=" + (token != null && !token.isBlank()) +
+                ", payloadJson='" + payloadJson + '\'' +
+                '}';
     }
 }

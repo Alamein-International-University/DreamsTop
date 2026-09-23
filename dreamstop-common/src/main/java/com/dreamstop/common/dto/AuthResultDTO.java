@@ -2,12 +2,10 @@ package com.dreamstop.common.dto;
 
 import java.io.Serializable;
 
-/****
+/**
  * DTO returned after a successful login.
  * Contains the session token and the authenticated user data.
  */
-
-
 public class AuthResultDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -36,5 +34,13 @@ public class AuthResultDTO implements Serializable {
 
     public void setUser(UserDTO user) {
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "AuthResultDTO{" +
+                "hasToken=" + (token != null && !token.isBlank()) +
+                ", user=" + (user != null ? user.getUsername() : "null") +
+                '}';
     }
 }
