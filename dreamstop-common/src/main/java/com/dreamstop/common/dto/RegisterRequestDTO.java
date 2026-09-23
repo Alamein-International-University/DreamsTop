@@ -3,6 +3,9 @@ package com.dreamstop.common.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * Data Transfer Object containing registration details submitted by a new user.
+ */
 public class RegisterRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -52,5 +55,15 @@ public class RegisterRequestDTO implements Serializable {
 
     public void setInitialBalance(BigDecimal initialBalance) {
         this.initialBalance = initialBalance;
+    }
+
+    @Override
+    public String toString() {
+        return "RegisterRequestDTO{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password=***" +
+                ", initialBalance=" + initialBalance +
+                '}';
     }
 }

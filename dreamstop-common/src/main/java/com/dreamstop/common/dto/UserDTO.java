@@ -3,6 +3,9 @@ package com.dreamstop.common.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * Data Transfer Object representing a user profile and account balance.
+ */
 public class UserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -21,7 +24,8 @@ public class UserDTO implements Serializable {
         this(id, username, email, balance, username, "#6366F1", "");
     }
 
-    public UserDTO(int id, String username, String email, BigDecimal balance, String fullName, String avatarColor, String bio) {
+    public UserDTO(int id, String username, String email, BigDecimal balance, String fullName, String avatarColor,
+            String bio) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -87,10 +91,28 @@ public class UserDTO implements Serializable {
         this.bio = bio;
     }
 
-    public boolean hasSufficientBalance(BigDecimal amount) {
-        if (amount == null || this.balance == null) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
             return false;
-        }
-        return this.balance.compareTo(amount) >= 0;
+        UserDTO userDTO = (UserDTO) o;
+        return id == userDTO.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", balance=" + balance +
+                '}';
     }
 }

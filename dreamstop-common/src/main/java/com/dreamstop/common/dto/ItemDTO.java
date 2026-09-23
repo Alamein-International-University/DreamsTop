@@ -3,6 +3,9 @@ package com.dreamstop.common.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+/**
+ * Data Transfer Object representing a catalog item (product).
+ */
 public class ItemDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -71,5 +74,30 @@ public class ItemDTO implements Serializable {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ItemDTO itemDTO = (ItemDTO) o;
+        return id == itemDTO.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "ItemDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", category='" + category + '\'' +
+                ", price=" + price +
+                '}';
     }
 }

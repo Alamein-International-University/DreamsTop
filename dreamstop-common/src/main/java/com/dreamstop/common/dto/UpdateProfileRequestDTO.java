@@ -2,6 +2,9 @@ package com.dreamstop.common.dto;
 
 import java.io.Serializable;
 
+/**
+ * Data Transfer Object containing user profile fields to update.
+ */
 public class UpdateProfileRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -40,5 +43,14 @@ public class UpdateProfileRequestDTO implements Serializable {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateProfileRequestDTO{" +
+                "fullName='" + fullName + '\'' +
+                ", avatarColor='" + avatarColor + '\'' +
+                ", bio='" + bio + '\'' +
+                '}';
     }
 }
